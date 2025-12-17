@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 export const metadata = {
-  title: "Product | CubeTech",
+  title: "Product | qubeTech",
   description: "Explore detailed smart home accessories.",
 };
 
@@ -17,7 +17,7 @@ const products: Record<
   "smart-plug": {
     name: "Smart Plug",
     price: 999,
-    description: "Remote control your appliances via the CubeTech app.",
+    description: "Remote control your appliances via the qubeTech app.",
   },
   "curtain-motor": {
     name: "Curtain Motor",

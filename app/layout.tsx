@@ -3,7 +3,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "CubeTech",
+  title: "qubeTech",
   description: "Smart automation built around your lifestyle",
 };
 

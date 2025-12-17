@@ -36,7 +36,7 @@ export default function Header() {
           <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
             <Image
               src="/logo/qube.png"
-              alt="CubeTech Logo"
+              alt="qubeTech Logo"
               width={70} // Original size
               height={70}
               className="object-contain cursor-pointer w-[50px] md:w-[70px]" // Smaller on mobile

@@ -35,7 +35,7 @@ export default function ContactPage() {
                     <Mail className="w-6 h-6 text-[#ec8e45]" />
                     <div>
                       <p className="font-medium">Email</p>
-                      <p className="text-gray-400">support@cubetech.in</p>
+                      <p className="text-gray-400">support@qubetech.in</p>
                     </div>
                   </div>
 
@@ -52,7 +52,7 @@ export default function ContactPage() {
                     <div>
                       <p className="font-medium">Office</p>
                       <p className="text-gray-400">
-                        CubeTech Smart Systems<br />
+                        qubeTech Smart Systems<br />
                         Hyderabad, India
                       </p>
                     </div>

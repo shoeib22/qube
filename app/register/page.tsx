@@ -51,7 +51,7 @@ export default function RegisterPage() {
       >
         <h1 className="text-2xl font-bold text-center">Create Account</h1>
         <p className="text-gray-400 text-sm text-center">
-          Join CubeTech to manage your smart ecosystem
+          Join qubeTech to manage your smart ecosystem
         </p>
 
         {error && (
