@@ -121,7 +121,7 @@ function ImagePointCloud() {
   }, []);
 
   // Animation Loop
-  useFrame(({ camera, clock }) => {
+  useFrame(({ camera,}) => {
     if (!meshRef.current || !positions || !materialRef.current) return;
 
     const pts = ptsRef.current;
