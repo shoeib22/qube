@@ -2,7 +2,7 @@
 
 import { products } from "../../data/products";
 import Link from "next/link";
-import Image from "next/image"; // 1. Import Next.js Image component
+import Image from "next/image";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 
@@ -14,13 +14,9 @@ export default function ShopPage() {
   );
     
   return (
-    // 1. Main wrapper handles background and full height
     <div className="min-h-screen bg-black text-white flex flex-col">
-      
-      {/* 2. Header added at the top */}
       <Header />
 
-      {/* 3. Main content area (flex-grow pushes footer down) */}
       <main className="flex-grow px-6 md:px-10 py-24">
         <h1 className="text-4xl md:text-5xl font-bold mb-14 text-center">Smart Home Products</h1>
 
@@ -38,25 +34,27 @@ export default function ShopPage() {
                     href={`/shop/product/${p.id}`}
                     className="group block bg-[#121212] border border-gray-800 p-6 rounded-2xl hover:border-gray-400 hover:shadow-xl transition duration-300"
                   >
-                    {/* --- IMAGE CONTAINER START --- */}
-                    {/* Relative parent is required for 'fill' to work */}
-                    <div className="relative w-full h-48 mb-4 bg-gray-900 rounded-xl overflow-hidden">
+                    {/* --- UPDATED IMAGE CONTAINER --- */}
+                    {/* 1. h-52: Fixed height ensures all cards line up perfectly.
+                        2. p-6: Adds "breathing room" (framing) so the product doesn't hit the edges.
+                        3. bg-white/5: Adds a subtle background to define the frame area.
+                    */}
+                    <div className="relative w-full h-52 mb-4 bg-white/5 rounded-xl overflow-hidden p-6 flex items-center justify-center">
                       <Image
-                        // Falls back to constructing the path manually if p.image is missing
                         src={p.image || `/products/${p.id}.jpg`} 
                         alt={p.name}
                         fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500 ease-in-out"
+                        // object-contain: Ensures the WHOLE image is visible without cropping
+                        className="object-contain group-hover:scale-110 transition-transform duration-500 ease-in-out"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                       />
                     </div>
-                    {/* --- IMAGE CONTAINER END --- */}
+                    {/* --- END IMAGE CONTAINER --- */}
 
                     <h3 className="text-xl font-semibold leading-tight min-h-[3.5rem] flex items-center">
                       {p.name}
                     </h3>
 
-                    {/* Conditional Price Rendering */}
                     {p.price ? (
                       <p className="text-gray-400 mt-2 font-medium">₹ {p.price.toLocaleString()}</p>
                     ) : (
@@ -74,7 +72,6 @@ export default function ShopPage() {
         })}
       </main>
 
-      {/* 4. Footer added at the bottom */}
       <Footer />
       
     </div>

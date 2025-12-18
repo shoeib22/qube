@@ -346,10 +346,19 @@ const rawProducts: Product[] = [
   { id: id("SPD 10KV"), name: "SPD 10KV", category: "Power Modules" },
 ];
 
-// 2. Export the list with the image property automatically injected
-export const products: Product[] = rawProducts.map((p) => ({
-  ...p,
-  // This automatically sets the image path. 
-  // Example: id "red-smart-remote" -> "/products/red-smart-remote.jpg"
-  image: p.image || `/products/${p.id}.jpg`,
-}));
+// 2. Export the list with "Clean Name" logic
+export const products: Product[] = rawProducts.map((p) => {
+  
+  const cleanName = p.name
+    .split("(")[0]         // 1. Remove details in brackets: "Switch (16A)" -> "Switch "
+    .replace(/-/g, " ")    // 2. Replace dashes with spaces: "RED-Smart" -> "RED Smart"
+    .replace(/\//g, " ")   // 3. Replace slashes with spaces: "Switch/Curtain" -> "Switch Curtain"
+    .replace(/\s+/g, " ")  // 4. FIX: Collapse multiple spaces into one result
+    .trim();               // 5. Remove start/end spaces
+
+  return {
+    ...p,
+    // Looks for: /images/products/RED Smart Remote.png
+    image: p.image || `/images/products/${cleanName}.png`,
+  };
+});
