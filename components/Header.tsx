@@ -47,7 +47,7 @@ export default function Header() {
 
         {/* CENTER — NAVIGATION (Desktop Only) */}
         <nav className="hidden md:flex justify-center space-x-10 text-neutral-300 font-medium">
-          <Link href="/home" className="hover:text-white transition">home</Link>
+          <Link href="/" className="hover:text-white transition">Home</Link>
           <Link href="/features" className="hover:text-white transition">Features</Link>
           <Link href="/shop" className="hover:text-white transition">Shop</Link>
           <Link href="/support" className="hover:text-white transition">Support</Link>
