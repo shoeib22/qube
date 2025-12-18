@@ -93,6 +93,7 @@ export default function Header() {
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl flex flex-col pt-24 px-6 space-y-6 md:hidden">
           <nav className="flex flex-col space-y-6 text-center text-xl text-neutral-300 font-medium">
+            <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-white py-2">Home</Link>
             <Link href="/features" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-white py-2">Features</Link>
             <Link href="/shop" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-white py-2">Shop</Link>
             <Link href="/support" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-white py-2">Support</Link>
