@@ -196,6 +196,7 @@ export const products: Product[] = [
   { id: id("Pebble Button Light"), name: "PEBBLE BUTTON LIGHT", category: "Smart Lighting" },
   { id: id("Gloss Spot Light"), name: "GLOSS SPOT LIGHT", category: "Smart Lighting" },
   { id: id("Dvio Cylinder"), name: "DVIO CYLINDER", category: "Smart Lighting" },
+  { id: id("Ovio Cylinder"), name: "OVIO CYLINDER", category: "Smart Lighting" },
   { id: id("Orio Cylinder"), name: "ORIO CYLINDER", category: "Smart Lighting" },
   { id: id("Glaze SF Cylinder"), name: "Glaze SF CYLINDER", category: "Smart Lighting" },
   { id: id("Crook SF Cylinder"), name: "CROOK SF CYLINDER", category: "Smart Lighting" },
