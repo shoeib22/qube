@@ -184,6 +184,7 @@ export const products: Product[] = [
   { id: id("Vintage Surface Panel"), name: "VINTAGE SURFACE PANEL", category: "Smart Lighting" },
   { id: id("Vision Surface Panel"), name: "VISION Surface Panel", category: "Smart Lighting" },
   { id: id("LX Panel"), name: "LX PANEL", category: "Smart Lighting" },
+  { id: id("3 in 1 Driver"), name: "3 in 1 DRIVER", category: "Smart Lighting" },
   { id: id("Orion Deep COB"), name: "ORION DEEP COB", category: "Smart Lighting" },
   { id: id("Glaze CR COB Light"), name: "GLAZE CR COB LIGHT", category: "Smart Lighting" },
   { id: id("Glaze SR COB Light"), name: "GLAZE SR COB LIGHT", category: "Smart Lighting" },
