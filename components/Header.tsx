@@ -15,7 +15,6 @@ export default function Header() {
   const [user, setUser] = useState<User | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Fix: Monitor auth state to prevent hydration mismatches
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -23,23 +22,27 @@ export default function Header() {
     return () => unsubscribe();
   }, []);
 
+  // Prevent scrolling when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+  }, [isMobileMenuOpen]);
+
   return (
     <header className="w-full fixed top-0 left-0 z-50 bg-transparent">
-      {/* LAYOUT LOGIC:
-         Mobile: 'flex justify-between' (Logo Left, Hamburger Right)
-         Desktop: 'md:grid md:grid-cols-3' (Logo Left, Nav Center, Auth Right) - Matches your original code
-      */}
       <div className="w-full px-6 md:px-8 py-4 flex justify-between items-center md:grid md:grid-cols-3">
-
         {/* LEFT — LOGO */}
-        <div className="flex items-center">
+        <div className="flex items-center z-50">
           <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
             <Image
               src="/logo/qube.png"
               alt="qubeTech Logo"
-              width={70} // Original size
+              width={70}
               height={70}
-              className="object-contain cursor-pointer w-[50px] md:w-[70px]" // Smaller on mobile
+              className="object-contain cursor-pointer w-[50px] md:w-[70px]"
               priority
             />
           </Link>
@@ -47,6 +50,7 @@ export default function Header() {
 
         {/* CENTER — NAVIGATION (Desktop Only) */}
         <nav className="hidden md:flex justify-center space-x-10 text-neutral-300 font-medium">
+          <Link href="/" className="hover:text-white transition">Home</Link>
           <Link href="/features" className="hover:text-white transition">Features</Link>
           <Link href="/shop" className="hover:text-white transition">Shop</Link>
           <Link href="/support" className="hover:text-white transition">Support</Link>
@@ -67,8 +71,8 @@ export default function Header() {
         </div>
 
         {/* RIGHT — HAMBURGER (Mobile Only) */}
-        <div className="md:hidden flex items-center">
-          <button 
+        <div className="md:hidden flex items-center z-50">
+          <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="text-white focus:outline-none"
           >
@@ -83,21 +87,19 @@ export default function Header() {
             )}
           </button>
         </div>
-
       </div>
 
-      {/* MOBILE MENU DROPDOWN */}
-      {/* This renders outside the grid/flex container so it spans full width */}
+      {/* MOBILE MENU DROPDOWN - Fixed Overlay */}
       {isMobileMenuOpen && (
-        <div className="absolute top-full left-0 w-full bg-black/95 backdrop-blur-xl border-t border-white/10 md:hidden flex flex-col p-6 space-y-6 shadow-2xl">
-          <nav className="flex flex-col space-y-4 text-center text-lg text-neutral-300 font-medium">
+        <div className="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl flex flex-col pt-24 px-6 space-y-6 md:hidden">
+          <nav className="flex flex-col space-y-6 text-center text-xl text-neutral-300 font-medium">
             <Link href="/features" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-white py-2">Features</Link>
             <Link href="/shop" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-white py-2">Shop</Link>
             <Link href="/support" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-white py-2">Support</Link>
             <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-white py-2">Contact</Link>
           </nav>
 
-          <div className="flex justify-center pt-4 border-t border-white/10">
+          <div className="flex justify-center pt-8 border-t border-white/10">
             {user ? (
               <div onClick={() => setIsMobileMenuOpen(false)}>
                  <UserMenu />
@@ -110,7 +112,7 @@ export default function Header() {
                   setIsMobileMenuOpen(false);
                   router.push("/login");
                 }}
-                className="w-full"
+                className="w-full max-w-xs"
               />
             )}
           </div>
