@@ -209,6 +209,7 @@ export const products: Product[] = [
   { id: id("Elite Flood Light"), name: "ELITE FLOOD LIGHT", category: "Smart Lighting" },
   { id: id("Gem Flood Light"), name: "GEM FLOOD LIGHT", category: "Smart Lighting" },
   { id: id("Diamond Flood Light"), name: "DIAMOND FLOOD LIGHT", category: "Smart Lighting" },
+  { id: id("Gear 30% back chock"), name: "GEAR 30% BACK CHOCK FLOOD LIGHT", category: "Smart Lighting" },
   { id: id("Glass High Bay Light"), name: "Glass HIGH BAY LIGHT", category: "Smart Lighting" },
   { id: id("UFO Highbay Light"), name: "UFO HIGHBAY LIGHT", category: "Smart Lighting" },
   { id: id("Lens Series"), name: "LENS SERIES", category: "Smart Lighting" },
