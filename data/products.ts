@@ -9,7 +9,8 @@ export interface Product {
 // Quick helper to create IDs
 const id = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
-export const products: Product[] = [
+// 1. Define the raw data list
+const rawProducts: Product[] = [
   // -----------------------------
   // Plugs & IR
   // -----------------------------
@@ -343,3 +344,11 @@ export const products: Product[] = [
   { id: id("Stream Hub"), name: "Stream Hub (Cameras Integration)", category: "Other" },
   { id: id("SPD 10KV"), name: "SPD 10KV", category: "Power Modules" },
 ];
+
+// 2. Export the list with the image property automatically injected
+export const products: Product[] = rawProducts.map((p) => ({
+  ...p,
+  // This automatically sets the image path. 
+  // Example: id "red-smart-remote" -> "/products/red-smart-remote.jpg"
+  image: p.image || `/products/${p.id}.jpg`,
+}));
