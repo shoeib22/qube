@@ -1,8 +1,9 @@
 "use client";
 
-import { products } from "../../data/products";
+import React from 'react';
 import Link from "next/link";
 import Image from "next/image";
+import { products } from "../../data/products";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 
@@ -31,7 +32,8 @@ export default function ShopPage() {
                 {items.map((p) => (
                   <Link
                     key={p.id}
-                    href={`/shop/product/${p.id}`}
+                    // FIXED: Changed 'product' to 'Products' to match your capitalized folder name
+                    href={`/shop/Products/${p.id}`}
                     className="group block bg-[#121212] border border-gray-800 p-6 rounded-2xl hover:border-gray-400 hover:shadow-xl transition duration-300"
                   >
                     {/* --- UPDATED IMAGE CONTAINER --- */}

@@ -260,6 +260,7 @@ const rawProducts: Product[] = [
   { id: id("Smart Three-Phase Energy Meter"), name: "Smart Three-Phase Energy Meter-30A each phase", category: "Energy Meters" },
   { id: id("Smart Power Module 30A"), name: "Smart Single-Phase Power module -30A (Control & Energy monitoring)", category: "Power Modules" },
   { id: id("Smart Three-Phase Power Module"), name: "Smart Three-Phase Power module (Control & Energy monitoring)", category: "Power Modules" },
+  { id: id("SPD 10KV"), name: "SPD 10KV", category: "Power Modules" },
 
   // -----------------------------
   // Smart Fans
@@ -348,17 +349,17 @@ const rawProducts: Product[] = [
 
 // 2. Export the list with "Clean Name" logic
 export const products: Product[] = rawProducts.map((p) => {
-  
-  const cleanName = p.name
-    .split("(")[0]         // 1. Remove details in brackets: "Switch (16A)" -> "Switch "
-    .replace(/-/g, " ")    // 2. Replace dashes with spaces: "RED-Smart" -> "RED Smart"
-    .replace(/\//g, " ")   // 3. Replace slashes with spaces: "Switch/Curtain" -> "Switch Curtain"
-    .replace(/\s+/g, " ")  // 4. FIX: Collapse multiple spaces into one result
-    .trim();               // 5. Remove start/end spaces
+  
+  const cleanName = p.name
+    .split("(")[0]         // 1. Remove details in brackets: "Switch (16A)" -> "Switch "
+    .replace(/-/g, " ")    // 2. Replace dashes with spaces: "RED-Smart" -> "RED Smart"
+    .replace(/\//g, " ")   // 3. Replace slashes with spaces: "Switch/Curtain" -> "Switch Curtain"
+    .replace(/\s+/g, " ")  // 4. FIX: Collapse multiple spaces into one result
+    .trim();               // 5. Remove start/end spaces
 
-  return {
-    ...p,
-    // Looks for: /images/products/RED Smart Remote.png
-    image: p.image || `/images/products/${cleanName}.png`,
-  };
+  return {
+    ...p,
+    // Looks for: /images/products/RED Smart Remote.png
+    image: p.image || `/images/products/${cleanName}.png`,
+  };
 });
