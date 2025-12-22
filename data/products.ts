@@ -347,19 +347,17 @@ const rawProducts: Product[] = [
   { id: id("SPD 10KV"), name: "SPD 10KV", category: "Power Modules" },
 ];
 
-// 2. Export the list with "Clean Name" logic
 export const products: Product[] = rawProducts.map((p) => {
-  
-  const cleanName = p.name
-    .split("(")[0]         // 1. Remove details in brackets: "Switch (16A)" -> "Switch "
-    .replace(/-/g, " ")    // 2. Replace dashes with spaces: "RED-Smart" -> "RED Smart"
-    .replace(/\//g, " ")   // 3. Replace slashes with spaces: "Switch/Curtain" -> "Switch Curtain"
-    .replace(/\s+/g, " ")  // 4. FIX: Collapse multiple spaces into one result
-    .trim();               // 5. Remove start/end spaces
+  const cleanName = p.name
+    .split("(")[0]
+    .replace(/-/g, " ")           // 1. RESTORE THIS: Convert dashes to spaces
+    .replace("Acryllic", "Acrylic") // 2. ADD THIS: Fix the typo in the data
+    .replace(/\//g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
-  return {
-    ...p,
-    // Looks for: /images/products/RED Smart Remote.png
-    image: p.image || `/images/products/${cleanName}.png`,
-  };
+  return {
+    ...p,
+    image: p.image || `/images/products/${cleanName}.png`,
+  };
 });
