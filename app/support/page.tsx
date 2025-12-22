@@ -130,11 +130,11 @@ export default function SupportPage() {
                   <div className="flex items-center justify-between mt-4">
                     <span className="text-gray-500 text-xs">{d.size}</span>
                     <Button className="bg-orange-400/60 text-black rounded-full hover:bg-orange-300 px-4">
-                      <Download className="w-4 h-4 mr-2" /> Download
+                      <Download className="w-2 h-2 mr-2" /> Download
                     </Button>
                   </div>
                 </div>
-              ))}
+              ))}`              `
             </div>
           </div>
         </section>
