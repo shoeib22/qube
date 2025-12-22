@@ -1,19 +1,18 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ShieldCheck, Truck, Zap, Share2, Info } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, Truck, Zap, Info } from 'lucide-react';
 
 // Import your data and type
-// Changed from "@/data/products" to relative path to fix resolution error
 import { products, type Product } from "../../../../data/products"; 
 
 // Import your layout components
-// Changed from "@/components/Header" to relative path
 import Header from "../../../../components/Header";
 import Footer from "../../../../components/Footer";
+import ShareButton from "../../../../components/ShareButton";
 
 // Local type extension to handle fields that might be missing in the base Product interface
 interface ProductDetails extends Product {
@@ -28,21 +27,16 @@ export default function ProductDetailPage() {
   const idRaw = params?.id;
   const id = Array.isArray(idRaw) ? idRaw[0] : idRaw;
 
-  // 2. State to hold the matched product
-  const [product, setProduct] = useState<ProductDetails | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // 2. Derive product directly from data (static import)
+  const product = id ? (products.find((p) => p.id === id) as ProductDetails | undefined) : null;
 
-  useEffect(() => {
-    if (id) {
-      // Cast the result to ProductDetails to appease TypeScript regarding the extra fields
-      const found = products.find((p) => p.id === id) as ProductDetails | undefined;
-      setProduct(found || null);
-      setIsLoading(false);
-    }
-  }, [id]);
+  // 3. Handle Loading State (if ID is somehow not yet available during hydration)
+  if (!id) {
+    return <div className="min-h-screen bg-black flex items-center justify-center text-white">Loading...</div>;
+  }
 
-  // 3. Optional: Handle 404 on the client side if product isn't found
-  if (!isLoading && !product) {
+  // 4. Handle 404 State (ID exists but product is not found)
+  if (!product) {
     return (
       <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center font-sans">
         <h1 className="text-3xl font-bold mb-4">Product Not Found</h1>
@@ -52,11 +46,6 @@ export default function ProductDetailPage() {
         </Link>
       </div>
     );
-  }
-
-  // 4. Loading state
-  if (isLoading || !product) {
-    return <div className="min-h-screen bg-black flex items-center justify-center text-white">Loading...</div>;
   }
 
   return (
@@ -73,10 +62,13 @@ export default function ProductDetailPage() {
             <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
             Back to Shop
           </Link>
+          
           <div className="flex space-x-4">
-            <button className="p-2 rounded-full hover:bg-white/5 text-gray-400 hover:text-white transition-all">
-              <Share2 className="w-5 h-5" />
-            </button>
+            <ShareButton 
+                title={product.name}
+                text={`Check out ${product.name} on SmartHome!`}
+                image={product.image}
+            />
           </div>
         </div>
 
@@ -153,9 +145,12 @@ export default function ProductDetailPage() {
 
             {/* Action Buttons */}
             <div className="flex flex-col gap-4 mt-auto">
-              <button className="w-full bg-white text-black py-5 rounded-2xl font-bold text-lg hover:bg-gray-200 active:scale-[0.98] transition-all shadow-lg shadow-white/10">
-                Enquire Now
-              </button>
+              <Link 
+                href="/checkout"
+                className="w-full bg-white text-black py-5 rounded-2xl font-bold text-lg hover:bg-gray-200 active:scale-[0.98] transition-all shadow-lg shadow-white/10 flex items-center justify-center"
+              >
+                Buy Now
+              </Link>
               <button className="w-full border border-gray-700 text-white py-5 rounded-2xl font-bold text-lg hover:bg-white/5 active:scale-[0.98] transition-all flex items-center justify-center space-x-2">
                 <Info className="w-5 h-5" />
                 <span>Technical Specifications</span>
@@ -197,7 +192,8 @@ export default function ProductDetailPage() {
                 return (
                   <Link
                     key={item.id}
-                    href={`/shop/product/${item.id}`}
+                    // Updated link to match Capitalized folder name 'Products'
+                    href={`/shop/Products/${item.id}`}
                     className="group cursor-pointer bg-[#0A0A0A] border border-gray-800 rounded-3xl p-6 hover:border-gray-500 transition-all duration-300"
                   >
                     <div className="aspect-square bg-white/5 rounded-2xl overflow-hidden mb-6 p-6 flex items-center justify-center relative">
