@@ -6,14 +6,18 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { auth } from "../lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
+import { ShoppingCart } from "lucide-react"; 
 
 import LoginButton from "../components/ui/LoginButton";
 import UserMenu from "../components/auth/UserMenu";
+import { useCart } from "../context/CartContext";
 
 export default function Header() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  const { cartCount } = useCart();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -22,7 +26,6 @@ export default function Header() {
     return () => unsubscribe();
   }, []);
 
-  // Prevent scrolling when mobile menu is open
   useEffect(() => {
     if (isMobileMenuOpen) {
       document.body.style.overflow = "hidden";
@@ -32,7 +35,7 @@ export default function Header() {
   }, [isMobileMenuOpen]);
 
   return (
-    <header className="w-full fixed top-0 left-0 z-50 bg-transparent">
+    <header className="w-full fixed top-0 left-0 z-50 bg-transparent backdrop-blur-sm bg-black/20">
       <div className="w-full px-6 md:px-8 py-4 flex justify-between items-center md:grid md:grid-cols-3">
         {/* LEFT — LOGO */}
         <div className="flex items-center z-50">
@@ -57,8 +60,22 @@ export default function Header() {
           <Link href="/contact" className="hover:text-white transition">Contact</Link>
         </nav>
 
-        {/* RIGHT — AUTH ACTION (Desktop Only) */}
-        <div className="hidden md:flex justify-end">
+        {/* RIGHT — ACTIONS (Desktop Only) */}
+        <div className="hidden md:flex justify-end items-center gap-6">
+          {/* Link changed from /checkout to /cart */}
+          <Link 
+            href="/cart" 
+            className="relative text-neutral-300 hover:text-white transition p-1"
+            aria-label="View Cart"
+          >
+            <ShoppingCart className="w-6 h-6" />
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full border border-black">
+                {cartCount}
+              </span>
+            )}
+          </Link>
+
           {user ? (
             <UserMenu />
           ) : (
@@ -71,7 +88,17 @@ export default function Header() {
         </div>
 
         {/* RIGHT — HAMBURGER (Mobile Only) */}
-        <div className="md:hidden flex items-center z-50">
+        <div className="md:hidden flex items-center gap-4 z-50">
+          {/* Link changed from /checkout to /cart */}
+          <Link href="/cart" className="relative text-white mr-2">
+             <ShoppingCart className="w-6 h-6" />
+             {cartCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full border border-black">
+                {cartCount}
+              </span>
+            )}
+          </Link>
+
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="text-white focus:outline-none"
@@ -89,13 +116,18 @@ export default function Header() {
         </div>
       </div>
 
-      {/* MOBILE MENU DROPDOWN - Fixed Overlay */}
+      {/* MOBILE MENU DROPDOWN */}
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl flex flex-col pt-24 px-6 space-y-6 md:hidden">
           <nav className="flex flex-col space-y-6 text-center text-xl text-neutral-300 font-medium">
             <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-white py-2">Home</Link>
             <Link href="/features" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-white py-2">Features</Link>
             <Link href="/shop" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-white py-2">Shop</Link>
+            {/* Link changed to /cart */}
+            <Link href="/cart" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-white py-2 flex items-center justify-center gap-2">
+              <ShoppingCart className="w-5 h-5" />
+              Cart ({cartCount})
+            </Link>
             <Link href="/support" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-white py-2">Support</Link>
             <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-white py-2">Contact</Link>
           </nav>

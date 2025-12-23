@@ -13,47 +13,29 @@ import {
   Mail, 
   Phone, 
   ShoppingBag,
-  CheckCircle2
 } from 'lucide-react';
 
 // Import Layout Components
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 
-// Import product data and type
-import { products, type Product } from "../../data/products"; 
-
-// Define a CartItem interface that extends Product
-interface CartItem extends Product {
-  quantity: number;
-}
+// 1. IMPORT THE CART CONTEXT
+import { useCart } from "../../context/CartContext";
 
 export default function CheckoutPage() {
-  // --- MOCK CART STATE ---
-  // In a real app, you would fetch this from a Context, Redux, or LocalStorage
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  // 2. GET REAL DATA FROM CONTEXT
+  const { cartItems, cartTotal } = useCart();
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Initialize mock cart on mount to avoid hydration mismatch
+  // Avoid hydration mismatch
   useEffect(() => {
-    // Simulating a cart with a specific set of items from your data
-    const mockCartIds = ["red-smart-remote", "lpf-1-switch", "smart-lock-ultra"];
-    
-    const items = products
-      .filter(p => mockCartIds.includes(p.id))
-      .map(p => ({ ...p, quantity: 1 })); // Default quantity 1
-    
-    // If no specific matches (e.g. IDs changed), just take the first 3
-    const finalItems = items.length > 0 ? items : products.slice(0, 3).map(p => ({ ...p, quantity: 1 }));
-    
-    setCartItems(finalItems);
     setIsLoaded(true);
   }, []);
 
   const [paymentMethod, setPaymentMethod] = useState<string>('card');
 
-  // --- CALCULATIONS ---
-  const subtotal = cartItems.reduce((acc, item) => acc + (item.price || 4500) * item.quantity, 0);
+  // --- CALCULATIONS (Based on Real Cart Data) ---
+  const subtotal = cartTotal; 
   const shipping = 0; // Free shipping
   const taxRate = 0.18; // 18% GST
   const tax = subtotal * taxRate;
@@ -70,11 +52,11 @@ export default function CheckoutPage() {
         {/* Page Header */}
         <div className="flex items-center mb-8">
           <Link 
-            href="/shop" 
+            href="/cart" 
             className="flex items-center text-gray-400 hover:text-white transition-colors text-sm group mr-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-            Continue Shopping
+            Back to Cart
           </Link>
           <h1 className="text-2xl font-bold tracking-tight">Secure Checkout</h1>
         </div>
@@ -163,7 +145,7 @@ export default function CheckoutPage() {
 
             {/* 3. Payment Method */}
             <section className="bg-[#121212] border border-gray-800 rounded-3xl p-6 md:p-8 relative overflow-hidden">
-               <div className="absolute top-0 left-0 w-1 h-full bg-gray-700"></div>
+                <div className="absolute top-0 left-0 w-1 h-full bg-gray-700"></div>
               <h2 className="text-xl font-semibold mb-6 flex items-center">
                 <span className="bg-gray-800 text-gray-400 text-xs font-bold px-2 py-1 rounded border border-gray-700 mr-3">STEP 3</span>
                 Payment Method
@@ -214,31 +196,35 @@ export default function CheckoutPage() {
                   </span>
                 </div>
                 
-                {/* Items List */}
+                {/* Items List - MAPS OVER REAL CART ITEMS */}
                 <div className="space-y-6 mb-8 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
-                  {cartItems.map((item, idx) => (
-                    <div key={idx} className="flex gap-4 group">
-                      <div className="relative w-20 h-20 bg-black rounded-xl overflow-hidden flex-shrink-0 border border-gray-800 group-hover:border-gray-600 transition-colors flex items-center justify-center">
-                         <Image 
-                            src={item.image || `/images/products/${item.id}.png`}
-                            alt={item.name}
-                            fill
-                            className="object-contain p-2"
-                            sizes="80px"
-                         />
-                      </div>
-                      <div className="flex-grow flex flex-col justify-between py-1">
-                        <div>
-                          <h4 className="font-medium text-sm line-clamp-2 leading-snug">{item.name}</h4>
-                          <p className="text-xs text-gray-500 mt-1">{item.category}</p>
+                  {cartItems.length === 0 ? (
+                      <p className="text-gray-500 text-center py-4">Your cart is empty.</p>
+                  ) : (
+                    cartItems.map((item, idx) => (
+                        <div key={`${item.id}-${idx}`} className="flex gap-4 group">
+                        <div className="relative w-20 h-20 bg-black rounded-xl overflow-hidden flex-shrink-0 border border-gray-800 group-hover:border-gray-600 transition-colors flex items-center justify-center">
+                            <Image 
+                                src={item.image || `/images/products/${item.id}.png`}
+                                alt={item.name}
+                                fill
+                                className="object-contain p-2"
+                                sizes="80px"
+                            />
                         </div>
-                        <div className="flex justify-between items-center mt-2">
-                          <span className="text-xs text-gray-400 bg-gray-900 px-2 py-0.5 rounded border border-gray-800">Qty: {item.quantity}</span>
-                          <span className="text-sm font-bold text-white">₹ {(item.price || 4500 * item.quantity).toLocaleString()}</span>
+                        <div className="flex-grow flex flex-col justify-between py-1">
+                            <div>
+                            <h4 className="font-medium text-sm line-clamp-2 leading-snug">{item.name}</h4>
+                            <p className="text-xs text-gray-500 mt-1">{item.category}</p>
+                            </div>
+                            <div className="flex justify-between items-center mt-2">
+                            <span className="text-xs text-gray-400 bg-gray-900 px-2 py-0.5 rounded border border-gray-800">Qty: {item.quantity}</span>
+                            <span className="text-sm font-bold text-white">₹ {((item.price || 0) * item.quantity).toLocaleString()}</span>
+                            </div>
                         </div>
-                      </div>
-                    </div>
-                  ))}
+                        </div>
+                    ))
+                  )}
                 </div>
 
                 {/* Totals */}

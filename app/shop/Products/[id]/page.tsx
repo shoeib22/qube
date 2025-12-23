@@ -14,7 +14,10 @@ import Header from "../../../../components/Header";
 import Footer from "../../../../components/Footer";
 import ShareButton from "../../../../components/ShareButton";
 
-// Local type extension to handle fields that might be missing in the base Product interface
+// Import the Add To Cart Button
+import AddToCartButton from "../../../../components/ui/AddToCartButton";
+
+// Local type extension
 interface ProductDetails extends Product {
   description?: string;
   specs?: string[];
@@ -23,19 +26,17 @@ interface ProductDetails extends Product {
 export default function ProductDetailPage() {
   const params = useParams();
   
-  // 1. Safe handling of the ID parameter (it can be string or array in Next.js)
+  // Safe handling of the ID parameter
   const idRaw = params?.id;
   const id = Array.isArray(idRaw) ? idRaw[0] : idRaw;
 
-  // 2. Derive product directly from data (static import)
+  // Derive product directly from data
   const product = id ? (products.find((p) => p.id === id) as ProductDetails | undefined) : null;
 
-  // 3. Handle Loading State (if ID is somehow not yet available during hydration)
   if (!id) {
     return <div className="min-h-screen bg-black flex items-center justify-center text-white">Loading...</div>;
   }
 
-  // 4. Handle 404 State (ID exists but product is not found)
   if (!product) {
     return (
       <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center font-sans">
@@ -145,13 +146,29 @@ export default function ProductDetailPage() {
 
             {/* Action Buttons */}
             <div className="flex flex-col gap-4 mt-auto">
-              <Link 
-                href="/checkout"
-                className="w-full bg-white text-black py-5 rounded-2xl font-bold text-lg hover:bg-gray-200 active:scale-[0.98] transition-all shadow-lg shadow-white/10 flex items-center justify-center"
-              >
-                Buy Now
-              </Link>
-              <button className="w-full border border-gray-700 text-white py-5 rounded-2xl font-bold text-lg hover:bg-white/5 active:scale-[0.98] transition-all flex items-center justify-center space-x-2">
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* 1. Add to Cart Button */}
+                <div className="flex justify-center sm:justify-start items-center">
+                   <AddToCartButton 
+                      product={{
+                          ...product,
+                          price: product.price ?? 0 
+                      }} 
+                   />
+                </div>
+
+                {/* 2. Buy Now Button (Restored) */}
+                <Link 
+                  href="/checkout"
+                  className="bg-white text-black py-3 rounded-full font-bold text-center hover:bg-gray-200 active:scale-[0.98] transition-all shadow-lg flex items-center justify-center"
+                >
+                  Buy Now
+                </Link>
+              </div>
+
+              {/* 3. Specs Button */}
+              <button className="w-full border border-gray-700 text-white py-4 rounded-2xl font-bold text-lg hover:bg-white/5 active:scale-[0.98] transition-all flex items-center justify-center space-x-2">
                 <Info className="w-5 h-5" />
                 <span>Technical Specifications</span>
               </button>
@@ -184,15 +201,13 @@ export default function ProductDetailPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {products
-              .filter(p => p.id !== product.id && p.category === product.category) // Filter same category
-              .slice(0, 3) // Take first 3
+              .filter(p => p.id !== product.id && p.category === product.category) 
+              .slice(0, 3) 
               .map((item) => {
-                // Cast item to ProductDetails for access to description in the loop
                 const itemDetails = item as ProductDetails;
                 return (
                   <Link
                     key={item.id}
-                    // Updated link to match Capitalized folder name 'Products'
                     href={`/shop/Products/${item.id}`}
                     className="group cursor-pointer bg-[#0A0A0A] border border-gray-800 rounded-3xl p-6 hover:border-gray-500 transition-all duration-300"
                   >
