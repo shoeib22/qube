@@ -203,7 +203,8 @@ export default function DashboardPage() {
 
 // --- SUB COMPONENTS FOR CLEANER CODE ---
 
-function SidebarItem({ icon, label, active, onClick }: { icon: any, label: string, active: boolean, onClick: () => void }) {
+// FIX: Changed 'any' to 'React.ReactNode' for icon
+function SidebarItem({ icon, label, active, onClick }: { icon: React.ReactNode, label: string, active: boolean, onClick: () => void }) {
   return (
     <button 
       onClick={onClick}
@@ -220,7 +221,8 @@ function SidebarItem({ icon, label, active, onClick }: { icon: any, label: strin
   );
 }
 
-function StatCard({ title, value, change, icon }: { title: string, value: string, change: string, icon: any }) {
+// FIX: Changed 'any' to 'React.ReactNode' for icon
+function StatCard({ title, value, change, icon }: { title: string, value: string, change: string, icon: React.ReactNode }) {
     return (
         <div className="bg-[#121212] border border-gray-800 rounded-3xl p-6 hover:border-gray-700 transition-colors">
             <div className="flex justify-between items-start mb-4">
