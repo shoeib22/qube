@@ -1,102 +1,92 @@
-"use client";
+'use client';
 
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../lib/firebase";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 
 export default function RegisterPage() {
+  const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', password: '' });
+  const [isLoading, setIsLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [error, setError] = useState('');
   const router = useRouter();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  async function handleRegister(e: React.FormEvent<HTMLFormElement>) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setLoading(true);
+    setIsLoading(true);
+    setError('');
 
     try {
-      console.log("Register attempt:", email);
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
 
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      const data = await response.json();
 
-      console.log("User created:", userCredential.user.uid);
-
-      router.push("/dashboard");
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        console.error("Register error:", err.message);
-        setError(err.message);
+      if (response.ok) {
+        // Redirect to login immediately on success
+        router.push('/login');
       } else {
-        setError("Something went wrong");
+        setError(data.error || "Registration failed");
       }
+    } catch (err) {
+      setError("An unexpected error occurred. Please check your connection.");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
-  }
+  };
+
+  if (!mounted) return null;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black text-white">
-      <form
-        onSubmit={handleRegister}
-        className="bg-[#121212] p-8 rounded-2xl w-96 space-y-5 border border-white/10"
-      >
-        <h1 className="text-2xl font-bold text-center">Create Account</h1>
-        <p className="text-gray-400 text-sm text-center">
-          Join qubeTech to manage your smart ecosystem
-        </p>
+    <div className="relative flex min-h-screen items-center justify-center bg-black font-sans">
+      <nav className="absolute right-6 top-6 z-20 sm:right-12 sm:top-12">
+        <Link href="/" className="group flex items-center gap-3 rounded-xl border border-white/20 bg-white/5 px-6 py-3 text-xs font-bold uppercase tracking-[0.2em] text-gray-200 transition-all hover:border-[#f2994a] hover:bg-white/10 hover:text-white shadow-lg">
+          <span>Home</span>
+        </Link>
+      </nav>
 
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm p-3 rounded">
-            {error}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="z-10 w-full max-w-[480px] border border-white/5 bg-[#121212] p-10 sm:p-16 shadow-2xl">
+        <header className="mb-10 text-left">
+          <h1 className="text-sm font-light uppercase tracking-[0.5em] text-white/90">Create Account</h1>
+          <div className="mt-4 h-[1px] w-8 bg-[#f2994a]" />
+          {error && <p className="mt-4 text-[10px] text-red-500 uppercase tracking-widest font-bold">{error}</p>}
+        </header>
+
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="group">
+              <label className="text-[10px] font-bold uppercase text-gray-500 tracking-widest">First Name</label>
+              <input suppressHydrationWarning type="text" onChange={e => setFormData({...formData, firstName: e.target.value})} className="mt-2 w-full border-b border-white/10 bg-transparent py-2 text-sm text-white outline-none focus:border-[#f2994a]" required />
+            </div>
+            <div className="group">
+              <label className="text-[10px] font-bold uppercase text-gray-500 tracking-widest">Last Name</label>
+              <input suppressHydrationWarning type="text" onChange={e => setFormData({...formData, lastName: e.target.value})} className="mt-2 w-full border-b border-white/10 bg-transparent py-2 text-sm text-white outline-none focus:border-[#f2994a]" required />
+            </div>
           </div>
-        )}
 
-        <div>
-          <label className="text-sm text-gray-400">Email</label>
-          <input
-            type="email"
-            required
-            placeholder="you@example.com"
-            className="w-full mt-1 px-4 py-3 bg-black border border-white/10 rounded-xl outline-none focus:border-[#ec8e45]"
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
+          <div className="group">
+            <label className="text-[10px] font-bold uppercase text-gray-500 tracking-widest">Email Address</label>
+            <input suppressHydrationWarning type="email" onChange={e => setFormData({...formData, email: e.target.value})} className="mt-2 w-full border-b border-white/10 bg-transparent py-2 text-sm text-white outline-none focus:border-[#f2994a]" required />
+          </div>
 
-        <div>
-          <label className="text-sm text-gray-400">Password</label>
-          <input
-            type="password"
-            required
-            minLength={6}
-            placeholder="Minimum 6 characters"
-            className="w-full mt-1 px-4 py-3 bg-black border border-white/10 rounded-xl outline-none focus:border-[#ec8e45]"
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
+          <div className="group">
+            <label className="text-[10px] font-bold uppercase text-gray-500 tracking-widest">Password</label>
+            <input suppressHydrationWarning type="password" onChange={e => setFormData({...formData, password: e.target.value})} className="mt-2 w-full border-b border-white/10 bg-transparent py-2 text-sm text-white outline-none focus:border-[#f2994a]" required />
+          </div>
 
-        <button
-          disabled={loading}
-          className="w-full bg-[#ec8e45] text-black py-3 rounded-full font-semibold hover:bg-[#e07f34] transition disabled:opacity-50"
-        >
-          {loading ? "Creating account..." : "Register"}
-        </button>
-
-        <p className="text-center text-sm text-gray-400">
-          Already have an account?{" "}
-          <Link href="/login" className="text-[#ec8e45] hover:underline">
-            Login
-          </Link>
-        </p>
-      </form>
+          <button suppressHydrationWarning type="submit" disabled={isLoading} className="w-full bg-[#f2994a] py-4 text-[10px] font-black uppercase tracking-[0.3em] text-black transition-all hover:bg-white disabled:opacity-50">
+            {isLoading ? "Creating Account..." : "Register"}
+          </button>
+        </form>
+      </motion.div>
     </div>
   );
 }
