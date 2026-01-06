@@ -1,10 +1,10 @@
 "use client";
 
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "../../lib/firebase";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../lib/firebase";
+import { getUserRole } from "../../lib/getUserRole";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -14,35 +14,38 @@ export default function LoginPage() {
 
   const router = useRouter();
 
-  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
     try {
-      console.log("Login attempt:", email);
+      // ✅ Firebase sign in
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
 
-      const res = await signInWithEmailAndPassword(auth, email, password);
-      const uid = res.user.uid;
+      const uid = userCredential.user.uid;
 
-      console.log("User UID:", uid);
+      // ✅ Small delay to allow Firestore to initialize
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
-      // 🔥 Fetch user profile
-      const userRef = doc(db, "users", uid);
-      const snap = await getDoc(userRef);
+      // ✅ Fetch role safely
+      const role = await getUserRole(uid);
 
-      if (!snap.exists()) {
-        throw new Error("User profile not found");
+      if (!role) {
+        throw new Error("User role not found");
       }
 
-      const role = snap.data().role;
-      console.log("User role:", role);
+      const normalizedRole = role.toLowerCase();
 
-      // ✅ Role-based redirect
-      if (role === "admin") {
-        router.push("/dashboard");
+      // ✅ Redirect based on role
+      if (normalizedRole === "admin") {
+        router.replace("/dashboard");
       } else {
-        router.push("/shop");
+        router.replace("/shop");
       }
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -54,17 +57,19 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black text-white">
       <form
         onSubmit={handleLogin}
-        className="bg-[#121212] p-8 rounded-2xl w-96 space-y-4"
+        className="bg-[#121212] p-8 rounded-2xl w-[360px] space-y-4"
       >
-        <h1 className="text-2xl font-bold">Welcome Back</h1>
+        <h1 className="text-2xl font-bold text-center">Welcome Back</h1>
 
-        {error && <p className="text-red-500 text-sm">{error}</p>}
+        {error && (
+          <p className="text-red-500 text-sm text-center">{error}</p>
+        )}
 
         <input
           type="email"
@@ -85,8 +90,9 @@ export default function LoginPage() {
         />
 
         <button
+          type="submit"
           disabled={loading}
-          className="w-full bg-[#ec8e45] text-black py-3 rounded-full font-semibold disabled:opacity-50"
+          className="w-full bg-[#ec8e45] text-black py-3 rounded-full font-semibold disabled:opacity-60"
         >
           {loading ? "Logging in..." : "Login"}
         </button>
