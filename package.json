@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "migrate:products": "node scripts/migrate-products.js",
+    "make-admin": "node scripts/make-admin.js"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
