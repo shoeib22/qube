@@ -2,8 +2,9 @@ import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import {
   initializeFirestore,
-  enableIndexedDbPersistence,
   getFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
 } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -24,11 +25,10 @@ let db;
 
 if (typeof window !== "undefined") {
   db = initializeFirestore(app, {
+    localCache: persistentLocalCache({
+      tabManager: persistentMultipleTabManager()
+    }),
     experimentalForceLongPolling: true,
-  });
-
-  enableIndexedDbPersistence(db).catch(() => {
-    console.warn("Firestore persistence failed (likely multiple tabs open)");
   });
 } else {
   db = getFirestore(app);
