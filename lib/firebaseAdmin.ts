@@ -52,9 +52,12 @@ if (!admin.apps.length) {
           // This regex ensures the newlines are correctly parsed
           privateKey: privateKey.replace(/\\n/g, '\n'),
         }),
+        projectId: projectId, // Explicitly set projectId at top level
+        databaseURL: `https://${projectId}.firebaseio.com` // Explicitly set databaseURL
       });
       console.log('✅ Firebase Admin successfully initialized');
       console.log(`   Project: ${admin.app().options.projectId}`);
+      // Try to initialize firestore with settings to force preferRest if needed, though usually not accessible here directly
     } else {
       console.warn('⚠️ Firebase Admin credentials incomplete.');
       console.warn('   Missing:', {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import admin from '../../../lib/firebaseAdmin';
-import { requireAdmin } from '../../../lib/auth-middleware';
+import admin from '../../../../lib/firebaseAdmin';
+import { requireAdmin } from '../../../../lib/auth-middleware';
 
 // GET /api/admin/products - List all products
 export async function GET(request: NextRequest) {

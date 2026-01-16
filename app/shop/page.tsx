@@ -26,30 +26,32 @@ export default function ShopPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
 
   useEffect(() => {
-    // TEMPORARY: Use static data while debugging Firestore connection
-    // TODO: Switch back to API once Firestore migration is working
-    import('../../data/products').then((module) => {
-      const staticProducts = module.products.map((p: any) => ({
-        id: p.id,
-        name: p.name,
-        category: p.category,
-        price: p.price || 0,
-        image: p.image || `/images/products/${p.name}.png`,
-        isActive: true
-      }));
-
-      setProducts(staticProducts);
-      const uniqueCategories = Array.from(
-        new Set(staticProducts.map((p: any) => p.category))
-      );
-      setCategories(uniqueCategories as string[]);
-      setLoading(false);
-    }).catch(err => {
-      console.error('Error loading products:', err);
-      setError('Failed to load products');
-      setLoading(false);
-    });
+    fetchProducts();
   }, []);
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('/api/products');
+      const data = await response.json();
+
+      if (data.success) {
+        setProducts(data.products);
+        const uniqueCategories = Array.from(
+          new Set(data.products.map((p: Product) => p.category))
+        );
+        setCategories(uniqueCategories as string[]);
+      } else {
+        setError('Failed to load products');
+      }
+    } catch (err) {
+      console.error('Error fetching products:', err);
+      setError('Failed to load products');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredProducts = selectedCategory === "All"
     ? products
