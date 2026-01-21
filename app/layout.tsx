@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 // 1. IMPORT THE PROVIDER
 import { CartProvider } from "../context/CartContext";
+import { AuthProvider } from "../context/AuthContext";
 
 export const metadata: Metadata = {
   title: "qubeTech",
@@ -17,12 +18,15 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       {/* 2. ADD suppressHydrationWarning HERE TOO IF NEEDED */}
       <body className="font-sans text-white bg-black min-h-screen" suppressHydrationWarning>
-        
+
         {/* 3. WRAP EVERYTHING INSIDE THE BODY WITH CARTPROVIDER */}
-        <CartProvider>
-          {children}
-        </CartProvider>
-        
+        {/* 3. WRAP EVERYTHING INSIDE THE BODY WITH PROVIDERS */}
+        <AuthProvider>
+          <CartProvider>
+            {children}
+          </CartProvider>
+        </AuthProvider>
+
       </body>
     </html>
   );
