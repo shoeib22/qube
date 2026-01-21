@@ -10,8 +10,23 @@ jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - run: npm run build
+      # 1. Checkout the repository and enable LFS
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      # 2. Explicitly pull the actual binary files from LFS storage
+      - name: Checkout LFS objects
+        run: git lfs checkout
+
+      # 3. Install dependencies and build the Next.js project
+      - name: Install and Build
+        run: |
+          npm ci
+          npm run build
+
+      # 4. Deploy the build to Firebase Hosting
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
