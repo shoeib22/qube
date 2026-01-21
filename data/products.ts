@@ -14,27 +14,8 @@ const rawProducts: Product[] = [
   // -----------------------------
   // Plugs & IR
   // -----------------------------
-  { id: id("RED Smart Remote"), name: "RED-Smart Remote", category: "Plugs & IR" },
-  { id: id("HD Plug 16A V2"), name: "HD Plug 16A V2", category: "Plugs & IR" },
-  { id: id("LPF 1 Switch"), name: "LPF 1 Switch (16A - Relay)", category: "Plugs & IR" },
-  { id: id("LPF 2 Switch"), name: "LPF 2 Switch (16A - Relay)", category: "Plugs & IR" },
-  { id: id("LPF 4 Switch"), name: "LPF 4 Switch (16A - Relay)", category: "Plugs & IR" },
-  { id: id("LPF 6 Switch"), name: "LPF 6 Switch (16A - Relay)", category: "Plugs & IR" },
-  { id: id("LPF HD Module 25A"), name: "LPF HD Module 25A (25A - Relay)", category: "Plugs & IR" },
-
-  // -----------------------------
   // Retrofits
   // -----------------------------
-  { id: id("NEXA 1 Switch"), name: "NEXA 1 Switch (6A - Relay)", category: "Retrofits" },
-  { id: id("NEXA 2 Switch"), name: "NEXA 2 Switch (6A - Relay)", category: "Retrofits" },
-  { id: id("NEXA 3 Switch"), name: "NEXA 3 Switch (6A - Relay)", category: "Retrofits" },
-  { id: id("NEXA 5 Switch"), name: "NEXA 5 Switch (6A - Relay)", category: "Retrofits" },
-  { id: id("NEXA 1+1 Switch"), name: "NEXA 1+1 Switch (6A - Relay)", category: "Retrofits" },
-  { id: id("NEXA HD 16A Switch"), name: "NEXA HD 16A Switch (6A - Relay)", category: "Retrofits" },
-  { id: id("25A HD+ Switch"), name: "25A HD+ Switch (25A - Relay)", category: "Retrofits" },
-  { id: id("NEXA 2+1 Switch"), name: "NEXA 2+1 Switch (10A - Relay)", category: "Retrofits" },
-  { id: id("NEXA 4+1 Switch"), name: "NEXA 4+1 Switch (10A - Relay)", category: "Retrofits" },
-
   // -----------------------------
   // Strip Controllers
   // -----------------------------
@@ -46,10 +27,6 @@ const rawProducts: Product[] = [
   // Motorised Products
   // -----------------------------
   { id: id("Pulse Switch Curtain Controller"), name: "Pulse Switch/Curtain Controller", category: "Motorised Products" },
-  { id: id("Curtain Motor 5M"), name: "Curtain Motor 5M (60kg motor & 5meter track)", category: "Motorised Products" },
-  { id: id("6 Channel Curtain remote"), name: "6 Channel Curtain remote", category: "Motorised Products" },
-  { id: id("Blind Motor"), name: "Blind Motor", category: "Motorised Products" },
-
   // -----------------------------
   // Premium Touch
   // -----------------------------
@@ -84,12 +61,9 @@ const rawProducts: Product[] = [
   { id: id("Full Glass Touch 1 Curtain 2M"), name: "Full Glass Touch 1 Curtain (2M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 4 Switch 1 Fan 4M"), name: "Full Glass Touch 4 Switch 1 Fan (4M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 2 Switch 1 Fan 4M"), name: "Full Glass Touch 2 Switch (1-25A) 1 Fan (4M)", category: "Full Glass Touch" },
-  { id: id("Full Glass Touch 2 Fan 4M"), name: "Full Glass Touch 2 Fan (4M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 6 Switch 4M"), name: "Full Glass Touch 6 Switch (1-20A) (4M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 8 Switch 4M"), name: "Full Glass Touch 8 Switch (1-20A) (4M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 2 Switch 1 Socket 4M"), name: "Full Glass Touch 2 Switch (1-25A) 1 Socket (1-10A) (4M)", category: "Full Glass Touch" },
-  { id: id("Full Glass Touch 4 Switch 1 Socket 4M"), name: "Full Glass Touch 4 Switch 1Socket (1-10A) (4M)", category: "Full Glass Touch" },
-  { id: id("Full Glass Touch Fan 1 Socket 4M"), name: "Full Glass Touch Fan 1Socket (1-10A) (4M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 2 Switch 1 Fan 1 Curtain 4M"), name: "Full Glass Touch 2 Switch 1 Fan 1 Curtain (4M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 4 Switch 1 Curtain 4M"), name: "Full Glass Touch 4 Switch (1-25A) 1 Curtain (4M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 6 Switch 1 Curtain 4M"), name: "Full Glass Touch 6 Switch (1-25A) 1 Curtain (4M)", category: "Full Glass Touch" },
@@ -115,22 +89,14 @@ const rawProducts: Product[] = [
   { id: id("Full Glass Touch 8 Switch 1 Curtain 8M"), name: "Full Glass Touch 8 Switch (2-20A) 1 Curtain (8M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 8 Switch 1 Curtain 1 Socket 8M"), name: "Full Glass Touch 8 Switch (2-20A) 1 Curtain 1 Socket (1-10A) (8M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 4 Switch 1 Fan 1 Curtain 1 Socket 8M"), name: "Full Glass Touch 4 Switch (1-25A) 1 Fan 1 Curtain 1 Socket (1-10A) (8M)", category: "Full Glass Touch" },
-  { id: id("Full Glass Touch 12 Switch 2 Fan 12M"), name: "Full Glass Touch 12 Switch (2-25A) 2 Fan (12M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 20 Switch 12M"), name: "Full Glass Touch 20 Switch (4-20A) (12M)", category: "Full Glass Touch" },
-  { id: id("Full Glass Touch 14 Switch 2 Fan 12M"), name: "Full Glass Touch 14 Switch (2-25A) 2 Fan (12M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 8 Switch 4 Fan 12M"), name: "Full Glass Touch 8 Switch 4 Fan (12M)", category: "Full Glass Touch" },
-  { id: id("Full Glass Touch 16 Switch 1 Fan 12M"), name: "Full Glass Touch 16 Switch (1-20A, 2-25A) 1 Fan (12M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 6 Switch 2 Fan 2 Socket 12M"), name: "Full Glass Touch 6 Switch (1-25A) 2 Fan 2 Socket (2-10A) (12M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 8 Switch 1 Fan 2 Socket 12M"), name: "Full Glass Touch 8 Switch (2-25A) 1 Fan 2 Socket (2-10A) (12M)", category: "Full Glass Touch" },
-  { id: id("Full Glass Touch 12 Switch 2 Socket 12M"), name: "Full Glass Touch 12 Switch (3-25A) 2 Socket (2-10A) (12M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 8 Switch 2 Fan 2 Socket 12M"), name: "Full Glass Touch 8 Switch 2 Fan 2 Socket (2-10A) (12M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 10 Switch 1 Fan 2 Socket 12M"), name: "Full Glass Touch 10 Switch (1-25A) 1 Fan 2 Socket (2-10A) (12M)", category: "Full Glass Touch" },
-  { id: id("Full Glass Touch 14 Switch 2 Socket 12M"), name: "Full Glass Touch 14 Switch (2-25A) 2 Socket (2-10A) (12M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 10 Switch 2 Socket 1 Curtain 12M"), name: "Full Glass Touch 10 Switch (3-25A) 2 Socket (2-10A) 1 Curtain (12M)", category: "Full Glass Touch" },
-  { id: id("Full Glass Touch 16 Switch 2 Curtain 12M"), name: "Full Glass Touch 16 Switch (4-25A) 2 Curtain (12M)", category: "Full Glass Touch" },
-  { id: id("Socket 10A"), name: "Socket 10A (2M)", category: "Full Glass Touch" },
   { id: id("Socket 16A"), name: "Socket 16A (2M)", category: "Full Glass Touch" },
-  { id: id("IR Remote Full Glass"), name: "IR Remote (Full Glass Touch)", category: "Full Glass Touch" },
 
   // -----------------------------
   // Magnetic Touch (New Category)
@@ -154,23 +120,9 @@ const rawProducts: Product[] = [
   // -----------------------------
   // Smart Lighting (COB, Panel, Drivers)
   // -----------------------------
-  { id: id("LED 18W"), name: "LED 18W 2LED'S and 1 Driver (Panel Lights)", category: "Smart Lighting" },
   { id: id("LED Dimmer Driver 18W"), name: "LED Dimmer Driver 18W (Panel Lights)", category: "Smart Lighting" },
-  { id: id("LED Dimmer Driver CCT"), name: "LED Dimmer Driver 18W CCT (Panel Lights)", category: "Smart Lighting" },
-  { id: id("2 Channel Triac Dimmer"), name: "2 Channel Triac Dimmer - Phase Cut (Dimmable Lights)", category: "Smart Lighting" },
-  { id: id("Smart COB Driver 12-18W"), name: "Smart COB Driver (12W-18W) (Panel & COB Lights)", category: "Smart Lighting" },
-  { id: id("Smart COB Driver CCT 12-18W"), name: "Smart COB Driver CCT (12W-18W) (Panel & COB Lights)", category: "Smart Lighting" },
-  { id: id("Smart COB Driver 24-36W"), name: "Smart COB Driver (24W-36W) (Panel & COB Lights)", category: "Smart Lighting" },
-  { id: id("Smart COB Driver CCT 24-36W"), name: "Smart COB Driver CCT (24W-36W) (Panel & COB Lights)", category: "Smart Lighting" },
-  { id: id("Smart CCT Rose Gold COB Light 16W"), name: "Smart CCT Rose Gold COB Light (16W)", category: "Smart Lighting" },
-  { id: id("Smart CCT Rose Black Reflector COB Light 16W"), name: "Smart CCT Rose Black ReflectorCOB Light (16W)", category: "Smart Lighting" },
-  { id: id("Smart Tiltable COB Light 18W"), name: "Smart Tiltable COB Light (18W)", category: "Smart Lighting" },
-  { id: id("Smart Tiltable COB Light 24W"), name: "Smart Tiltable COB Light (24W)", category: "Smart Lighting" },
-  { id: id("Smart Tiltable COB Light 30W"), name: "Smart Tiltable COB Light (30W)", category: "Smart Lighting" },
   { id: id("Smart WiFi Bi-Channel CCT COB with 2 LED 18W"), name: "Smart WiFi Bi-Channel CCT COB with 2 LED-18W", category: "Smart Lighting" },
   { id: id("36W 2X2 Panel Light"), name: "36W 2X2 Panel Light", category: "Smart Lighting" },
-  { id: id("Smart WiFi Bi-Channel CCT COB Driver 18W NI"), name: "Smart WiFi Bi-Channel CCT COB Driver-18W (NI) (Panel & COB Lights)", category: "Smart Lighting" },
-  { id: id("Smart WiFi Bi-Channel CCT COB with 2 LED 16W"), name: "Smart WiFi Bi-Channel CCT COB with 2 LED-16W", category: "Smart Lighting" },
   { id: id("Dimmable CCT 36W 2X2 Panel RF"), name: "Dimmable CCT 36W 2X2 Panel RF", category: "Smart Lighting" },
   
   // Brochure Lighting Items
@@ -185,7 +137,6 @@ const rawProducts: Product[] = [
   { id: id("Vintage Surface Panel"), name: "VINTAGE SURFACE PANEL", category: "Smart Lighting" },
   { id: id("Vision Surface Panel"), name: "VISION Surface Panel", category: "Smart Lighting" },
   { id: id("LX Panel"), name: "LX PANEL", category: "Smart Lighting" },
-  { id: id("3 in 1 Driver"), name: "3 in 1 DRIVER", category: "Smart Lighting" },
   { id: id("Orion Deep COB"), name: "ORION DEEP COB", category: "Smart Lighting" },
   { id: id("Glaze CR COB Light"), name: "GLAZE CR COB LIGHT", category: "Smart Lighting" },
   { id: id("Glaze SR COB Light"), name: "GLAZE SR COB LIGHT", category: "Smart Lighting" },
@@ -256,55 +207,14 @@ const rawProducts: Product[] = [
   // -----------------------------
   // Energy Meters & Power Modules
   // -----------------------------
-  { id: id("Smart Single-Phase Energy Meter"), name: "Smart Single-Phase Energy Meter-30A", category: "Energy Meters" },
-  { id: id("Smart Three-Phase Energy Meter"), name: "Smart Three-Phase Energy Meter-30A each phase", category: "Energy Meters" },
-  { id: id("Smart Power Module 30A"), name: "Smart Single-Phase Power module -30A (Control & Energy monitoring)", category: "Power Modules" },
-  { id: id("Smart Three-Phase Power Module"), name: "Smart Three-Phase Power module (Control & Energy monitoring)", category: "Power Modules" },
-  { id: id("SPD 10KV"), name: "SPD 10KV", category: "Power Modules" },
-
-  // -----------------------------
   // Smart Fans
   // -----------------------------
-  { id: id("Smart BLDC Fan Classic Plain Black"), name: "Smart BLDC Fan - Classic Plain (Black)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan Classic Plain Brown"), name: "Smart BLDC Fan - Classic Plain (Brown)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan Classic Plain White"), name: "Smart BLDC Fan - Classic Plain (White)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan Classic Gold Black"), name: "Smart BLDC Fan Classic Gold (Black)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan Classic Gold Brown"), name: "Smart BLDC Fan - Classic Gold (Brown)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan Classic Silver Black"), name: "Smart BLDC Fan - Classic Silver (Black)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan Classic Silver Brown"), name: "Smart BLDC Fan - Classic Silver (Brown)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan Classic Silver White"), name: "Smart BLDC Fan - Classic Silver (White)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan Elegant Plain Black"), name: "Smart BLDC Fan - Elegant Plain (Black)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan Elegant Plain Brown"), name: "Smart BLDC Fan - Elegant Plain (Brown)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan Elegant Plain White"), name: "Smart BLDC Fan - Elegant Plain (White)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan Elegant Gold Black Marble Black"), name: "Smart BLDC Fan - Elegant Gold Black Marble (Black)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan Elegant Gold Black Marble Brown"), name: "Smart BLDC Fan - Elegant Gold Black Marble (Brown)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan Elegant Gold Black Marble White"), name: "Smart BLDC Fan - Elegant Gold Black Marble (White)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan Elegant Gold Plywood Black"), name: "Smart BLDC Fan - Elegant Gold Plywood (Black)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan Elegant Gold Plywood Brown"), name: "Smart BLDC Fan - Elegant Gold Plywood (Brown)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan Elegant Gold Plywood White"), name: "Smart BLDC Fan - Elegant Gold Plywood (White)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan Elegant Gold Cap Black"), name: "Smart BLDC Fan Elegant Gold Cap (Black)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan Elegant Gold Cap Brown"), name: "Smart BLDC Fan Elegant Gold Cap (Brown)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan Elegant Gold Cap White"), name: "Smart BLDC Fan - Elegant Gold Cap (White)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan Elegant Silver Wood Black"), name: "Smart BLDC Fan - Elegant Silver Wood (Black)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan Elegant Silver Wood Brown"), name: "Smart BLDC Fan - Elegant Silver Wood (Brown)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan Elegant Silver Wood White"), name: "Smart BLDC Fan - Elegant Silver Wood (White)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan Elegant White Marble Brown"), name: "Smart BLDC Fan - Elegant White Marble (Brown)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan Elegant White Marble White"), name: "Smart BLDC Fan - Elegant White Marble (White)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan Premium Black Silver"), name: "Smart BLDC Fan - Premium Black Silver", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan 3 Blade Smokey Brown"), name: "Smart BLDC Fan-3 Blade (Smokey Brown)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan 3 Blade Ivory"), name: "Smart BLDC Fan-3 Blade (Ivory)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan 3 Blade White"), name: "Smart BLDC Fan-3 Blade (White)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan 5 Blade Smokey Brown"), name: "Smart BLDC Fan-5 Blade (Smokey Brown)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan 5 Blade Ivory"), name: "Smart BLDC Fan-5 Blade (Ivory)", category: "Smart Fans" },
-  { id: id("Smart BLDC Fan 5 Blade White"), name: "Smart BLDC Fan-5 Blade (White)", category: "Smart Fans" },
 
   // -----------------------------
   // Sensors
   // -----------------------------
   { id: id("Microwave Motion Sensor"), name: "Microwave Motion Sensor", category: "Sensors" },
   { id: id("Sensor Hub"), name: "Sensor Hub (Smart IR with Temperature sensor)", category: "Sensors" },
-  { id: id("Gas Smoke Sensor"), name: "Gas & Smoke sensor", category: "Sensors" },
-
   // -----------------------------
   // Cameras
   // -----------------------------
@@ -314,29 +224,13 @@ const rawProducts: Product[] = [
   // -----------------------------
   // LED Strips & SMPS
   // -----------------------------
-  { id: id("240 LED Strip CW 151"), name: "240 LED /mtr Flexible Strip 151 SMD-Micro (12V/24V) CW", category: "LED Strips" },
-  { id: id("240 LED Strip CW 101"), name: "240 LED/mtr Flexible Strip 101 SMD-1206- double row(24V) CW", category: "LED Strips" },
-  { id: id("60 leds RGB 5050"), name: "60 leds /mtr RGB 5050(24V)", category: "LED Strips" },
-  { id: id("72 72 leds RGBW"), name: "72+72 leds/mtr RGBW-RGB 5050 white - 2835(24V)", category: "LED Strips" },
-  { id: id("48 48 48 leds RGB"), name: "48+48+48 /mtr - RGB (5050) White (2835)+ww(2835)(24V)", category: "LED Strips" },
-  { id: id("192 leds Tunable 3in1"), name: "192 leds /mtr Tunable 3 in 1(24V)", category: "LED Strips" },
-  { id: id("240 LED Strip WW 151"), name: "240 LED /mtr Flexible Strip 151 SMD-Micro (12V/24V) WW", category: "LED Strips" },
-  { id: id("240 LED Strip WW 101"), name: "240 LED/mtr Flexible Strip 101 SMD-1206- double row(24V) WW", category: "LED Strips" },
-  { id: id("SMPS 24V 6.25A"), name: "24V 6.25A Strip light SMPS", category: "LED Strips" },
-  { id: id("SMPS 24V 12.5A"), name: "24V 12.5A Strip light SMPS", category: "LED Strips" },
-  { id: id("SMPS 24V 16.6A"), name: "24V 16.6A Strip light SMPS", category: "LED Strips" },
-  { id: id("SMPS 12V CL 969"), name: "SMPS (12V) CL 969", category: "LED Strips" },
-  { id: id("SMPS 24V CL 924"), name: "SMPS (24V) CL 924", category: "LED Strips" },
 
   // -----------------------------
   // Smart QR Products
   // -----------------------------
   { id: id("Smart Welcome Kit"), name: "SMART WELCOME KIT (QR VDP, Car SOS, NFC Card)", category: "Smart QR Products" },
-  { id: id("Dual Band WiFi Router"), name: "Dual Band WiFi Router", category: "Smart QR Products" },
-  { id: id("Demo Box"), name: "Demo Box", category: "Smart QR Products" },
   { id: id("NFC Business Card"), name: "NFC Business Card", category: "Smart QR Products" },
   { id: id("NFC Tag Sticker"), name: "NFC Tag/Sticker", category: "Smart QR Products" },
-  { id: id("WIFI Dongle"), name: "WIFI Dongle", category: "Smart QR Products" },
   { id: id("QR Tags"), name: "QR Tags", category: "Smart QR Products" },
 
   // -----------------------------
