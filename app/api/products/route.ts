@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import admin from '../../../lib/firebaseAdmin';
+import admin from '@/lib/firebaseAdmin';
+import { getFirestore } from 'firebase-admin/firestore';
 
 // GET /api/products - Get all active products (public endpoint)
 export async function GET(request: NextRequest) {
@@ -16,8 +17,11 @@ export async function GET(request: NextRequest) {
         }
 
         console.log('✅ [API /api/products] Firebase Admin initialized');
-        const db = admin.firestore();
-        console.log('✅ [API /api/products] Firestore instance obtained');
+
+
+        const db = getFirestore(admin.app(), 'qube-tech');
+
+        console.log('✅ [API /api/products] Firestore instance obtained (qube-tech)');
 
         // Get query parameters for filtering
         const { searchParams } = new URL(request.url);

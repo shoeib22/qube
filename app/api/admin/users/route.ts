@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import admin, { auth } from '../../../../lib/firebaseAdmin';
+import admin, { auth } from '@/lib/firebaseAdmin';
 
 // Helper to check if the requester is an admin
 async function isAdmin(request: Request) {

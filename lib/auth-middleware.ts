@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import admin from './firebaseAdmin';
+import admin from '@/lib/firebaseAdmin';
 
 export interface AuthUser {
     uid: string;

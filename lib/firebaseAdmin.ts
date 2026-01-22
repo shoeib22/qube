@@ -34,43 +34,57 @@ if (!process.env.FIREBASE_PROJECT_ID) {
 
 if (!admin.apps.length) {
   try {
-    const privateKey = process.env.FIREBASE_PRIVATE_KEY;
-    const projectId = process.env.FIREBASE_PROJECT_ID;
-    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+    // 1. Try to load from serviceAccountKey.json first (Development/Local)
+    const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH || path.join(process.cwd(), 'serviceAccountKey.json');
 
-    console.log('🔧 [FirebaseAdmin] Initializing...');
-    console.log(`   FIREBASE_PROJECT_ID: ${projectId || 'MISSING'}`);
-    console.log(`   FIREBASE_CLIENT_EMAIL: ${clientEmail || 'MISSING'}`);
-    console.log(`   FIREBASE_PRIVATE_KEY: ${privateKey ? `[PRESENT - ${privateKey.length} chars]` : 'MISSING'}`);
+    if (fs.existsSync(serviceAccountPath)) {
+      try {
+        const serviceAccount = require(serviceAccountPath);
+        admin.initializeApp({
+          credential: admin.credential.cert(serviceAccount),
+          databaseURL: `https://${serviceAccount.project_id}.firebaseio.com`,
+          projectId: serviceAccount.project_id
+        });
+        console.log('✅ [FirebaseAdmin] Initialized with serviceAccountKey.json');
+        console.log(`   Project: ${serviceAccount.project_id}`);
+      } catch (error: any) {
+        console.error('❌ [FirebaseAdmin] Failed to load service account file:', error.message);
+      }
+    }
 
-    // Only attempt to initialize if we have the key, or if we are not in a build context (hard to detect, but soft check helps)
-    if (privateKey && projectId && clientEmail) {
-      admin.initializeApp({
-        credential: admin.credential.cert({
-          projectId: projectId,
-          clientEmail: clientEmail,
-          // This regex ensures the newlines are correctly parsed
-          privateKey: privateKey.replace(/\\n/g, '\n'),
-        }),
-        projectId: projectId, // Explicitly set projectId at top level
-        databaseURL: `https://${projectId}.firebaseio.com` // Explicitly set databaseURL
-      });
-      console.log('✅ Firebase Admin successfully initialized');
-      console.log(`   Project: ${admin.app().options.projectId}`);
-      // Try to initialize firestore with settings to force preferRest if needed, though usually not accessible here directly
-    } else {
-      console.warn('⚠️ Firebase Admin credentials incomplete.');
-      console.warn('   Missing:', {
-        projectId: !projectId,
-        clientEmail: !clientEmail,
-        privateKey: !privateKey
-      });
+    // 2. If not initialized yet, try Environment Variables (Production/Vercel)
+    if (!admin.apps.length) {
+      try {
+        const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+        const projectId = process.env.FIREBASE_PROJECT_ID;
+        const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+
+        console.log('🔧 [FirebaseAdmin] Initializing from Env Vars...');
+
+        if (privateKey && projectId && clientEmail) {
+          admin.initializeApp({
+            credential: admin.credential.cert({
+              projectId: projectId,
+              clientEmail: clientEmail,
+              // This regex ensures the newlines are correctly parsed
+              privateKey: privateKey.replace(/\\n/g, '\n'),
+            }),
+            projectId: projectId,
+            databaseURL: `https://${projectId}.firebaseio.com`
+          });
+          console.log('✅ [FirebaseAdmin] Initialized from Env Vars');
+        } else {
+          console.warn('⚠️ [FirebaseAdmin] Env vars incomplete.');
+        }
+      } catch (error: any) {
+        console.error('❌ [FirebaseAdmin] Env var init error:', error.message);
+      }
     }
   } catch (error: any) {
-    console.error('❌ Firebase Admin init error:', error.message);
-    console.error('   Stack:', error.stack);
+    console.error('❌ [FirebaseAdmin] General init error:', error.message);
   }
 }
+
 
 // Export auth safely. If init failed, accessing this might throw, but imports won't crash the build immediately unless accessed.
 // However, nextjs build might access it. 

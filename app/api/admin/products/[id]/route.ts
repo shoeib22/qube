@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import admin from '../../../../../lib/firebaseAdmin';
+import admin from '@/lib/firebaseAdmin';
 import { requireAdmin } from '../../../../../lib/auth-middleware';
 
 // PUT /api/admin/products/[id] - Update product

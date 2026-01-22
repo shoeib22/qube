@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import admin from '../../../../lib/firebaseAdmin';
+import admin from '@/lib/firebaseAdmin';
 import { requireAdmin } from '../../../../lib/auth-middleware';
 
 // GET /api/admin/products - List all products

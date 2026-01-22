@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import admin from '../../../../../lib/firebaseAdmin';
+import admin from '@/lib/firebaseAdmin';
 import { requireAuth } from '../../../../../lib/auth-middleware';
 
 // PUT /api/addresses/[id]/set-default - Set address as default

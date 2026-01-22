@@ -29,9 +29,9 @@ if (typeof window !== "undefined") {
       tabManager: persistentMultipleTabManager()
     }),
     experimentalForceLongPolling: true,
-  });
+  }, 'qube-tech');
 } else {
-  db = getFirestore(app);
+  db = getFirestore(app, 'qube-tech');
 }
 
 export { db };
