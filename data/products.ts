@@ -14,42 +14,21 @@ const rawProducts: Product[] = [
   // -----------------------------
   // Plugs & IR
   // -----------------------------
-  { id: id("RED Smart Remote"), name: "RED-Smart Remote", category: "Plugs & IR" },
-  { id: id("HD Plug 16A V2"), name: "HD Plug 16A V2", category: "Plugs & IR" },
-  { id: id("LPF 1 Switch"), name: "LPF 1 Switch (16A - Relay)", category: "Plugs & IR" },
-  { id: id("LPF 2 Switch"), name: "LPF 2 Switch (16A - Relay)", category: "Plugs & IR" },
-  { id: id("LPF 4 Switch"), name: "LPF 4 Switch (16A - Relay)", category: "Plugs & IR" },
-  { id: id("LPF 6 Switch"), name: "LPF 6 Switch (16A - Relay)", category: "Plugs & IR" },
-  { id: id("LPF HD Module 25A"), name: "LPF HD Module 25A (25A - Relay)", category: "Plugs & IR" },
+  ,
 
   // -----------------------------
   // Retrofits
   // -----------------------------
-  { id: id("NEXA 1 Switch"), name: "NEXA 1 Switch (6A - Relay)", category: "Retrofits" },
-  { id: id("NEXA 2 Switch"), name: "NEXA 2 Switch (6A - Relay)", category: "Retrofits" },
-  { id: id("NEXA 3 Switch"), name: "NEXA 3 Switch (6A - Relay)", category: "Retrofits" },
-  { id: id("NEXA 5 Switch"), name: "NEXA 5 Switch (6A - Relay)", category: "Retrofits" },
-  { id: id("NEXA 1+1 Switch"), name: "NEXA 1+1 Switch (6A - Relay)", category: "Retrofits" },
-  { id: id("NEXA HD 16A Switch"), name: "NEXA HD 16A Switch (6A - Relay)", category: "Retrofits" },
-  { id: id("25A HD+ Switch"), name: "25A HD+ Switch (25A - Relay)", category: "Retrofits" },
-  { id: id("NEXA 2+1 Switch"), name: "NEXA 2+1 Switch (10A - Relay)", category: "Retrofits" },
-  { id: id("NEXA 4+1 Switch"), name: "NEXA 4+1 Switch (10A - Relay)", category: "Retrofits" },
+
 
   // -----------------------------
   // Strip Controllers
   // -----------------------------
-  { id: id("RGBW 12V"), name: "RGBW 12V", category: "Strip Controllers" },
-  { id: id("RGBW 24V"), name: "RGBW 24V", category: "Strip Controllers" },
-  { id: id("RGBW Controller"), name: "RGBW Controller (RGBW/CCT)", category: "Strip Controllers" },
-
+  
   // -----------------------------
   // Motorised Products
   // -----------------------------
-  { id: id("Pulse Switch Curtain Controller"), name: "Pulse Switch/Curtain Controller", category: "Motorised Products" },
-  { id: id("Curtain Motor 5M"), name: "Curtain Motor 5M (60kg motor & 5meter track)", category: "Motorised Products" },
-  { id: id("6 Channel Curtain remote"), name: "6 Channel Curtain remote", category: "Motorised Products" },
-  { id: id("Blind Motor"), name: "Blind Motor", category: "Motorised Products" },
-
+  
   // -----------------------------
   // Premium Touch
   // -----------------------------
@@ -84,12 +63,9 @@ const rawProducts: Product[] = [
   { id: id("Full Glass Touch 1 Curtain 2M"), name: "Full Glass Touch 1 Curtain (2M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 4 Switch 1 Fan 4M"), name: "Full Glass Touch 4 Switch 1 Fan (4M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 2 Switch 1 Fan 4M"), name: "Full Glass Touch 2 Switch (1-25A) 1 Fan (4M)", category: "Full Glass Touch" },
-  { id: id("Full Glass Touch 2 Fan 4M"), name: "Full Glass Touch 2 Fan (4M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 6 Switch 4M"), name: "Full Glass Touch 6 Switch (1-20A) (4M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 8 Switch 4M"), name: "Full Glass Touch 8 Switch (1-20A) (4M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 2 Switch 1 Socket 4M"), name: "Full Glass Touch 2 Switch (1-25A) 1 Socket (1-10A) (4M)", category: "Full Glass Touch" },
-  { id: id("Full Glass Touch 4 Switch 1 Socket 4M"), name: "Full Glass Touch 4 Switch 1Socket (1-10A) (4M)", category: "Full Glass Touch" },
-  { id: id("Full Glass Touch Fan 1 Socket 4M"), name: "Full Glass Touch Fan 1Socket (1-10A) (4M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 2 Switch 1 Fan 1 Curtain 4M"), name: "Full Glass Touch 2 Switch 1 Fan 1 Curtain (4M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 4 Switch 1 Curtain 4M"), name: "Full Glass Touch 4 Switch (1-25A) 1 Curtain (4M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 6 Switch 1 Curtain 4M"), name: "Full Glass Touch 6 Switch (1-25A) 1 Curtain (4M)", category: "Full Glass Touch" },
@@ -115,19 +91,14 @@ const rawProducts: Product[] = [
   { id: id("Full Glass Touch 8 Switch 1 Curtain 8M"), name: "Full Glass Touch 8 Switch (2-20A) 1 Curtain (8M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 8 Switch 1 Curtain 1 Socket 8M"), name: "Full Glass Touch 8 Switch (2-20A) 1 Curtain 1 Socket (1-10A) (8M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 4 Switch 1 Fan 1 Curtain 1 Socket 8M"), name: "Full Glass Touch 4 Switch (1-25A) 1 Fan 1 Curtain 1 Socket (1-10A) (8M)", category: "Full Glass Touch" },
-  { id: id("Full Glass Touch 12 Switch 2 Fan 12M"), name: "Full Glass Touch 12 Switch (2-25A) 2 Fan (12M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 20 Switch 12M"), name: "Full Glass Touch 20 Switch (4-20A) (12M)", category: "Full Glass Touch" },
-  { id: id("Full Glass Touch 14 Switch 2 Fan 12M"), name: "Full Glass Touch 14 Switch (2-25A) 2 Fan (12M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 8 Switch 4 Fan 12M"), name: "Full Glass Touch 8 Switch 4 Fan (12M)", category: "Full Glass Touch" },
-  { id: id("Full Glass Touch 16 Switch 1 Fan 12M"), name: "Full Glass Touch 16 Switch (1-20A, 2-25A) 1 Fan (12M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 6 Switch 2 Fan 2 Socket 12M"), name: "Full Glass Touch 6 Switch (1-25A) 2 Fan 2 Socket (2-10A) (12M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 8 Switch 1 Fan 2 Socket 12M"), name: "Full Glass Touch 8 Switch (2-25A) 1 Fan 2 Socket (2-10A) (12M)", category: "Full Glass Touch" },
-  { id: id("Full Glass Touch 12 Switch 2 Socket 12M"), name: "Full Glass Touch 12 Switch (3-25A) 2 Socket (2-10A) (12M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 8 Switch 2 Fan 2 Socket 12M"), name: "Full Glass Touch 8 Switch 2 Fan 2 Socket (2-10A) (12M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 10 Switch 1 Fan 2 Socket 12M"), name: "Full Glass Touch 10 Switch (1-25A) 1 Fan 2 Socket (2-10A) (12M)", category: "Full Glass Touch" },
-  { id: id("Full Glass Touch 14 Switch 2 Socket 12M"), name: "Full Glass Touch 14 Switch (2-25A) 2 Socket (2-10A) (12M)", category: "Full Glass Touch" },
   { id: id("Full Glass Touch 10 Switch 2 Socket 1 Curtain 12M"), name: "Full Glass Touch 10 Switch (3-25A) 2 Socket (2-10A) 1 Curtain (12M)", category: "Full Glass Touch" },
-  { id: id("Full Glass Touch 16 Switch 2 Curtain 12M"), name: "Full Glass Touch 16 Switch (4-25A) 2 Curtain (12M)", category: "Full Glass Touch" },
+
   { id: id("Socket 10A"), name: "Socket 10A (2M)", category: "Full Glass Touch" },
   { id: id("Socket 16A"), name: "Socket 16A (2M)", category: "Full Glass Touch" },
   { id: id("IR Remote Full Glass"), name: "IR Remote (Full Glass Touch)", category: "Full Glass Touch" },

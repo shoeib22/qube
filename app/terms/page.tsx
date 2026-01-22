@@ -19,16 +19,16 @@ export default function TermsAndConditions() {
                         </h1>
 
                         <h2 className="text-xl font-semibold mb-6 text-gray-200 uppercase tracking-wider">
-                            QUBE TECHNOLOGIES PVT. LTD. TERMS AND CONDITIONS
+                            QUBE TECHNOLOGIES TERMS AND CONDITIONS
                         </h2>
 
                         <div className="space-y-6 text-gray-300 leading-relaxed font-light">
                             <p>
-                                QUBE Innovations PVT LTD operates the https://QUBE.io website and QUBE Innovations PVT LTD iOS app and QUBE Innovations PVT LTD Android app, which provides the SERVICE. This page is used to inform users regarding our policies with the collection, use, and disclosure of Personal Information if anyone decided to use our Service. If you choose to use our Service, then you agree to the collection and use of information in relation with this policy. The Personal Information that we collect are used for providing and improving the Service. We will not use or share your information with anyone except as described in this Privacy Policy.
+                                QUBE Innovations operates the https://www.xerovolt.in website  which provides the SERVICE. This page is used to inform users regarding our policies with the collection, use, and disclosure of Personal Information if anyone decided to use our Service. If you choose to use our Service, then you agree to the collection and use of information in relation with this policy. The Personal Information that we collect are used for providing and improving the Service. We will not use or share your information with anyone except as described in this Privacy Policy.
                             </p>
 
                             <p>
-                                The terms used in this Privacy Policy have the same meanings as in our Terms and Conditions, which is accessible at https://QUBE.io, unless otherwise defined in this Privacy Policy.
+                                The terms used in this Privacy Policy have the same meanings as in our Terms and Conditions, which is accessible at https://www.xerovolt.in, unless otherwise defined in this Privacy Policy.
                             </p>
 
                             <div className="h-px bg-white/10 my-8" />

@@ -2,7 +2,6 @@
 
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import Link from 'next/link';
 
 export default function PrivacyPolicy() {
     return (
@@ -20,12 +19,12 @@ export default function PrivacyPolicy() {
                         </h1>
 
                         <h2 className="text-xl font-semibold mb-6 text-gray-200 uppercase tracking-wider">
-                            QUBE TECHNOLOGIES PVT. LTD. PRIVACY STATEMENT
+                            QUBE TECHNOLOGIES PRIVACY STATEMENT
                         </h2>
 
                         <div className="space-y-6 text-gray-300 leading-relaxed font-light">
                             <p>
-                                QUBE TECHNOLOGIES PVT. LTD., and its subsidiaries or Parent Companies (collectively “Qube”) are committed to protecting your privacy and providing you with a positive experience on our websites and in using our products and services (“Solution” or “Solutions”).
+                                QUBE TECHNOLOGIES , and its subsidiaries or Parent Companies (collectively “Qube”) are committed to protecting your privacy and providing you with a positive experience on our websites and in using our products and services (“Solution” or “Solutions”).
                             </p>
 
                             <p>
@@ -100,7 +99,7 @@ export default function PrivacyPolicy() {
                                     <strong className="text-white block mb-1">Sharing of Anonymised, Non-Personally Identifiable or Aggregated Data:</strong> Qube may share with third parties, advertisers, and/or business partners anonymised, non-personally identifiable, or aggregated data we receive or collect, such as de-identified Registration Data, Content Data and Device Data. We share such information for a variety of reasons, such as to analyse Service usage, improve the Service, improve the serving of advertisements, or for other purposes. The use and disclosure of such anonymised, non-personally identifiable, or aggregated information is not subject to any restrictions under this policy.
                                 </p>
                                 <p>
-                                    <strong className="text-white block mb-1">Information You Disclose in a Public Profile or in Public Forums:</strong> The Qube Service offers publicly accessible and available pages on social media platforms. You should be aware that any information you provide or post in these areas may be read, collected, and used by others who access them. If your profile is public, any information you place in your user profile, including biographical information, the people you are following, and the people whom you allow to follow you, may be read, collected, and used by others who access them. To request removal of such information from our public forums, contact us at <a href="mailto:support@Qube.io" className="text-blue-400 hover:underline">support@Qube.io</a>
+                                    <strong className="text-white block mb-1">Information You Disclose in a Public Profile or in Public Forums:</strong> The Qube Service offers publicly accessible and available pages on social media platforms. You should be aware that any information you provide or post in these areas may be read, collected, and used by others who access them. If your profile is public, any information you place in your user profile, including biographical information, the people you are following, and the people whom you allow to follow you, may be read, collected, and used by others who access them. To request removal of such information from our public forums, contact us at <a href="mailto:support@Qubetechnologies.in" className="text-blue-400 hover:underline">support@Qubetechnologies.in</a>
                                 </p>
                             </div>
 
@@ -114,7 +113,7 @@ export default function PrivacyPolicy() {
                                 You can view or edit your personal information and preferences by using the account section of your profile.
                             </p>
                             <p>
-                                Some Qube entities may act as or be considered “data controllers”. When a Qube entity is acting as a data controller, you can exercise your rights of access and request corrections, suppression, or deactivations under applicable data protection laws directly with that Qube entity by writing to <a href="mailto:support@Qube.io" className="text-blue-400 hover:underline">support@Qube.io</a>.
+                                Some Qube entities may act as or be considered “data controllers”. When a Qube entity is acting as a data controller, you can exercise your rights of access and request corrections, suppression, or deactivations under applicable data protection laws directly with that Qube entity by writing to <a href="mailto:support@Qubetechnologies.in" className="text-blue-400 hover:underline">support@Qubetechnologies.in</a>.
                             </p>
                             <p>
                                 If you need additional assistance, or help with accessing, correcting, suppressing, or deleting your personal information, please feel free to contact us directly. We make good faith efforts to honor reasonable requests to access, delete, update, suppress, or correct your data. We will respond to your request within 30 days. If we are unable to honor your request, we will provide you with an explanation.
@@ -198,7 +197,7 @@ export default function PrivacyPolicy() {
 
                             <h3 className="text-2xl font-semibold mt-8 mb-4 text-white">Forums and Chat Rooms</h3>
                             <p>
-                                If you participate in a discussion forum, local communities, or chat room on a Qube website, you should be aware that the information you provide there (i.e. your public profile) will be made broadly available to others, and could be used to contact you, send you unsolicited messages, or for purposes neither Qube nor you have control over. Also, please recognize that individual forums and chat rooms may have additional rules and conditions. Qube is not responsible for the personal information or any other information you choose to submit in these forums. To request removal of your personal information from our blog or community forum, contact us at <a href="mailto:support@Qube.io" className="text-blue-400 hover:underline">support@Qube.io</a>. In some cases, we may not be able to remove your personal information, in which case we will let you know if we are unable to do so and why.
+                                If you participate in a discussion forum, local communities, or chat room on a Qube website, you should be aware that the information you provide there (i.e. your public profile) will be made broadly available to others, and could be used to contact you, send you unsolicited messages, or for purposes neither Qube nor you have control over. Also, please recognize that individual forums and chat rooms may have additional rules and conditions. Qube is not responsible for the personal information or any other information you choose to submit in these forums. To request removal of your personal information from our blog or community forum, contact us at <a href="mailto:support@Qubetechnologies.in" className="text-blue-400 hover:underline">support@Qubetechnologies.in</a>. In some cases, we may not be able to remove your personal information, in which case we will let you know if we are unable to do so and why.
                             </p>
 
                             <h3 className="text-2xl font-semibold mt-8 mb-4 text-white">Children’s Privacy</h3>
@@ -208,10 +207,10 @@ export default function PrivacyPolicy() {
 
                             <h3 className="text-2xl font-semibold mt-8 mb-4 text-white">How to Contact Us</h3>
                             <p>
-                                We value your opinions. Should you have questions or comments related to this Privacy Statement, please email our privacy team at <a href="mailto:support@Qube.io" className="text-blue-400 hover:underline">support@Qube.io</a>.
+                                We value your opinions. Should you have questions or comments related to this Privacy Statement, please email our privacy team at <a href="mailto:support@Qubetechnologies.in" className="text-blue-400 hover:underline">support@Qubetechnologies.in</a>.
                             </p>
                             <p>
-                                Alternatively, write to: Qube TECHNOLOGIES PVT. LTD., Plot No.102, Survey No, 41 & 42, Kavuri Hills Phase 1, beside line of Jubilee Ridge Hotel, Guttala_Begumpet, Madhapur, Telangana, 500033
+                                Alternatively, write to: Qube TECHNOLOGIES , Sri nikethan Akshaya Apartments, 201,  F92V+FF8, SBH Officers Colony, Mega Hills, Madhapur, Hyderabad, Telangana 500081
                             </p>
 
                             <h3 className="text-2xl font-semibold mt-8 mb-4 text-white">Updates to this Qube Privacy Statement</h3>
