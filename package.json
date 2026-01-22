@@ -6,31 +6,40 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "migrate:products": "node scripts/migrate-products.js",
+    "make-admin": "node scripts/make-admin.js"
   },
   "dependencies": {
-    "@react-three/drei": "^10.7.7",
-    "@react-three/fiber": "^9.4.2",
-    "firebase": "^12.6.0",
+    "@react-three/drei": "^9.122.0",
+    "@react-three/fiber": "^8.18.0",
+    "firebase": "^10.12.5",
+    "firebase-admin": "^12.6.0",
     "lucide-react": "^0.560.0",
     "motion": "^12.23.26",
-    "next": "^16.0.10",
-    "openai": "^6.10.0",
-    "react": "19.2.1",
-    "react-dom": "19.2.1",
+    "next": "^14.2.35",
+    "openai": "^4.56.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
     "react-share": "^5.2.2",
     "snowfall": "^2.1.0",
-    "three": "^0.182.0"
+    "three": "^0.160.0",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.18",
     "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "autoprefixer": "^10.4.22",
+    "@types/react": "^18.3.27",
+    "@types/react-dom": "^18.3.7",
+    "@types/three": "^0.160.0",
+    "@types/uuid": "^10.0.0",
+    "autoprefixer": "^10.4.23",
     "eslint": "^9",
     "eslint-config-next": "16.0.8",
-    "tailwindcss": "^4",
+    "tailwindcss": "^4.1.18",
     "typescript": "^5"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }

@@ -1,6 +1,11 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { initializeFirestore } from "firebase/firestore"; // ✅ Removed 'getFirestore'
+import {
+  initializeFirestore,
+  getFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCQAxC7sTetgJAvzcBV2wnPPqV22aqT7S4",
@@ -15,7 +20,18 @@ const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
 
-// Use initializeFirestore to enable long polling
-export const db = initializeFirestore(app, {
-  experimentalForceLongPolling: true,
-});
+// ✅ Proper Firestore init
+let db;
+
+if (typeof window !== "undefined") {
+  db = initializeFirestore(app, {
+    localCache: persistentLocalCache({
+      tabManager: persistentMultipleTabManager()
+    }),
+    experimentalForceLongPolling: true,
+  });
+} else {
+  db = getFirestore(app);
+}
+
+export { db };
