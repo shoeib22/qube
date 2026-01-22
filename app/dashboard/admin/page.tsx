@@ -103,7 +103,7 @@ export default function AdminDashboard() {
       <div className="max-w-7xl mx-auto p-6">
         <header className="mb-10">
           <h1 className="text-4xl font-bold tracking-tight">Admin Dashboard</h1>
-          <p className="text-gray-500 mt-2 font-medium">Monitoring the Qube ecosystem performance.</p>
+          <p className="text-gray-500 mt-2 font-medium">Monitoring the Xerovolt ecosystem performance.</p>
         </header>
 
         {/* KPI Cards */}
@@ -190,8 +190,8 @@ export default function AdminDashboard() {
                       </td>
                       <td className="p-6">
                         <span className={`px-3 py-1 text-[10px] font-black uppercase rounded-full border ${product.isActive
-                            ? 'bg-green-500/10 text-green-500 border-green-500/20'
-                            : 'bg-red-500/10 text-red-500 border-red-500/20'
+                          ? 'bg-green-500/10 text-green-500 border-green-500/20'
+                          : 'bg-red-500/10 text-red-500 border-red-500/20'
                           }`}>
                           {product.isActive ? 'Active' : 'Inactive'}
                         </span>
@@ -247,7 +247,7 @@ export default function AdminDashboard() {
                   <tr key={i} className="border-b border-white/5 hover:bg-white/[0.01] transition-colors">
                     <td className="p-8 font-mono text-gray-400">#QB-10{i}</td>
                     <td className="p-8 font-bold text-white/90">Kashif User</td>
-                    <td className="p-8 text-gray-500">Qube Smart Hub Pro</td>
+                    <td className="p-8 text-gray-500">Xerovolt Smart Hub Pro</td>
                     <td className="p-8 font-black text-[#f2994a]">₹0</td>
                     <td className="p-8">
                       <span className="px-3 py-1 bg-green-500/10 text-green-500 text-[10px] font-black uppercase rounded-full border border-green-500/20">

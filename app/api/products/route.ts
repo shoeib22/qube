@@ -19,9 +19,9 @@ export async function GET(request: NextRequest) {
         console.log('✅ [API /api/products] Firebase Admin initialized');
 
 
-        const db = getFirestore(admin.app(), 'qube-tech');
+        const db = getFirestore(admin.app(), 'xerovolt-tech');
 
-        console.log('✅ [API /api/products] Firestore instance obtained (qube-tech)');
+        console.log('✅ [API /api/products] Firestore instance obtained (xerovolt-tech)');
 
         // Get query parameters for filtering
         const { searchParams } = new URL(request.url);

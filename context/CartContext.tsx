@@ -32,7 +32,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   // Load from LocalStorage
   useEffect(() => {
-    const savedCart = localStorage.getItem("qube_cart");
+    const savedCart = localStorage.getItem("xerovolt_cart");
     if (savedCart) {
       try {
         setCartItems(JSON.parse(savedCart));
@@ -46,7 +46,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // Save to LocalStorage
   useEffect(() => {
     if (isInitialized) {
-      localStorage.setItem("qube_cart", JSON.stringify(cartItems));
+      localStorage.setItem("xerovolt_cart", JSON.stringify(cartItems));
     }
   }, [cartItems, isInitialized]);
 
@@ -87,7 +87,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   // --- Calculations ---
-  
+
   const cartTotal = cartItems.reduce((total, item) => {
     return total + (item.price || 0) * item.quantity;
   }, 0);

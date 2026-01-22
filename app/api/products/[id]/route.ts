@@ -18,7 +18,7 @@ export async function GET(
             );
         }
 
-        const db = getFirestore(admin.app(), 'qube-tech');
+        const db = getFirestore(admin.app(), 'xerovolt-tech');
         const docRef = db.collection('products').doc(id);
         const doc = await docRef.get();
 

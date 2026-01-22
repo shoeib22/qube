@@ -51,8 +51,8 @@ export default function Hero() {
       >
         {/* OPTIMIZED NEXT.JS IMAGE */}
         <Image
-          src="/logo/qube.png"
-          alt="qubeTech Logo"
+          src="/logo/xerovolt.png"
+          alt="Xerovolt Tech Logo"
           width={300}   // Set this to the approximate pixel width of your PNG
           height={100}  // Set this to the approximate pixel height
           className="w-48 md:w-64 animate-pulse object-contain"

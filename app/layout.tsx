@@ -5,7 +5,7 @@ import { CartProvider } from "../context/CartContext";
 import { AuthProvider } from "../context/AuthContext";
 
 export const metadata: Metadata = {
-  title: "qubeTech",
+  title: "Xerovolt Tech",
   description: "Smart automation built around your lifestyle",
 };
 

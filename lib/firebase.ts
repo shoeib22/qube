@@ -29,9 +29,9 @@ if (typeof window !== "undefined") {
       tabManager: persistentMultipleTabManager()
     }),
     experimentalForceLongPolling: true,
-  }, 'qube-tech');
+  }, 'xerovolt-tech');
 } else {
-  db = getFirestore(app, 'qube-tech');
+  db = getFirestore(app, 'xerovolt-tech');
 }
 
 export { db };

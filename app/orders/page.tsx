@@ -5,17 +5,17 @@ import Link from 'next/link';
 
 export default function OrdersPage() {
   const orders = [
-    { 
-      id: '#QB-9001', 
-      date: '12 Dec 2025', 
-      status: 'Delivered', 
+    {
+      id: '#QB-9001',
+      date: '12 Dec 2025',
+      status: 'Delivered',
       total: '₹19,990',
-      items: 'Qube Smart Hub, 2x Smart Bulbs'
+      items: 'Xerovolt Smart Hub, 2x Smart Bulbs'
     },
-    { 
-      id: '#QB-8922', 
-      date: '02 Jan 2026', 
-      status: 'Processing', 
+    {
+      id: '#QB-8922',
+      date: '02 Jan 2026',
+      status: 'Processing',
       total: '₹8,450',
       items: 'Smart Door Lock'
     }
@@ -23,21 +23,21 @@ export default function OrdersPage() {
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-[#f2994a]/30">
-      
+
       {/* Background Accent */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -left-[10%] -top-[10%] h-[40%] w-[40%] rounded-full bg-[#f2994a] opacity-[0.02] blur-[120px]" />
       </div>
 
       <div className="relative z-10 max-w-5xl mx-auto p-8 md:p-16 lg:p-24">
-        
+
         {/* Navigation & Header */}
         <header className="mb-16 border-b border-white/5 pb-8">
-          <Link 
-            href="/profile" 
+          <Link
+            href="/profile"
             className="group flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-[#f2994a] transition-all mb-6"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
             Account Dashboard
           </Link>
           <h1 className="text-4xl font-bold tracking-tight text-white">Your Orders</h1>
@@ -47,8 +47,8 @@ export default function OrdersPage() {
         {/* Orders List */}
         <div className="grid grid-cols-1 gap-8">
           {orders.map((order) => (
-            <div 
-              key={order.id} 
+            <div
+              key={order.id}
               className="bg-[#080808] border border-white/5 rounded-2xl overflow-hidden hover:border-white/10 transition-all shadow-2xl"
             >
               {/* Card Header Section */}
@@ -76,11 +76,11 @@ export default function OrdersPage() {
                     ● {order.status}
                   </p>
                   <h3 className="text-lg font-medium text-white/90">{order.items}</h3>
-                  
+
                   {/* Visual Status Bar */}
                   <div className="mt-6 h-1 w-full max-w-xs bg-white/5 rounded-full overflow-hidden">
-                    <div 
-                      className={`h-full rounded-full transition-all duration-1000 ${order.status === 'Delivered' ? 'w-full bg-green-500' : 'w-1/2 bg-[#f2994a]'}`} 
+                    <div
+                      className={`h-full rounded-full transition-all duration-1000 ${order.status === 'Delivered' ? 'w-full bg-green-500' : 'w-1/2 bg-[#f2994a]'}`}
                     />
                   </div>
                 </div>
@@ -108,7 +108,7 @@ export default function OrdersPage() {
               Customer Service
             </Link>
           </div>
-          <p>© 2026 Qube Automation</p>
+          <p>© 2026 Xerovolt Automation</p>
         </footer>
       </div>
     </div>

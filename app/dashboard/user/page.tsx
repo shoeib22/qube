@@ -324,8 +324,8 @@ function NavButton({ active, onClick, icon, label }: { active: boolean, onClick:
     <button
       onClick={onClick}
       className={`w-full flex items-center px-4 py-3 rounded-xl transition-all ${active
-          ? "bg-white text-black font-bold shadow-lg"
-          : "text-gray-400 hover:text-white hover:bg-white/5"
+        ? "bg-white text-black font-bold shadow-lg"
+        : "text-gray-400 hover:text-white hover:bg-white/5"
         }`}
     >
       <span className={active ? "text-black" : "text-gray-500"}>{icon}</span>
@@ -358,7 +358,7 @@ function OrderCard({ id, date, total, status, items, image }: { id: string, date
 
       <div className="flex items-center gap-4">
         <div className="w-16 h-16 bg-black rounded-xl border border-gray-800 flex items-center justify-center overflow-hidden flex-shrink-0">
-          <Image src={image || "/logo/qube.png"} alt="Order Item" width={40} height={40} className="object-contain" />
+          <Image src={image || "/logo/xerovolt.png"} alt="Order Item" width={40} height={40} className="object-contain" />
         </div>
         <div>
           <p className="font-medium text-white">{items[0]}</p>

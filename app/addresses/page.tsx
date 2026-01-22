@@ -19,21 +19,21 @@ export default function AddressesPage() {
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-[#f2994a]/30">
-      
+
       {/* Decorative Background Glow */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -left-[10%] -bottom-[10%] h-[35%] w-[35%] rounded-full bg-[#f2994a] opacity-[0.02] blur-[100px]" />
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto p-8 md:p-16 lg:p-20">
-        
+
         {/* Navigation & Header */}
         <header className="mb-12 border-b border-white/5 pb-10">
-          <Link 
-            href="/profile" 
+          <Link
+            href="/profile"
             className="group flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-[#f2994a] transition-all mb-6"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
             Account Dashboard
           </Link>
           <h1 className="text-4xl font-bold tracking-tight text-white">Your Addresses</h1>
@@ -42,11 +42,11 @@ export default function AddressesPage() {
 
         {/* Address Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          
+
           {/* 1. Saved Address Cards */}
           {savedAddresses.map((addr) => (
-            <div 
-              key={addr.id} 
+            <div
+              key={addr.id}
               className="h-[280px] p-8 bg-[#080808] border border-white/10 rounded-2xl flex flex-col justify-between hover:border-[#f2994a]/30 transition-all shadow-xl relative overflow-hidden"
             >
               {addr.isDefault && (
@@ -96,7 +96,7 @@ export default function AddressesPage() {
 
         {/* Informational Policy Section */}
         <section className="mt-24 grid grid-cols-1 md:grid-cols-2 gap-12 border-t border-white/5 pt-16">
-          
+
           {/* Delivery Preferences */}
           <div className="space-y-4">
             <h3 className="text-sm font-black uppercase tracking-[0.2em] text-[#f2994a]">
@@ -113,7 +113,7 @@ export default function AddressesPage() {
               Secure Storage
             </h3>
             <p className="text-sm text-gray-500 leading-relaxed max-w-sm font-medium">
-              All address information is encrypted and stored securely within the Qube ecosystem. We do not share your residential details with third-party logistics partners for marketing purposes.
+              All address information is encrypted and stored securely within the Xerovolt ecosystem. We do not share your residential details with third-party logistics partners for marketing purposes.
             </p>
           </div>
 
@@ -124,7 +124,7 @@ export default function AddressesPage() {
           <label className="text-[10px] font-black uppercase tracking-widest text-gray-600 mb-3 block">
             Special Instructions for Delivery (Internal)
           </label>
-          <textarea 
+          <textarea
             placeholder="e.g. Leave with concierge, Gate Code: 1234..."
             className="w-full bg-black border border-white/10 p-4 rounded-xl focus:border-[#f2994a] outline-none text-sm transition-all resize-none text-white"
             rows={3}

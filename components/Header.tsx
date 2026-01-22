@@ -51,10 +51,10 @@ export default function Header() {
         <div className="flex items-center z-50">
           <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
             <Image
-              src="/logo/qube.png"
-              alt="qubeTech Logo"
-              width={70}
-              height={70}
+              src="/logo/xerovolt.png"
+              alt="Xerovolt Tech Logo"
+              width={80}
+              height={100}
               className="object-contain cursor-pointer w-[50px] md:w-[70px]"
               priority
             />
@@ -66,7 +66,6 @@ export default function Header() {
           <Link href="/" className="hover:text-white transition">Home</Link>
           <Link href="/features" className="hover:text-white transition">Services</Link>
           <Link href="/shop" className="hover:text-white transition">Shop</Link>
-          <Link href="/playground" className="hover:text-yellow-400 transition text-yellow-200/80">Playground</Link>
           <Link href="/support" className="hover:text-white transition">Support</Link>
           <Link href="/contact" className="hover:text-white transition">Contact</Link>
         </nav>
@@ -134,7 +133,6 @@ export default function Header() {
             <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-white py-2">Home</Link>
             <Link href="/features" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-white py-2">Features</Link>
             <Link href="/shop" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-white py-2">Shop</Link>
-            <Link href="/playground" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-yellow-400 py-2 text-yellow-200/80">Playground</Link>
             {/* Link changed to /cart */}
             <Link href="/cart" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-white py-2 flex items-center justify-center gap-2">
               <ShoppingCart className="w-5 h-5" />
