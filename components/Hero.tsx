@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import dynamic from 'next/dynamic';
 
-const Scene = dynamic(() => import("./Scene"), { ssr: false });
+
+
 
 export default function Hero() {
   const [isMobile, setIsMobile] = useState(true);
@@ -64,10 +64,19 @@ export default function Hero() {
       {/* --------------------------------------------------
           2. 3D SCENE BACKGROUND
       -------------------------------------------------- */}
+      {/* --------------------------------------------------
+          2. VIDEO BACKGROUND
+      -------------------------------------------------- */}
       <div className={`absolute inset-0 z-0 ${isMounted ? "block" : "hidden"}`}>
-        <div className="absolute inset-0 z-10">
-          <Scene />
-        </div>
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover z-0"
+        >
+          <source src="/videos/hero_vid.mp4" type="video/mp4" />
+        </video>
 
         {/* Dark Overlay for text readability */}
         <div className="absolute inset-0 bg-black/10 z-20 pointer-events-none" />

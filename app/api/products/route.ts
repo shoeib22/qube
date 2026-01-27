@@ -1,6 +1,6 @@
+export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
-import admin from '@/lib/firebaseAdmin';
-import { getFirestore } from 'firebase-admin/firestore';
+import admin from '../../../lib/firebaseAdmin';
 
 // GET /api/products - Get all active products (public endpoint)
 export async function GET(request: NextRequest) {
@@ -17,11 +17,10 @@ export async function GET(request: NextRequest) {
         }
 
         console.log('✅ [API /api/products] Firebase Admin initialized');
-
-
-        const db = getFirestore(admin.app(), 'xerovolt-tech');
-
-        console.log('✅ [API /api/products] Firestore instance obtained (xerovolt-tech)');
+        // Use the specific database "qube-tech" as confirmed by debugging
+        const { getFirestore } = require('firebase-admin/firestore');
+        const db = getFirestore(admin.app(), 'qube-tech');
+        console.log('✅ [API /api/products] Firestore instance obtained (qube-tech)');
 
         // Get query parameters for filtering
         const { searchParams } = new URL(request.url);
