@@ -1,0 +1,49 @@
+﻿# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# Build
+build/
+dist/
+
+# Logs
+*.log
+
+# Environment files
+.env*
+!.env.example
+
+# OS files
+.DS_Store
+*.pem
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Python / Virtual Envs
+venv/
+.venv/
+env/
+__pycache__/
+*.py
+
+# Testing
+coverage/
+
+# Firebase
+.firebase/
+
+# IDE
+.vscode/
+.idea/
+
+# Git
+.git/
+
+# Large files
+*.zip
+*.tar.gz
