@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import admin from '../../../lib/firebaseAdmin';
 
@@ -16,8 +17,10 @@ export async function GET(request: NextRequest) {
         }
 
         console.log('✅ [API /api/products] Firebase Admin initialized');
-        const db = admin.firestore();
-        console.log('✅ [API /api/products] Firestore instance obtained');
+        // Use the specific database "qube-tech" as confirmed by debugging
+        const { getFirestore } = require('firebase-admin/firestore');
+        const db = getFirestore(admin.app(), 'qube-tech');
+        console.log('✅ [API /api/products] Firestore instance obtained (qube-tech)');
 
         // Get query parameters for filtering
         const { searchParams } = new URL(request.url);
