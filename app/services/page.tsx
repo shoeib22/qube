@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   Music,
   Home,
@@ -7,6 +8,7 @@ import {
   Tablet,
   ArrowRight,
   Wind,
+  Laptop,
 } from "lucide-react";
 
 import Header from "../../components/Header";
@@ -20,6 +22,7 @@ export default function ServicesPage() {
       description:
         "Experience immersive entertainment with our state-of-the-art audio and video solutions. From custom home theaters to multi-room audio systems, we bring the cinema to you.",
       color: "bg-purple-400/20 text-purple-400",
+      href: "/audio-video",
     },
     {
       icon: Home,
@@ -27,6 +30,7 @@ export default function ServicesPage() {
       description:
         "Transform your living space with intelligent automation. Control lighting, climate, and appliances seamlessly from a single intuitive interface.",
       color: "bg-blue-400/20 text-blue-400",
+      href: "/home-automation",
     },
     {
       icon: Shield,
@@ -34,6 +38,7 @@ export default function ServicesPage() {
       description:
         "Protect what matters most with advanced security systems. Our comprehensive surveillance and monitoring solutions ensure peace of mind 24/7.",
       color: "bg-red-400/20 text-red-400",
+      href: "/security",
     },
     {
       icon: Tablet,
@@ -41,14 +46,24 @@ export default function ServicesPage() {
       description:
         "Centralize control with elegant smart panels. Access all your home's features with touch-screen precision and modern design aesthetics.",
       color: "bg-yellow-400/20 text-yellow-400",
+      href: "/smart-panels",
     },
     {
       icon: Wind,
       title: "Energy Recovery Ventilator",
       description:
-        "Centralize control with elegant smart panels. Access all your home's features with touch-screen precision and modern design aesthetics.",
-      color: "bg-yellow-400/20 text-yellow-400",
+        "High-efficiency ventilation that delivers fresh air while conserving energy and maintaining indoor comfort.",
+      color: "bg-green-400/20 text-green-400",
+      href: "/ERV", 
     },
+    {
+  icon: Laptop,
+  title: "Software Development",
+  description:
+    "Custom software development focused on performance, reliability, and growth.",
+  color: "bg-pink-400/20 text-pink-400",
+  href: "/software-development",
+    }
   ];
 
   return (
@@ -67,7 +82,8 @@ export default function ServicesPage() {
           </h1>
 
           <p className="text-gray-400 text-lg">
-            Elevate your lifestyle with our cutting-edge technology solutions tailored for your home and business.
+            Elevate your lifestyle with our cutting-edge technology solutions
+            tailored for your home and business.
           </p>
         </div>
       </section>
@@ -75,9 +91,10 @@ export default function ServicesPage() {
       {/* SERVICES GRID */}
       <section className="py-20 bg-black/40 border-y border-white/10">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-10 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-5xl mx-auto">
             {services.map((service, i) => {
               const Icon = service.icon;
+
               return (
                 <div
                   key={i}
@@ -92,16 +109,22 @@ export default function ServicesPage() {
                       <Icon className="w-8 h-8" />
                     </div>
 
-                    <h3 className="text-2xl font-bold mb-4">{service.title}</h3>
+                    <h3 className="text-2xl font-bold mb-4">
+                      {service.title}
+                    </h3>
 
                     <p className="text-gray-400 leading-relaxed mb-8">
                       {service.description}
                     </p>
 
-                    <div className="flex items-center text-yellow-400 font-medium group/link cursor-pointer">
+                    {/* ✅ LINK */}
+                    <Link
+                      href={service.href}
+                      className="inline-flex items-center text-yellow-400 font-medium group/link"
+                    >
                       <span className="mr-2">Learn more</span>
                       <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
-                    </div>
+                    </Link>
                   </div>
                 </div>
               );

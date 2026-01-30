@@ -1,11 +1,6 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import {
-  initializeFirestore,
-  getFirestore,
-  persistentLocalCache,
-  persistentMultipleTabManager,
-} from "firebase/firestore";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCQAxC7sTetgJAvzcBV2wnPPqV22aqT7S4",
@@ -20,18 +15,5 @@ const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
 
-// ✅ Proper Firestore init
-let db;
-
-if (typeof window !== "undefined") {
-  db = initializeFirestore(app, {
-    localCache: persistentLocalCache({
-      tabManager: persistentMultipleTabManager()
-    }),
-    experimentalForceLongPolling: true,
-  }, 'xerovolt-tech');
-} else {
-  db = getFirestore(app, 'xerovolt-tech');
-}
-
-export { db };
+/* ✅ SIMPLE, SAFE FIRESTORE INIT */
+export const db = getFirestore(app);
