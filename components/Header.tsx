@@ -16,10 +16,10 @@ export default function Header() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
 
   const { cartCount } = useCart();
 
+  // Handle Firebase Auth State
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -27,6 +27,7 @@ export default function Header() {
     return () => unsubscribe();
   }, []);
 
+  // Prevent scroll when mobile menu is open
   useEffect(() => {
     if (isMobileMenuOpen) {
       document.body.style.overflow = "hidden";
@@ -35,27 +36,18 @@ export default function Header() {
     }
   }, [isMobileMenuOpen]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   return (
-    <header className={`w-full fixed top-0 left-0 z-50 transition-all duration-300 ${scrolled ? "bg-black/90 backdrop-blur-md shadow-lg" : "bg-transparent backdrop-blur-sm bg-black/20"
-      }`}>
-      <div className="w-full px-6 md:px-8 py-4 flex justify-between items-center md:grid md:grid-cols-3">
+    <header className="w-full fixed top-0 left-0 z-50 transition-all duration-300 bg-transparent backdrop-blur-sm">
+      <div className="w-full px-6 md:px-8 py-2 flex justify-between items-center md:grid md:grid-cols-3">
         {/* LEFT — LOGO */}
         <div className="flex items-center z-50">
           <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
             <Image
               src="/logo/xerovolt.png"
               alt="Xerovolt Tech Logo"
-              width={80}
-              height={100}
-              className="object-contain cursor-pointer w-[50px] md:w-[70px]"
+              width={160}
+              height={160}
+              className="object-contain cursor-pointer w-[120px] md:w-[160px]"
               priority
             />
           </Link>
@@ -72,7 +64,6 @@ export default function Header() {
 
         {/* RIGHT — ACTIONS (Desktop Only) */}
         <div className="hidden md:flex justify-end items-center gap-6">
-          {/* Link changed from /checkout to /cart */}
           <Link
             href="/cart"
             className="relative text-neutral-300 hover:text-white transition p-1"
@@ -99,7 +90,6 @@ export default function Header() {
 
         {/* RIGHT — HAMBURGER (Mobile Only) */}
         <div className="md:hidden flex items-center gap-4 z-50">
-          {/* Link changed from /checkout to /cart */}
           <Link href="/cart" className="relative text-white mr-2">
             <ShoppingCart className="w-6 h-6" />
             {cartCount > 0 && (
@@ -131,9 +121,8 @@ export default function Header() {
         <div className="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl flex flex-col pt-24 px-6 space-y-6 md:hidden">
           <nav className="flex flex-col space-y-6 text-center text-xl text-neutral-300 font-medium">
             <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-white py-2">Home</Link>
-            <Link href="/features" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-white py-2">Features</Link>
+            <Link href="/services" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-white py-2">Solutions</Link>
             <Link href="/shop" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-white py-2">Shop</Link>
-            {/* Link changed to /cart */}
             <Link href="/cart" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-white py-2 flex items-center justify-center gap-2">
               <ShoppingCart className="w-5 h-5" />
               Cart ({cartCount})

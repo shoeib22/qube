@@ -1,5 +1,8 @@
 import { NextRequest } from 'next/server';
 import admin from '@/lib/firebaseAdmin';
+// 1. Import modular service getters
+import { getAuth } from 'firebase-admin/auth';
+import { getFirestore } from 'firebase-admin/firestore';
 
 export interface AuthUser {
     uid: string;
@@ -9,11 +12,9 @@ export interface AuthUser {
 
 /**
  * Verifies the authentication token from the request
- * Returns user data if authenticated, null otherwise
  */
 export async function verifyAuth(request: NextRequest): Promise<AuthUser | null> {
     try {
-        // Get token from Authorization header
         const authHeader = request.headers.get('authorization');
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
             return null;
@@ -21,16 +22,16 @@ export async function verifyAuth(request: NextRequest): Promise<AuthUser | null>
 
         const token = authHeader.split('Bearer ')[1];
 
-        // Verify the token with Firebase Admin
-        const decodedToken = await admin.auth().verifyIdToken(token);
+        // 2. Use modular getAuth(admin) instead of admin.auth()
+        const auth = getAuth(admin);
+        const decodedToken = await auth.verifyIdToken(token);
 
-        // Get role from custom claims or Firestore
         let role = decodedToken.role as string;
 
-        // Fallback to Firestore if no custom claim
+        // 3. Use modular getFirestore(admin) targeting 'qube-tech'
         if (!role) {
-            const userDoc = await admin.firestore()
-                .collection('users')
+            const db = getFirestore(admin, 'qube-tech');
+            const userDoc = await db.collection('users')
                 .doc(decodedToken.uid)
                 .get();
 
@@ -50,41 +51,31 @@ export async function verifyAuth(request: NextRequest): Promise<AuthUser | null>
 
 /**
  * Middleware to require authentication
- * Returns 401 if not authenticated
  */
 export async function requireAuth(request: NextRequest): Promise<AuthUser | Response> {
     const user = await verifyAuth(request);
-
     if (!user) {
         return new Response(
             JSON.stringify({ error: 'Unauthorized' }),
             { status: 401, headers: { 'Content-Type': 'application/json' } }
         );
     }
-
     return user;
 }
 
 /**
  * Middleware to require admin role
- * Returns 401 if not authenticated, 403 if not admin
  */
 export async function requireAdmin(request: NextRequest): Promise<AuthUser | Response> {
     const userOrResponse = await requireAuth(request);
-
-    // If it's a Response, auth failed
-    if (userOrResponse instanceof Response) {
-        return userOrResponse;
-    }
+    if (userOrResponse instanceof Response) return userOrResponse;
 
     const user = userOrResponse as AuthUser;
-
     if (user.role !== 'admin') {
         return new Response(
             JSON.stringify({ error: 'Forbidden: Admin access required' }),
             { status: 403, headers: { 'Content-Type': 'application/json' } }
         );
     }
-
     return user;
 }

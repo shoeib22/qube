@@ -1,74 +1,70 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 import { getPhonePeConfig, encodePayload, generateChecksum } from "@/lib/phonepe";
 import admin from "@/lib/firebaseAdmin";
+// 1. Import modular Firestore services
+import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
     try {
-        const { amount, customerInfo, items } = await req.json();
+        const body = await req.json();
+        const { amount, customerInfo, items, userId } = body;
 
         console.log("🚀 Payment Init Request:", { amount, customerInfo });
 
         if (amount === undefined || amount === null || !customerInfo) {
-            console.error("❌ Missing fields:", { amount, customerInfoPresent: !!customerInfo });
-            return NextResponse.json({ error: "Missing required fields (amount or customerInfo)" }, { status: 400 });
+            return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        if (amount <= 0) {
-            console.error("❌ Invalid amount:", amount);
-            return NextResponse.json({ error: "Payment amount must be greater than 0" }, { status: 400 });
-        }
         const { merchantId, saltKey, saltIndex, hostUrl, callbackUrl } = getPhonePeConfig();
 
         // 1. Create Unique Transaction ID
         const merchantTransactionId = `TXN_${Date.now()}_${uuidv4().substring(0, 8)}`;
-        const merchantUserId = `USER_${uuidv4().substring(0, 8)}`; // Ideally use actual user ID
+        const merchantUserId = userId || `USER_${uuidv4().substring(0, 8)}`;
 
-        // 2. Prepare Payload
-        // PhonePe expects amount in PAISES (multiply by 100)
+        // 2. Prepare Payload (PhonePe expects PAISES)
         const amountInPaisa = Math.round(amount * 100);
-
-        // Redirect to success page on frontend, let that page verify status
-        // Note: In production, use your actual domain
-        const origin = req.headers.get("origin") || "http://localhost:3000";
+        const origin = req.headers.get("origin") || "https://xerovolt.tech";
         const redirectUrl = `${origin}/payment/success?id=${merchantTransactionId}`;
 
         const payload = {
-            merchantId: merchantId,
-            merchantTransactionId: merchantTransactionId,
-            merchantUserId: merchantUserId,
+            merchantId,
+            merchantTransactionId,
+            merchantUserId,
             amount: amountInPaisa,
-            redirectUrl: redirectUrl,
+            redirectUrl,
             redirectMode: "REDIRECT",
-            callbackUrl: callbackUrl,
+            callbackUrl,
             mobileNumber: customerInfo.phone || "9999999999",
-            paymentInstrument: {
-                type: "PAY_PAGE",
-            },
+            paymentInstrument: { type: "PAY_PAGE" },
         };
 
         const base64Payload = encodePayload(payload);
         const apiEndpoint = "/pg/v1/pay";
         const checksum = generateChecksum(base64Payload, apiEndpoint, saltKey, saltIndex);
 
-        // 3. Create Order in Firestore BEFORE initiating payment
-        // We create it as PENDING.
+        // 3. Create Order in 'qube-tech' DB BEFORE initiating payment
         try {
-            const orderRef = admin.firestore().collection('orders').doc(); // Auto-ID
+            // Use modular getFirestore and target your specific DB
+            const db = getFirestore(admin, 'qube-tech');
+            const orderRef = db.collection('orders').doc(); 
+            
             await orderRef.set({
-                orderId: merchantTransactionId, // Use txn ID as order ID for simplicity
+                orderId: merchantTransactionId,
                 transactionId: merchantTransactionId,
+                userId: merchantUserId,
                 amount: amount,
                 items: items,
                 customerInfo: customerInfo,
                 status: 'PENDING',
                 paymentMethod: 'phonepe',
-                createdAt: admin.firestore.FieldValue.serverTimestamp(),
-                updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                // Use modular FieldValue syntax
+                createdAt: FieldValue.serverTimestamp(),
+                updatedAt: FieldValue.serverTimestamp()
             });
-            console.log(`📝 Created pending order: ${orderRef.id}`);
+            console.log(`📝 Created pending order in qube-tech: ${orderRef.id}`);
         } catch (error) {
-            console.error("❌ Failed to create order in Firestore:", error);
+            console.error("❌ Firestore order creation failed:", error);
             return NextResponse.json({ error: "Failed to create order" }, { status: 500 });
         }
 
@@ -80,9 +76,7 @@ export async function POST(req: Request) {
                 "X-VERIFY": checksum,
                 Accept: "application/json",
             },
-            body: JSON.stringify({
-                request: base64Payload,
-            }),
+            body: JSON.stringify({ request: base64Payload }),
         });
 
         const data = await response.json();
@@ -97,7 +91,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: data.message || "Payment initiation failed" }, { status: 500 });
         }
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("❌ Payment Initiation Error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }

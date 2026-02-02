@@ -1,31 +1,35 @@
 import admin from '../lib/firebaseAdmin';
+// 1. Import modular service getters
+import { getAuth } from 'firebase-admin/auth';
+import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 
 /**
  * Script to promote a user to admin role
- * Usage: node scripts/make-admin.js <email>
+ * Usage: npx ts-node scripts/make-admin.ts <email>
  */
 
 async function promoteToAdmin(email: string) {
     try {
         console.log(`🔍 Looking for user with email: ${email}`);
 
-        // Get user by email
-        const userRecord = await admin.auth().getUserByEmail(email);
+        // 2. Access Auth modularly
+        const auth = getAuth(admin);
+        const userRecord = await auth.getUserByEmail(email);
         console.log(`✅ Found user: ${userRecord.uid}`);
 
-        // Set custom claims
-        await admin.auth().setCustomUserClaims(userRecord.uid, { role: 'admin' });
+        // 3. Set custom claims for RBAC
+        await auth.setCustomUserClaims(userRecord.uid, { role: 'admin' });
         console.log(`✅ Set custom claims: role=admin`);
 
-        // Update Firestore document
-        await admin.firestore()
-            .collection('users')
+        // 4. Update Firestore doc in 'qube-tech' instance
+        const db = getFirestore(admin, 'qube-tech');
+        await db.collection('users')
             .doc(userRecord.uid)
             .update({
                 role: 'admin',
-                updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                updatedAt: FieldValue.serverTimestamp()
             });
-        console.log(`✅ Updated Firestore document`);
+        console.log(`✅ Updated Firestore document in qube-tech`);
 
         console.log(`\n🎉 Successfully promoted ${email} to admin!`);
         console.log(`⚠️  User must log out and log back in for changes to take effect.\n`);
@@ -37,12 +41,10 @@ async function promoteToAdmin(email: string) {
     }
 }
 
-// Get email from command line
 const email = process.argv[2];
-
 if (!email) {
     console.error('❌ Please provide an email address');
-    console.log('Usage: npm run make-admin <email>');
+    console.log('Usage: npx ts-node scripts/make-admin.ts <email>');
     process.exit(1);
 }
 

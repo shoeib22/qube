@@ -1,8 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getPhonePeConfig, generateStatusChecksum } from "@/lib/phonepe";
 import admin from "@/lib/firebaseAdmin";
+// 1. Import modular Firestore services
+import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 
-export async function POST(req: Request) {
+/**
+ * POST /api/payments/status
+ * VERIFY: Checks transaction status with PhonePe and updates 'qube-tech' DB.
+ */
+export async function POST(req: NextRequest) {
     try {
         const { transactionId } = await req.json();
 
@@ -13,7 +19,6 @@ export async function POST(req: Request) {
         const { merchantId, saltKey, saltIndex, hostUrl } = getPhonePeConfig();
 
         // 1. Prepare Checksum for Status API
-        // GET /pg/v1/status/{merchantId}/{merchantTransactionId}
         const apiEndpoint = `/pg/v1/status/${merchantId}/${transactionId}`;
         const checksum = generateStatusChecksum(apiEndpoint, saltKey, saltIndex);
 
@@ -28,52 +33,55 @@ export async function POST(req: Request) {
         });
 
         const data = await response.json();
-        console.log("🔍 Payment Verify Response:", JSON.stringify(data, null, 2));
+        console.log("🔍 PhonePe Status Response:", JSON.stringify(data, null, 2));
 
-        let status = 'PENDING';
+        let finalStatus = 'PENDING';
         if (data.success && data.code === "PAYMENT_SUCCESS") {
-            status = 'SUCCESS';
+            finalStatus = 'SUCCESS';
         } else if (data.code === "PAYMENT_ERROR" || data.code === "PAYMENT_DECLINED") {
-            status = 'FAILED';
+            finalStatus = 'FAILED';
         }
 
-        // 3. Update Order in Firestore
+        // 3. Update Order in 'qube-tech' DB
         try {
-            const ordersRef = admin.firestore().collection('orders');
+            // Use modular syntax and target qube-tech
+            const db = getFirestore(admin, 'qube-tech');
+            const ordersRef = db.collection('orders');
             const snapshot = await ordersRef.where('transactionId', '==', transactionId).get();
 
             if (!snapshot.empty) {
-                const doc = snapshot.docs[0];
-                // Only update if not already success to avoid overwrites
-                const currentData = doc.data();
+                const orderDoc = snapshot.docs[0];
+                const currentData = orderDoc.data();
+
+                // 🛡️ Safeguard: Don't overwrite SUCCESS status with a PENDING check
                 if (currentData.status !== 'SUCCESS') {
-                    await doc.ref.update({
-                        status: status,
+                    await orderDoc.ref.update({
+                        status: finalStatus,
                         paymentDetails: data.data || {},
-                        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                        // Use modular FieldValue syntax
+                        updatedAt: FieldValue.serverTimestamp()
                     });
                 }
 
                 return NextResponse.json({
-                    success: status === 'SUCCESS',
-                    status,
-                    orderDetails: { id: doc.id, ...doc.data(), status } // Return updated status
+                    success: finalStatus === 'SUCCESS',
+                    status: finalStatus,
+                    orderId: orderDoc.id
                 });
             } else {
                 return NextResponse.json({ error: "Order not found" }, { status: 404 });
             }
         } catch (dbError) {
             console.error("❌ Database update failed:", dbError);
-            // Return the phonepe status even if db update fails so UI can show success/fail
             return NextResponse.json({
-                success: status === 'SUCCESS',
-                status,
-                warning: "Database update failed"
+                success: finalStatus === 'SUCCESS',
+                status: finalStatus,
+                warning: "Database sync failed"
             });
         }
 
-    } catch (error) {
-        console.error("error verifying payment:", error);
+    } catch (error: any) {
+        console.error("❌ Payment Verify Error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

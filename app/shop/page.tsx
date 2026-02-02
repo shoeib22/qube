@@ -15,6 +15,7 @@ interface Product {
   category: string;
   price: number;
   image: string;
+  imageUrl?: string;
   isActive: boolean;
 }
 
@@ -175,12 +176,13 @@ export default function ShopPage() {
                       <Link href={`/shop/Products/${p.id}`} className="block flex-grow relative">
                         <div className="relative w-full h-52 mb-4 bg-white/5 rounded-xl overflow-hidden p-6 flex items-center justify-center">
                           <Image
-                            src={p.image || `/products/${p.id}.jpg`}
-                            alt={p.name}
-                            fill
-                            className="object-contain group-hover:scale-110 transition-transform duration-500 ease-in-out"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                          />
+  // Change p.image to p.imageUrl
+  src={p.imageUrl || p.image || `/products/${p.id}.jpg`}
+  alt={p.name}
+  fill
+  className="object-contain hover:scale-110 transition-transform duration-500"
+  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+/>
                         </div>
 
                         <h3 className="text-xl font-semibold leading-tight min-h-[3.5rem] flex items-center group-hover:text-blue-400 transition-colors">

@@ -77,3 +77,17 @@ coverage/
 # =========================
 reproduce_*
 diagnose_firebase.js
+
+# =========================
+# Firebase & App Hosting
+# =========================
+.firebase/
+.firebaserc
+firebase-admin-key.json
+
+# =========================
+# Hardware / IoT (Xerovolt Grid)
+# =========================
+.pio/
+.vscode/.platformio/
+libdeps/service-account.json

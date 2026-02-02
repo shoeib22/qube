@@ -5,26 +5,35 @@ yarn-debug.log*
 pnpm-debug.log*
 
 # Next.js
-.next
-out
+.next/
+out/
+build/
 
 # Git
 .git
 .gitignore
 
-# Env
-.env*
+# Env & Secrets - CRITICAL
+.env
+.env.local
+.env.production
+.env*.local
 !.env.example
 
-# Logs
-*.log
+# Firebase & App Hosting
+.firebase/
 firebase-debug.log*
+.firebaserc
+apphosting.yaml
 
-# Python
-venv
-.venv
-__pycache__
-*.py
+# Python (for IoT/Hardware scripts)
+venv/
+.venv/
+__pycache__/
+*.pyc
 
-# OS
+# IDEs & OS
 .DS_Store
+.vscode/
+.idea/
+*.swp
