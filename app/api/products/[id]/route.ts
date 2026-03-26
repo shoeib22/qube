@@ -1,21 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import admin from '@/lib/firebaseAdmin';
+import adminApp from '@/lib/firebaseAdmin'; 
 import { requireAdmin } from '@/lib/auth-middleware';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
 
-/**
- * GET /api/products/[id]
- */
 export async function GET(
     request: NextRequest,
-    { params }: { params: Promise<{ id: string }> } // Define as Promise
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        // 1. Await params before destructuring
         const { id } = await params; 
-        
-        const db = getFirestore(admin, 'qube-tech');
+        const db = getFirestore(adminApp, 'qube-tech');
         const doc = await db.collection('products').doc(id).get();
 
         if (!doc.exists) {
@@ -23,87 +18,70 @@ export async function GET(
         }
 
         const data = doc.data();
-        let imageUrl = null;
+        const isImageRequest = request.nextUrl.searchParams.get('image') === 'true';
 
-        if (data?.image) {
-            try {
-                const bucket = getStorage(admin).bucket('cube-8c773.firebasestorage.app');
-                const [url] = await bucket.file(data.image).getSignedUrl({
-                    version: 'v4',
-                    action: 'read',
-                    expires: Date.now() + 60 * 60 * 1000, 
-                });
-                imageUrl = url;
-            } catch (imgErr) {
-                console.error('Image Signing failed:', imgErr);
-            }
+        if (isImageRequest && data?.image) {
+            const bucket = getStorage(adminApp).bucket('cube-8c773.firebasestorage.app');
+            const file = bucket.file(data.image);
+            const [fileBuffer] = await file.download();
+            const [metadata] = await file.getMetadata();
+
+            return new NextResponse(new Uint8Array(fileBuffer), {
+                headers: {
+                    'Content-Type': metadata.contentType || 'image/jpeg',
+                    'Cache-Control': 'public, max-age=31536000, immutable',
+                },
+            });
         }
 
         return NextResponse.json({
             success: true,
-            product: { id: doc.id, ...data, imageUrl },
+            product: { id: doc.id, ...data, imageUrl: `/api/products/${doc.id}?image=true` },
         });
     } catch (error: any) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
 
-/**
- * PUT /api/products/[id]
- */
 export async function PUT(
     request: NextRequest,
-    { params }: { params: Promise<{ id: string }> } // Define as Promise
+    { params }: { params: Promise<{ id: string }> }
 ) {
     const userOrResponse = await requireAdmin(request);
     if (userOrResponse instanceof Response) return userOrResponse;
 
     try {
-        // 2. Await params here as well
         const { id } = await params;
         const body = await request.json();
-        const { name, category, price, image, isActive } = body;
-
-        const db = getFirestore(admin, 'qube-tech');
-        const productRef = db.collection('products').doc(id);
-
+        const db = getFirestore(adminApp, 'qube-tech');
+        
         const updateData: any = {
+            ...body,
             updatedAt: FieldValue.serverTimestamp()
         };
 
-        if (name !== undefined) updateData.name = name;
-        if (category !== undefined) updateData.category = category;
-        if (price !== undefined) updateData.price = price;
-        if (image !== undefined) updateData.image = image;
-        if (isActive !== undefined) updateData.isActive = isActive;
-
-        await productRef.update(updateData);
-        return NextResponse.json({ success: true, message: 'Product updated successfully' });
+        await db.collection('products').doc(id).update(updateData);
+        return NextResponse.json({ success: true, message: 'Updated' });
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
 
-/**
- * DELETE /api/products/[id]
- */
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: Promise<{ id: string }> } // Define as Promise
+    { params }: { params: Promise<{ id: string }> }
 ) {
     const userOrResponse = await requireAdmin(request);
     if (userOrResponse instanceof Response) return userOrResponse;
 
     try {
-        // 3. Await params here too
         const { id } = await params;
-        const db = getFirestore(admin, 'qube-tech');
+        const db = getFirestore(adminApp, 'qube-tech');
         await db.collection('products').doc(id).update({
             isActive: false,
             updatedAt: FieldValue.serverTimestamp()
         });
-
-        return NextResponse.json({ success: true, message: 'Product deleted successfully' });
+        return NextResponse.json({ success: true, message: 'Deleted' });
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
