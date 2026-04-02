@@ -1,49 +1,39 @@
-import { initializeApp, getApps, cert, App, getApp } from 'firebase-admin/app';
-import { getAuth, Auth } from 'firebase-admin/auth';
-import { getFirestore, Firestore } from 'firebase-admin/firestore';
-import { getStorage, Storage } from 'firebase-admin/storage';
-
-let adminApp: App;
+import { initializeApp, getApps, cert, getApp } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
+import { getFirestore } from 'firebase-admin/firestore';
+import { getStorage } from 'firebase-admin/storage';
 
 const projectId = process.env.FIREBASE_PROJECT_ID;
 const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-const b64Key = process.env.FIREBASE_PRIVATE_KEY_B64;
+const privateKey = process.env.FIREBASE_PRIVATE_KEY;
 
 if (getApps().length === 0) {
-  if (projectId && clientEmail && b64Key) {
+  if (projectId && clientEmail && privateKey) {
     try {
-      // 1. Decode and fix the formatting of the Private Key
-      const privateKey = Buffer.from(b64Key.trim(), 'base64')
-        .toString('utf8')
-        .replace(/\\n/g, '\n'); // Essential for PEM formatting
-
-      adminApp = initializeApp({
+      initializeApp({
         credential: cert({
           projectId,
           clientEmail,
-          privateKey,
+          privateKey: privateKey.replace(/\\n/g, '\n'),
         }),
-        storageBucket: 'cube-8c773.firebasestorage.app',
+        // Ensure this matches your storage bucket name seen in console
+        storageBucket: `cube-8c773.firebasestorage.app`, 
       });
       console.log('✅ [FirebaseAdmin] Initialized successfully');
     } catch (error: any) {
       console.error('❌ [FirebaseAdmin] Initialization Failed:', error.message);
-      throw error;
     }
   } else {
-    // This will trigger during the Build phase if secrets aren't available yet
-    // In Next.js, we sometimes want to skip this error during build
-    console.warn('⚠️ [FirebaseAdmin] Env vars missing. This is normal during build if not using secrets.');
+    console.warn('⚠️ [FirebaseAdmin] Missing Env Vars. Check your .env.local names.');
   }
-} else {
-  adminApp = getApp();
 }
 
-// 2. Database ID Logic
-// If your Firestore is the default one, remove 'qube-tech'. 
-// If you actually named your DB 'qube-tech' in the console, keep it.
-export const auth: Auth = getAuth(adminApp!);
-export const db: Firestore = getFirestore(adminApp!, '(default)'); 
-export const storage: Storage = getStorage(adminApp!);
+// Get the initialized app instance
+const app = getApps().length > 0 ? getApp() : null;
 
-export default adminApp!;
+// CRITICAL: Pass 'qube-tech' as the second argument
+export const db = app ? getFirestore(app, 'qube-tech') : null;
+export const auth = app ? getAuth(app) : null;
+export const storage = app ? getStorage(app) : null;
+
+export default app;
