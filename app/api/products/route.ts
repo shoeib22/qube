@@ -7,7 +7,6 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ success: false, error: "Firebase not initialized." }, { status: 500 });
         }
 
-        // Now that we're pointing to 'qube-tech', this will find your documents
         const snapshot = await db.collection('products')
             .where('isActive', '==', true)
             .get();
@@ -20,7 +19,6 @@ export async function GET(request: NextRequest) {
             const data = doc.data();
             let imageUrl = data.imageUrl || null;
 
-            // Handle signed URLs for Storage paths (e.g., "products/2-Touch-Acrylic.png")
             if (data.image && !imageUrl) {
                 try {
                     const bucket = storage.bucket(); 

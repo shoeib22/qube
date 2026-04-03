@@ -358,7 +358,14 @@ function OrderCard({ id, date, total, status, items, image }: { id: string, date
 
       <div className="flex items-center gap-4">
         <div className="w-16 h-16 bg-black rounded-xl border border-gray-800 flex items-center justify-center overflow-hidden flex-shrink-0">
-          <Image src={image || "/logo/xerovolt.png"} alt="Order Item" width={40} height={40} className="object-contain" />
+         <Image
+                       src="/logo/xerovolt.png"
+                       alt="Xerovolt Tech Logo"
+                       width={160}
+                       height={160}
+                       className="object-contain cursor-pointer w-[120px] md:w-[160px]"
+                       priority
+                     />
         </div>
         <div>
           <p className="font-medium text-white">{items[0]}</p>
