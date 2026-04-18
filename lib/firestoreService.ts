@@ -15,7 +15,7 @@ import { getFirebaseDb, PANEL_CONFIGS_PATH, XEROVOLT_APP_ID } from "./firebase";
 import { PanelConfig, SlotConfig } from "../types";
 
 const db = () => getFirebaseDb();
-const colRef = () => collection(db(), PANEL_CONFIGS_PATH(XEROVOLT_APP_ID));
+const colRef = () => collection(db(), PANEL_CONFIGS_PATH());
 
 export async function savePanelConfig(
   config: Omit<PanelConfig, "createdAt" | "updatedAt">

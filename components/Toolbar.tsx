@@ -3,7 +3,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { PanelConfig } from "@/types";
+import { PanelConfig } from "../types";
 
 interface ToolbarProps {
   configName: string;

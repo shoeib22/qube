@@ -293,7 +293,7 @@ export default function PanelCanvas({
                     height={SLOT_HEIGHT - 4}
                     rx={6}
                     fill="none"
-                    stroke="#D4AF37"
+                    stroke="#377bd4"
                     strokeWidth={1}
                     strokeDasharray="4 3"
                     opacity={0.6}
@@ -303,7 +303,7 @@ export default function PanelCanvas({
                     x={slot.x + SLOT_WIDTH / 2}
                     y={slot.y + SLOT_HEIGHT / 2 + 4}
                     textAnchor="middle"
-                    fill="#D4AF37"
+                    fill="#2e68cd"
                     fontSize={10}
                     style={{ pointerEvents: "none" }}
                   >
@@ -318,7 +318,7 @@ export default function PanelCanvas({
                   x={slot.x + SLOT_WIDTH / 2}
                   y={slot.y + SLOT_HEIGHT - 5}
                   textAnchor="middle"
-                  fill={isSelected ? "#D4AF37" : "#555"}
+                  fill={isSelected ? "#37a0d4" : "#555"}
                   fontSize={7}
                   fontFamily="Arial, sans-serif"
                   style={{ pointerEvents: "none" }}

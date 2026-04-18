@@ -11,7 +11,7 @@ import {
   loadPanelConfig,
   listPanelConfigs,
 } from "../lib/firestoreService";
-import { authenticateUser } from "../lib/firebase";
+import { waitForAuth } from "../lib/firebase";
 
 interface UsePanelConfigReturn {
   config: PanelConfig;
@@ -49,7 +49,7 @@ export function usePanelConfig(): UsePanelConfigReturn {
 
   // ✅ FIXED: Authentication
   useEffect(() => {
-    authenticateUser()
+    waitForAuth()
       .then((user) => {
         const uid = user.uid;
 
