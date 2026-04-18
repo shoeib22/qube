@@ -17,11 +17,13 @@ const baseStyles =
   "inline-flex items-center justify-center rounded-full font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed";
 
 const variantStyles: Record<Variant, string> = {
+  // Updated from orange to #155cfc
   primary:
-    "bg-orange-400 text-black hover:bg-orange-600 focus:ring-orange-400 focus:ring-offset-[6px]",
-  ghost: "bg-transparent text-white hover:bg-white/5 focus:ring-white/20",
+    "bg-[#155cfc] text-white hover:bg-[#155cfc]/50 focus:ring-[#155cfc] focus:ring-offset-[2px] focus:ring-offset-black",
+  ghost: 
+    "bg-transparent text-white hover:bg-[#155cfc]/10 focus:ring-[#155cfc]/50",
   outline:
-    "bg-transparent border border-white/10 text-white hover:border-white/20 focus:ring-white/20",
+    "bg-transparent border border-[#155cfc]/40 text-white hover:border-[#155cfc] hover:bg-[#155cfc]/50 focus:ring-[#155cfc]/50",
 };
 
 const padding = "px-6 py-2";

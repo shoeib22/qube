@@ -52,7 +52,7 @@ export default function LoginPage() {
       <nav className="absolute right-6 top-6 z-20 sm:right-12 sm:top-12">
         <Link
           href="/"
-          className="group flex items-center gap-3 rounded-xl border border-white/20 bg-white/5 px-6 py-3 text-xs font-bold uppercase tracking-[0.2em] text-gray-200 transition-all hover:border-[#f2994a] hover:bg-white/10 hover:text-white shadow-lg"
+          className="group flex items-center gap-3 rounded-xl border border-white/20 bg-white/5 px-6 py-3 text-xs font-bold uppercase tracking-[0.2em] text-gray-200 transition-all hover:border-[#155cfc] hover:bg-white/10 hover:text-white shadow-lg"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -64,7 +64,7 @@ export default function LoginPage() {
             strokeWidth="1.5"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="transition-colors group-hover:text-[#f2994a]"
+            className="transition-colors group-hover:text-[#155cfc]"
           >
             <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
             <polyline points="9 22 9 12 15 12 15 22" />
@@ -84,7 +84,7 @@ export default function LoginPage() {
           <h1 className="text-sm font-light uppercase tracking-[0.5em] text-white/90">
             Sign In
           </h1>
-          <div className="mt-4 h-[1px] w-8 bg-[#f2994a]" />
+          <div className="mt-4 h-[1px] w-8 bg-[#155cfc]" />
           {error && (
             <p className="mt-4 text-[10px] uppercase tracking-widest text-red-500 font-bold animate-pulse">
               {error}
@@ -128,7 +128,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-[#f2994a] py-4 text-[10px] font-black uppercase tracking-[0.3em] text-black transition-all hover:bg-white active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-[#155cfc] py-4 text-[10px] font-black uppercase tracking-[0.3em] text-black transition-all hover:bg-white active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? "Authenticating..." : "Login"}
             </button>

@@ -93,15 +93,16 @@ export default function SupportPage() {
 
   return (
     <>
-      {/* HEADER */}
       <Header />
 
       <div className="min-h-screen w-full bg-[var(--graphite)] text-white">
 
         {/* HERO */}
-        <section className="pt-22 pb-5 text-center">
+        <section className="pt-32 pb-10 text-center">
           <h1 className="text-4xl font-bold text-white">Support & Downloads</h1>
-          <p className="text-gray-400 max-w-xl mx-auto mt-4">
+          {/* Subtle underline in brand color */}
+          <div className="w-20 h-1 bg-[#155cfc] mx-auto mt-4 rounded-full" />
+          <p className="text-gray-400 max-w-xl mx-auto mt-6">
             Everything you need to install, operate, and maintain your XEROVOLT system.
           </p>
         </section>
@@ -114,27 +115,30 @@ export default function SupportPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {downloads.map((d, i) => (
-                <div key={i} className="rounded-2xl p-6 bg-black/40 border border-white/10 hover:border-white/20 transition-all">
+                <div key={i} className="group rounded-2xl p-6 bg-black/40 border border-white/10 hover:border-[#155cfc]/50 transition-all duration-300">
                   <div className="flex items-start justify-between mb-4">
-                    <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center">
-                      <d.icon className="w-6 h-6 text-orange-400/80" />
+                    <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center border border-white/10 group-hover:border-[#155cfc]/50 transition-colors">
+                      {/* Icon: Changes to #155cfc on Hover */}
+                      <d.icon className="w-6 h-6 text-gray-400 group-hover:text-[#155cfc] transition-colors" />
                     </div>
-                    <div className="text-xs bg-orange-400 text-black px-2 py-1 rounded">
+                    {/* Format Badge: Now using #155cfc */}
+                    <div className="text-[10px] bg-[#155cfc] text-white px-2 py-1 rounded font-bold uppercase tracking-wider">
                       {d.format}
                     </div>
                   </div>
 
-                  <h3 className="text-white text-lg font-semibold mb-2">{d.title}</h3>
+                  <h3 className="text-white text-lg font-semibold mb-2 group-hover:text-[#155cfc] transition-colors">{d.title}</h3>
                   <p className="text-gray-400 text-sm">{d.description}</p>
 
-                  <div className="flex items-center justify-between mt-4">
-                    <span className="text-gray-500 text-xs">{d.size}</span>
-                    <Button className="bg-orange-400/60 text-black rounded-full hover:bg-orange-300 px-4">
-                      <Download className="w-2 h-2 mr-2" /> Download
+                  <div className="flex items-center justify-between mt-6">
+                    <span className="text-gray-500 text-xs font-mono">{d.size}</span>
+                    {/* Primary Action Button: #155cfc */}
+                    <Button className="bg-[#155cfc] text-white rounded-full hover:bg-[#155cfc]/80 transition-all px-5 py-2 text-sm">
+                      <Download className="w-4 h-4 mr-2" /> Download
                     </Button>
                   </div>
                 </div>
-              ))}`              `
+              ))}
             </div>
           </div>
         </section>
@@ -145,18 +149,18 @@ export default function SupportPage() {
             <h2 className="text-3xl font-semibold text-center mb-2">Technical Specifications</h2>
             <p className="text-gray-400 text-center mb-12">Full system specifications</p>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {specifications.map((section, i) => (
-                <div key={i} className="bg-black/40 border border-white/10 p-6 rounded-2xl">
-                  <h3 className="text-xl font-semibold text-white pb-4 border-b border-white/10">
+                <div key={i} className="bg-black/40 border border-white/10 p-6 rounded-2xl hover:border-[#155cfc]/30 transition-colors">
+                  <h3 className="text-xl font-semibold text-[#155cfc] pb-4 border-b border-white/10">
                     {section.category}
                   </h3>
 
-                  <div className="space-y-3 mt-4">
+                  <div className="space-y-4 mt-6">
                     {section.specs.map((spec, j) => (
-                      <div key={j} className="flex justify-between text-sm">
-                        <span className="text-gray-400">{spec.label}</span>
-                        <span className="text-white">{spec.value}</span>
+                      <div key={j} className="flex flex-col space-y-1">
+                        <span className="text-gray-500 text-xs uppercase tracking-widest">{spec.label}</span>
+                        <span className="text-white font-medium">{spec.value}</span>
                       </div>
                     ))}
                   </div>
@@ -165,7 +169,7 @@ export default function SupportPage() {
             </div>
 
             <div className="text-center mt-12">
-              <Button className="bg-orange-400/50 text-black px-8 py-3 rounded-full hover:bg-orange-400">
+              <Button className="bg-transparent border border-[#155cfc] text-[#155cfc] px-8 py-3 rounded-full hover:bg-[#155cfc] hover:text-white transition-all font-semibold">
                 <Download className="w-4 h-4 mr-2" />
                 Download Full Spec Sheet
               </Button>
@@ -177,18 +181,18 @@ export default function SupportPage() {
         <section className="py-20">
           <div className="max-w-4xl mx-auto px-6">
             <div className="text-center mb-12">
-              <div className="w-16 h-16 mx-auto bg-white/10 rounded-2xl flex items-center justify-center mb-4">
-                <HelpCircle className="w-8 h-8 text-green-400" />
+              <div className="w-16 h-16 mx-auto bg-[#155cfc]/10 rounded-2xl flex items-center justify-center mb-4 border border-[#155cfc]/20">
+                <HelpCircle className="w-8 h-8 text-[#155cfc]" />
               </div>
               <h2 className="text-3xl font-semibold">Frequently Asked Questions</h2>
             </div>
 
+            {/* Note: Ensure your FAQ component uses the brand color for its accordion triggers/icons */}
             <FAQ items={faqs} />
           </div>
         </section>
       </div>
 
-      {/* FOOTER */}
       <Footer />
     </>
   );

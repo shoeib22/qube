@@ -3,6 +3,7 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 // ✅ FIX: Import from 'firebase/auth', NOT 'firebase-admin/auth'
 import { getAuth } from 'firebase/auth';
+import { onAuthStateChanged, User } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCQAxC7sTetgJAvzcBV2wnPPqV22aqT7S4",
@@ -27,4 +28,34 @@ export const db = getFirestore(app, 'qube-tech');
 // Initialize Storage
 export const storage = getStorage(app);
 
+// Instead of creating new storage each time, reuse existing
+export const getFirebaseStorage = () => storage;
+
+// App ID (used in your storage path)
+export const XEROVOLT_APP_ID = "xerovolt";
+
+// Dynamic path generator
+export const ICONS_STORAGE_PATH = (appId: string) =>
+  `apps/${appId}/icons`;
+// ✅ Firestore helper (same pattern as storage)
+export const getFirebaseDb = () => db;
+
+// ✅ Collection path builder
+export const PANEL_CONFIGS_PATH = (userId: string) =>
+  `users/${userId}/panelConfigs`;
+// Default export (optional)
+// ✅ Wait for Firebase auth to initialize properly
+export const authenticateUser = (): Promise<User> => {
+  return new Promise((resolve, reject) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      unsubscribe();
+
+      if (user) {
+        resolve(user);
+      } else {
+        reject(new Error("User not authenticated"));
+      }
+    });
+  });
+};
 export default app;

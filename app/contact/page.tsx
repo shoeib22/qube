@@ -32,7 +32,7 @@ export default function ContactPage() {
 
                 <div className="space-y-6">
                   <div className="flex items-start gap-4">
-                    <Mail className="w-6 h-6 text-[#ec8e45]" />
+                    <Mail className="w-6 h-6 text-[#155cfc]" />
                     <div>
                       <p className="font-medium">Email</p>
                       <p className="text-gray-400">support@xerovolt.in</p>
@@ -40,7 +40,7 @@ export default function ContactPage() {
                   </div>
 
                   <div className="flex items-start gap-4">
-                    <Phone className="w-6 h-6 text-[#ec8e45]" />
+                    <Phone className="w-6 h-6 text-[#155cfc]" />
                     <div>
                       <p className="font-medium">Phone</p>
                       <p className="text-gray-400">+91 9XXXXXXXXX</p>
@@ -48,7 +48,7 @@ export default function ContactPage() {
                   </div>
 
                   <div className="flex items-start gap-4">
-                    <MapPin className="w-6 h-6 text-[#ec8e45]" />
+                    <MapPin className="w-6 h-6 text-[#155cfc]" />
                     <div>
                       <p className="font-medium">Office</p>
                       <p className="text-gray-400">
@@ -100,7 +100,7 @@ export default function ContactPage() {
 
                 <Button
                   type="submit"
-                  className="w-full bg-[#ec8e45] text-black hover:bg-[#e07f34] rounded-full py-3 text-lg"
+                  className="w-full bg-[#155cfc] text-black hover:bg-[#158cfc] rounded-full py-3 text-lg"
                 >
                   <Send className="w-4 h-4 mr-2" />
                   Send Message
