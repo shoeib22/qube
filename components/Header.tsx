@@ -54,9 +54,9 @@ export default function Header() {
             <Image
               src="/logo/xerovolt.png"
               alt="Xerovolt Tech Logo"
-              width={300}
-              height={80}
-              className="object-contain cursor-pointer w-[130px] md:w-[155px]"
+              width={900}
+              height={720}
+              className="object-contain cursor-pointer w-[220px] md:w-[320px]"
               priority
             />
           </Link>
