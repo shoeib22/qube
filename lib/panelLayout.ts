@@ -3,9 +3,9 @@
 import { SlotPosition } from "../types";
 
 // ── Canvas dimensions (pixel-perfect 1:1 representation) ─────────────────────
-export const PANEL_WIDTH = 800;
+export const PANEL_WIDTH = 900;
 export const PANEL_HEIGHT = 420;
-export const PANEL_PADDING = 48;
+export const PANEL_PADDING = 36;
 export const PANEL_CORNER_RADIUS = 12;
 
 // ── Slot dimensions ───────────────────────────────────────────────────────────
