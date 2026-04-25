@@ -46,21 +46,21 @@ export default function Header() {
       }`}
     >
       {/* Container is now w-full with horizontal padding instead of a fixed max-width */}
-      <div className="w-full px-6 md:px-10 h-24 md:h-28 flex justify-between items-center">
+      <div className="w-full px-6 md:px-10 h-30 md:h-28 flex justify-between items-center">
         
         {/* LEFT — LOGO (Leftmost) */}
-        <div className="flex-1 flex justify-start z-50">
-          <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
-            <Image
-              src="/logo/xerovolt.png"
-              alt="Xerovolt Tech Logo"
-              width={300}
-              height={80}
-              className="object-contain cursor-pointer w-[130px] md:w-[155px]"
-              priority
-            />
-          </Link>
-        </div>
+       <div className="flex-1 flex items-center justify-start h-20 z-50">
+  <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
+    <Image
+      src="/logo/xerovolt.svg"
+      alt="Xerovolt Tech Logo"
+      width={600}
+      height={120}
+      className="object-contain cursor-pointer w-[180px] md:w-[220px]"
+      priority
+    />
+  </Link>
+</div>
 
         {/* CENTER — NAVIGATION (Perfectly Centered) */}
         <nav className="hidden md:flex flex-none justify-center space-x-10 text-neutral-300 font-medium">

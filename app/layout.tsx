@@ -1,8 +1,9 @@
 import "./globals.css";
 import type { Metadata } from "next";
-// 1. IMPORT THE PROVIDER
 import { CartProvider } from "../context/CartContext";
 import { AuthProvider } from "../context/AuthContext";
+// 1. Import the Google Analytics component
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 export const metadata: Metadata = {
   title: "Xerovolt Tech",
@@ -16,17 +17,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      {/* 2. ADD suppressHydrationWarning HERE TOO IF NEEDED */}
       <body className="font-sans text-white bg-black min-h-screen" suppressHydrationWarning>
-
-        {/* 3. WRAP EVERYTHING INSIDE THE BODY WITH CARTPROVIDER */}
-        {/* 3. WRAP EVERYTHING INSIDE THE BODY WITH PROVIDERS */}
         <AuthProvider>
           <CartProvider>
             {children}
           </CartProvider>
         </AuthProvider>
-
+        
+        {/* 2. Add the component here using your Measurement ID */}
+        <GoogleAnalytics gaId="G-CT3T4W3CF5" />
       </body>
     </html>
   );
