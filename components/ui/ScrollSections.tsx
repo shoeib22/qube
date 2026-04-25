@@ -5,13 +5,13 @@ const sections = [
   {
     title: "Seamless Automation, Tailored for You",
     desc: "From basic smart setups to fully integrated home automation — customized to your lifestyle.",
-    img: "https://firebasestorage.googleapis.com/v0/b/cube-8c773.firebasestorage.app/o/_%20(1).jpeg?alt=media&token=155fca56-c34f-48d5-9690-1c83f6c59e7a", // Replace with your high-res smart home image
+    img: "https://images.unsplash.com/photo-1558002038-1055907df827?q=80&w=1200", // Replace with your high-res smart home image
     align: "left"
   },
   {
     title: "Monitor and Manage Remotely, Effortlessly",
     desc: "From live views of each room to smart control of lights, security, and more. Xerovolt brings your home to your fingertips.",
-    img: "https://firebasestorage.googleapis.com/v0/b/cube-8c773.firebasestorage.app/o/Untitled%20design%20(2).png?alt=media&token=2a428d48-e29b-4f6e-b233-e2b9678298de", // Replace with your mobile app/monitoring image
+    img: "https://images.unsplash.com/photo-1512486130939-2c4f7996006f?q=80&w=1200", // Replace with your mobile app/monitoring image
     align: "right"
   }
 ];
