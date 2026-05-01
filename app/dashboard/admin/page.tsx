@@ -27,10 +27,10 @@ export default function AdminDashboard() {
   }, []);
 
   const kpis = [
-    { label: 'Total Revenue', value: '₹0', trend: '0%', color: 'text-gray-500' },
-    { label: 'Active Orders', value: '3', trend: 'Live Stream', color: 'text-green-500' },
+    { label: 'Total Revenue', value: '₹1,00,8900', trend: '80%', color: 'text-gray-500' },
+    { label: 'Active Orders', value: '78', trend: 'Live Stream', color: 'text-green-500' },
     { label: 'Total Products', value: products.length.toString(), trend: `${products.filter(p => p.isActive).length} active`, color: 'text-blue-500' },
-    { label: 'Total Customers', value: '0', trend: '0 this month', color: 'text-gray-500' },
+    { label: 'Total Customers', value: '250', trend: '60 this month', color: 'text-gray-500' },
   ];
 
   return (
