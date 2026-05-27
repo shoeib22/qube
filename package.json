@@ -45,5 +45,9 @@
   },
   "engines": {
     "node": ">=20.9.0"
+  },
+  "overrides": {
+    "react": "$react",
+    "react-dom": "$react-dom"
   }
 }
