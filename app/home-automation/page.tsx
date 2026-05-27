@@ -41,62 +41,62 @@ export default function HomeAutomationsPage() {
   };
 
   const benefits = [
-    {
-      icon: Lightbulb,
-      title: "Smart Lighting",
-      description:
-        "Control lighting scenes, brightness, and schedules effortlessly.",
-      color: "bg-yellow-400/20 text-yellow-400",
-    },
-    {
-      icon: Thermometer,
-      title: "Climate Control",
-      description:
-        "Maintain perfect indoor temperature with intelligent automation.",
-      color: "bg-blue-500/20 text-blue-400",
-    },
-    {
-      icon: ShieldCheck,
-      title: "Enhanced Security",
-      description:
-        "Integrated smart locks, cameras, and alerts for complete peace of mind.",
-      color: "bg-green-500/20 text-green-400",
-    },
-    {
-      icon: Home,
-      title: "Unified Control",
-      description:
-        "Manage all devices from one intuitive interface or mobile app.",
-      color: "bg-purple-500/20 text-purple-400",
-    },
-  ];
+  {
+    icon: Lightbulb,
+    title: "Smart Lighting",
+    description:
+      "Adjust lighting scenes and brightness effortlessly for every mood and moment.",
+    color: "bg-yellow-400/20 text-yellow-400",
+  },
+  {
+    icon: Thermometer,
+    title: "Climate Control",
+    description:
+      "Maintain perfect indoor comfort with intelligent temperature automation.",
+    color: "bg-blue-500/20 text-blue-400",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Home Security",
+    description:
+      "Monitor and protect your home with smart locks, cameras, and instant alerts.",
+    color: "bg-green-500/20 text-green-400",
+  },
+  {
+    icon: Home,
+    title: "Unified Control",
+    description:
+      "Control all connected devices from one seamless and intuitive interface.",
+    color: "bg-purple-500/20 text-purple-400",
+  },
+];
 
-  const steps = [
-    {
-      step: "1",
-      title: "Assessment",
-      description:
-        "Understanding your home layout and automation goals.",
-    },
-    {
-      step: "2",
-      title: "System Planning",
-      description:
-        "Designing a seamless automation ecosystem for your home.",
-    },
-    {
-      step: "3",
-      title: "Installation",
-      description:
-        "Professional setup with clean wiring and reliable hardware.",
-    },
-    {
-      step: "4",
-      title: "Integration",
-      description:
-        "All systems connected and optimized for daily use.",
-    },
-  ];
+const steps = [
+  {
+    step: "1",
+    title: "Consultation",
+    description:
+      "Understanding your space and smart living requirements.",
+  },
+  {
+    step: "2",
+    title: "Planning",
+    description:
+      "Designing a connected automation system tailored for your home.",
+  },
+  {
+    step: "3",
+    title: "Installation",
+    description:
+      "Professional setup with clean integration and reliable performance.",
+  },
+  {
+    step: "4",
+    title: "Automation",
+    description:
+      "Enjoy seamless control through intelligent and connected living.",
+  },
+];
 
   return (
     <div className="min-h-screen w-full bg-[var(--graphite)] text-white">
