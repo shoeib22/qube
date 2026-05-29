@@ -18,14 +18,18 @@
     "firebase-admin": "^12.7.0",
     "html2canvas": "^1.4.1",
     "idb": "^8.0.3",
+<<<<<<< HEAD
     "js-cookie": "^3.0.5",
     "jspdf": "^4.2.1",
+=======
+    "js-cookie": "^3.0.7",
+>>>>>>> 860c0710c62dccc4ff7f620d9b4c4c95353af353
     "lucide-react": "^0.560.0",
     "motion": "^12.23.26",
-    "next": "^16.1.6",
+    "next": "^16.2.6",
     "openai": "^4.56.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
     "react-share": "^5.2.2",
     "snowfall": "^2.1.0",
     "three": "^0.160.0",
@@ -47,5 +51,9 @@
   },
   "engines": {
     "node": ">=20.9.0"
+  },
+  "overrides": {
+    "react": "$react",
+    "react-dom": "$react-dom"
   }
 }
