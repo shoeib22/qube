@@ -1,7 +1,3 @@
-// app/panel-customizer/page.tsx  (or pages/panel-customizer.tsx)
-// ── Xerovolt Touch Panel Customizer — Main Page ────────────────────────────────
-// Drop this file into your Next.js project at the path above.
-
 "use client";
 
 import React, { useState, useCallback } from "react";

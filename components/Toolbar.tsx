@@ -352,7 +352,7 @@ function XerovoltLogo() {
       height={28}
       viewBox="0 0 28 28"
       fill="none"
-      xmlns="http://www.w3.org/2000/svg"
+      xmlns="https://xerovolt.in/logo/xerovolt-logo.svg"
     >
       <rect width={28} height={28} rx={5} fill="#D4AF37" />
       <path
