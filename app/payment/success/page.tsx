@@ -129,7 +129,7 @@ function PaymentSuccessContent() {
     );
 }
 
-export default function PaymentSuccessPage() {
+function PaymentSuccessPageInner() {
     return (
         <div className="min-h-screen bg-black text-white font-sans selection:bg-green-500/30">
             {/* Simple Header */}
@@ -144,4 +144,12 @@ export default function PaymentSuccessPage() {
             </main>
         </div>
     );
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense fallback={<div style={{ background: "#050505", height: "100vh" }} />}>
+      <PaymentSuccessPageInner />
+    </Suspense>
+  );
 }

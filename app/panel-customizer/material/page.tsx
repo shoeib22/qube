@@ -153,7 +153,7 @@ function MaterialsContent() {
   );
 }
 
-export default function MaterialsPage() {
+function MaterialsPageInner() {
   return (
     <div
       style={{
@@ -171,5 +171,12 @@ export default function MaterialsPage() {
         <MaterialsContent />
       </Suspense>
     </div>
+  );
+}
+export default function MaterialsPage() {
+  return (
+    <Suspense fallback={<div style={{ background: "#050505", height: "100vh" }} />}>
+      <MaterialsPageInner />
+    </Suspense>
   );
 }

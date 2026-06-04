@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import React, {
   useEffect,
   useMemo,
@@ -596,10 +597,17 @@ function AccessoriesConfigurator() {
   );
 }
 
-export default function AccessoriesPage() {
+function AccessoriesPageInner() {
   return (
     <Suspense fallback={<div style={{ minHeight: "100vh", background: "#050505" }} />}>
       <AccessoriesConfigurator />
+    </Suspense>
+  );
+}
+export default function AccessoriesPage() {
+  return (
+    <Suspense fallback={<div style={{ background: "#050505", height: "100vh" }} />}>
+      <AccessoriesPageInner />
     </Suspense>
   );
 }

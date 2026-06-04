@@ -501,10 +501,17 @@ function IconSelectorConfigurator() {
   );
 }
 
-export default function IconSelectorPage() {
+function IconSelectorPageInner() {
   return (
     <Suspense fallback={<div style={{ minHeight: "100vh", background: "#050505" }} />}>
       <IconSelectorConfigurator />
+    </Suspense>
+  );
+}
+export default function IconSelectorPage() {
+  return (
+    <Suspense fallback={<div style={{ background: "#050505", height: "100vh" }} />}>
+      <IconSelectorPageInner />
     </Suspense>
   );
 }

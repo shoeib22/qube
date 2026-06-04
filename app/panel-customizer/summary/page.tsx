@@ -796,10 +796,17 @@ function OrderSummaryInner() {
     </>
   );
 }
-export default function OrderSummaryPage() {
+function OrderSummaryPageInner() {
   return (
     <Suspense fallback={<div style={{ background: "#050505", minHeight: "100vh" }} />}>
       <OrderSummaryInner />
+    </Suspense>
+  );
+}
+export default function OrderSummaryPage() {
+  return (
+    <Suspense fallback={<div style={{ background: "#050505", height: "100vh" }} />}>
+      <OrderSummaryPageInner />
     </Suspense>
   );
 }
