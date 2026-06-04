@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, Suspense, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 // ======================================================
-// SHARED CONSTANTS (mirrors accessories-page.tsx)
+// SHARED CONSTANTS
 // ======================================================
 
 const FRAME_COLOR_MAP: Record<string, { background: string; border: string; label: string }> = {
@@ -31,7 +31,7 @@ const MATERIAL_LABEL_MAP: Record<string, string> = {
 };
 
 // ======================================================
-// ICONS — full set (mirrors accessories-page.tsx)
+// ICONS
 // ======================================================
 
 const getModuleIcon = (name: string, iconColor: string, size = 24) => {
@@ -117,13 +117,29 @@ const getModuleIcon = (name: string, iconColor: string, size = 24) => {
       <path d="M12 12v-1M12 18v-1M9.5 14.5h-1M15.5 14.5h-1" strokeLinecap="round" />
     </svg>
   );
-  // fallback lightning
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={iconColor} strokeWidth="1.5">
       <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 };
+
+// Map Icon Database for Empty Slots - Updated to accept dynamic sizes
+const ICON_DATABASE = [
+  { id: "icn-1sw", name: "1 Switch", render: (c: string, s = 24) => getModuleIcon("1 Switch", c, s) },
+  { id: "icn-2sw", name: "2 Switch", render: (c: string, s = 24) => getModuleIcon("2 Switch", c, s) },
+  { id: "icn-4sw", name: "4 Switch", render: (c: string, s = 24) => getModuleIcon("4 Switch", c, s) },
+  { id: "icn-6sw", name: "6 Switch", render: (c: string, s = 24) => getModuleIcon("6 Switch", c, s) },
+  { id: "icn-8sw", name: "8 Switch", render: (c: string, s = 24) => getModuleIcon("8 Switch", c, s) },
+  { id: "icn-fan", name: "Ceiling Fan", render: (c: string, s = 24) => getModuleIcon("Fan", c, s) },
+  { id: "icn-curtain", name: "Curtains", render: (c: string, s = 24) => getModuleIcon("Curtain", c, s) },
+  { id: "icn-usb", name: "USB Type-C", render: (c: string, s = 24) => getModuleIcon("USB", c, s) },
+  { id: "icn-16a", name: "16A Socket", render: (c: string, s = 24) => getModuleIcon("16a", c, s) },
+  { id: "icn-2hv", name: "2 HV Socket", render: (c: string, s = 24) => getModuleIcon("2 HV", c, s) },
+  { id: "icn-tv", name: "TV Socket", render: (c: string, s = 24) => getModuleIcon("TV", c, s) },
+  { id: "icn-eth", name: "Ethernet", render: (c: string, s = 24) => getModuleIcon("Ethernet", c, s) },
+  { id: "icn-tel", name: "Telephone", render: (c: string, s = 24) => getModuleIcon("Telephone", c, s) },
+];
 
 // ======================================================
 // TYPES
@@ -143,10 +159,11 @@ type ParsedConfig = {
   materialColor: string;
   frameColor: string;
   modules: ConfigModule[];
+  iconMapping: Record<number, string>;
 };
 
 // ======================================================
-// PANEL PREVIEW — reads purely from parsed config
+// PANEL PREVIEW
 // ======================================================
 
 const DynamicPanelPreview = ({
@@ -156,7 +173,7 @@ const DynamicPanelPreview = ({
   config: ParsedConfig;
   isPdf?: boolean;
 }) => {
-  const { panelSize, materialColor, frameColor, modules } = config;
+  const { panelSize, materialColor, frameColor, modules, iconMapping } = config;
   const frameTheme  = FRAME_COLOR_MAP[frameColor]   || FRAME_COLOR_MAP["frm-black"];
   const matTheme    = MATERIAL_COLOR_MAP[materialColor] || MATERIAL_COLOR_MAP["mat-black"];
   const iconColor   = materialColor === "mat-white" ? "#111" : "#00E5FF";
@@ -164,7 +181,7 @@ const DynamicPanelPreview = ({
   const columns = Math.max(1, Math.ceil(panelSize / 2));
   const totalGridSlots = columns * 2;
 
-  // Build grid slots
+  // Build grid slots for accessories
   const gridSlots: (ConfigModule | null)[] = Array(totalGridSlots).fill(null);
   let idx = 0;
   modules.forEach((mod) => {
@@ -176,8 +193,6 @@ const DynamicPanelPreview = ({
       idx += mod.size;
     }
   });
-
-  const nextEmptyIndex = gridSlots.findIndex((s) => s === null);
 
   return (
     <div
@@ -194,7 +209,6 @@ const DynamicPanelPreview = ({
         overflow: "hidden",
       }}
     >
-      {/* Metallic sheen */}
       <div
         style={{
           position: "absolute", inset: 0,
@@ -202,7 +216,6 @@ const DynamicPanelPreview = ({
           pointerEvents: "none",
         }}
       />
-      {/* Inner surface */}
       <div
         style={{
           width: "100%",
@@ -219,7 +232,6 @@ const DynamicPanelPreview = ({
           aspectRatio: panelSize >= 12 ? "1.9" : "2.2",
         }}
       >
-        {/* Glass sheen */}
         <div
           style={{
             position: "absolute", inset: 0,
@@ -229,21 +241,21 @@ const DynamicPanelPreview = ({
         />
 
         {gridSlots.map((mod, index) => {
-          const firstIndex = mod
-            ? gridSlots.findIndex((s) => s?.instanceId === mod.instanceId)
-            : -1;
+          const firstIndex = mod ? gridSlots.findIndex((s) => s?.instanceId === mod.instanceId) : -1;
           const isFirstSlot = firstIndex === index;
 
           if (mod && !isFirstSlot) return null;
 
-          const isNextEmpty = !mod && index === nextEmptyIndex;
+          const mappedIconId = !mod ? iconMapping[index] : null;
+          const mappedIconDef = mappedIconId ? ICON_DATABASE.find(i => i.id === mappedIconId) : null;
+          const isPopulated = mod || mappedIconDef;
 
           return (
             <div
               key={index}
               style={{
                 borderRadius: "7px",
-                background: mod
+                background: isPopulated
                   ? matTheme.module
                   : materialColor === "mat-white"
                     ? "rgba(0,0,0,0.03)"
@@ -252,7 +264,7 @@ const DynamicPanelPreview = ({
                   materialColor === "mat-white"
                     ? "1px solid rgba(0,0,0,0.05)"
                     : "1px solid rgba(255,255,255,0.05)",
-                boxShadow: mod
+                boxShadow: isPopulated
                   ? "inset 0 2px 8px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.04)"
                   : "none",
                 display: "flex",
@@ -264,36 +276,46 @@ const DynamicPanelPreview = ({
                 gridColumn: mod ? `span ${mod.size}` : "span 1",
               }}
             >
+              {/* Accessory Icon Render */}
               {mod && (
-                <div style={{ opacity: 0.9, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  {getModuleIcon(mod.name, iconColor, 24)}
-                </div>
+                <>
+                  <div style={{ opacity: 0.9, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {getModuleIcon(mod.name, iconColor, 24)}
+                  </div>
+                  <div style={{ fontSize: "8px", color: iconColor, opacity: 0.45, marginTop: "4px", textAlign: "center", letterSpacing: "0.3px", lineHeight: 1.3, maxWidth: "90%" }}>
+                    {mod.name}
+                  </div>
+                </>
               )}
-              {mod && (
-                <div style={{
-                  fontSize: "8px", color: iconColor, opacity: 0.45,
-                  marginTop: "4px", textAlign: "center", letterSpacing: "0.3px",
-                  lineHeight: 1.3, maxWidth: "90%",
-                }}>
-                  {mod.name}
-                </div>
+
+              {/* Mapped Icon Render */}
+              {mappedIconDef && (
+                <>
+                  <div style={{ opacity: 0.9, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {mappedIconDef.render(iconColor, 24)}
+                  </div>
+                  <div style={{ fontSize: "8px", color: iconColor, opacity: 0.45, marginTop: "4px", textAlign: "center", letterSpacing: "0.3px", lineHeight: 1.3, maxWidth: "90%" }}>
+                    {mappedIconDef.name}
+                  </div>
+                </>
               )}
-              {isNextEmpty && (
+
+              {/* Empty state placeholder */}
+              {!isPopulated && (
                 <div style={{
                   width: "20px", height: "20px",
-                  border: materialColor === "mat-white"
-                    ? "1px solid rgba(0,0,0,0.18)"
-                    : "1px solid rgba(255,255,255,0.25)",
+                  border: materialColor === "mat-white" ? "1px solid rgba(0,0,0,0.18)" : "1px solid rgba(255,255,255,0.25)",
                   borderRadius: "4px", opacity: 0.6,
                 }} />
               )}
+              
               {/* LED */}
               <div style={{
                 width: "4px", height: "4px", borderRadius: "50%",
                 background: materialColor === "mat-white" ? "#111" : "#00E5FF",
                 position: "absolute", bottom: "7px", left: "50%",
                 transform: "translateX(-50%)",
-                opacity: mod ? 1 : 0.2,
+                opacity: isPopulated ? 1 : 0.2,
                 boxShadow: materialColor === "mat-white" ? "none" : "0 0 8px rgba(0,229,255,0.6)",
               }} />
             </div>
@@ -319,53 +341,90 @@ function OrderSummaryInner() {
     setCurrentDate(new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" }));
   }, []);
 
-  // ============================================================
-  // PARSE ALL DATA FROM URL PARAMS
-  // URL shape (from accessories-page.tsx handleContinue):
-  //   /summary?model=10-gang&material=acrylic&materialColor=mat-blue
-  //           &frameColor=frm-gold&config=[JSON array of ConfigModule]
-  // ============================================================
+  // Parse all settings from the URL parameters with LocalStorage fallbacks
   const config: ParsedConfig = useMemo(() => {
     const model         = searchParams.get("model")         || "6-gang";
     const material      = searchParams.get("material")      || "glass";
     const materialColor = searchParams.get("materialColor") || "mat-black";
     const frameColor    = searchParams.get("frameColor")    || "frm-black";
-    const rawConfig     = searchParams.get("config")        || "[]";
+    const panelSizeRaw  = parseInt(model.split("-")[0]);
+    const panelSize     = isNaN(panelSizeRaw) ? 6 : panelSizeRaw;
 
-    const panelSizeRaw = parseInt(model.split("-")[0]);
-    const panelSize    = isNaN(panelSizeRaw) ? 6 : panelSizeRaw;
-
+    // Parse hardware accessories
     let modules: ConfigModule[] = [];
     try {
-      modules = JSON.parse(decodeURIComponent(rawConfig));
+      const rawConfig = searchParams.get("config");
+      if (rawConfig) {
+        modules = JSON.parse(rawConfig);
+      }
     } catch {
       modules = [];
     }
 
-    return { model, panelSize, material, materialColor, frameColor, modules };
+    // Parse icon mapping (safely handles URL encoding and falls back to local storage if refreshed)
+    let iconMapping: Record<number, string> = {};
+    try {
+      const rawIcons = searchParams.get("icons");
+      if (rawIcons && rawIcons !== "{}") {
+        iconMapping = JSON.parse(rawIcons);
+      } else if (typeof window !== "undefined") {
+        const localIcons = localStorage.getItem("xerovolt_empty_slot_icons");
+        if (localIcons) {
+          iconMapping = JSON.parse(localIcons);
+        }
+      }
+    } catch {
+      iconMapping = {};
+    }
+
+    return { model, panelSize, material, materialColor, frameColor, modules, iconMapping };
   }, [searchParams]);
 
-  // Human-readable labels for spec table
   const frameLabel    = FRAME_COLOR_MAP[config.frameColor]?.label        || config.frameColor;
   const matColorLabel = MATERIAL_COLOR_MAP[config.materialColor]?.label  || config.materialColor;
   const matLabel      = MATERIAL_LABEL_MAP[config.material]              || config.material;
   const gangLabel     = `${config.panelSize} Gang`;
 
-  // Slots used
-  const slotsUsed = config.modules.reduce((a, m) => a + m.size, 0);
+  // Calculate Used Slots (Accessories + Selected Icons)
+  const slotsUsedByAccessories = config.modules.reduce((a, m) => a + m.size, 0);
+  const slotsUsedByIcons = Object.keys(config.iconMapping).length;
+  const totalSlotsUsed = slotsUsedByAccessories + slotsUsedByIcons;
 
-  // Spec rows
+  // Combine hardware modules and custom icon mappings into a single list for the summary UI
+  const allPopulatedSlots = useMemo(() => {
+    const combined = config.modules.map(mod => ({
+      id: mod.instanceId,
+      size: mod.size,
+      name: mod.name,
+      render: (c: string) => getModuleIcon(mod.name, c, 18),
+      isCustom: false
+    }));
+
+    Object.entries(config.iconMapping).forEach(([idx, iconId]) => {
+      const def = ICON_DATABASE.find(i => i.id === iconId);
+      if (def) {
+        combined.push({
+          id: `custom-${idx}`,
+          size: 1,
+          name: def.name,
+          render: (c: string) => def.render(c, 18), // Scaled down for list view
+          isCustom: true
+        });
+      }
+    });
+
+    return combined;
+  }, [config.modules, config.iconMapping]);
+
   const specs = [
     { label: "Model",          value: gangLabel                    },
     { label: "Material",       value: matLabel                     },
     { label: "Material Color", value: matColorLabel                },
     { label: "Frame Finish",   value: frameLabel                   },
-    { label: "Capacity",       value: `${slotsUsed} / ${config.panelSize} slots used` },
+    { label: "Capacity",       value: `${totalSlotsUsed} / ${config.panelSize} slots configured` },
   ];
 
-  // ============================================================
-  // PDF GENERATION
-  // ============================================================
+  // PDF Download Logic
   const handleDownloadPDF = async () => {
     if (!pdfRef.current) return;
     setIsGenerating(true);
@@ -496,7 +555,6 @@ function OrderSummaryInner() {
               </div>
 
               <div style={{ width: "100%", maxWidth: `${Math.ceil(config.panelSize / 2) * 120 + 36}px`, position: "relative" }}>
-                {/* Ambient glow */}
                 <div style={{
                   position: "absolute", inset: "-40px",
                   background: FRAME_COLOR_MAP[config.frameColor]?.border
@@ -511,15 +569,15 @@ function OrderSummaryInner() {
               <div style={{ marginTop: "28px", width: "100%", maxWidth: "320px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#555", marginBottom: "8px" }}>
                   <span>Slot utilisation</span>
-                  <span style={{ color: slotsUsed === config.panelSize ? "#22c55e" : "#D4AF37" }}>
-                    {slotsUsed} / {config.panelSize}
+                  <span style={{ color: totalSlotsUsed === config.panelSize ? "#22c55e" : "#D4AF37" }}>
+                    {totalSlotsUsed} / {config.panelSize}
                   </span>
                 </div>
                 <div style={{ height: "3px", background: "#1a1a1a", borderRadius: "2px", overflow: "hidden" }}>
                   <div style={{
                     height: "100%", borderRadius: "2px",
-                    width: `${(slotsUsed / config.panelSize) * 100}%`,
-                    background: slotsUsed === config.panelSize
+                    width: `${(totalSlotsUsed / config.panelSize) * 100}%`,
+                    background: totalSlotsUsed === config.panelSize
                       ? "linear-gradient(90deg,#22c55e,#16a34a)"
                       : "linear-gradient(90deg,#D4AF37,#aa8c2c)",
                     transition: "width 0.5s ease",
@@ -531,7 +589,6 @@ function OrderSummaryInner() {
             {/* ── RIGHT: SPECS + MODULES ── */}
             <div className="summary-card fade-in" style={{ padding: "40px", display: "flex", flexDirection: "column", gap: "0" }}>
 
-              {/* System Specifications */}
               <h2 style={{
                 fontSize: "13px", color: "#D4AF37", fontWeight: 600, letterSpacing: "1px",
                 textTransform: "uppercase", borderBottom: "1px solid #222",
@@ -549,18 +606,17 @@ function OrderSummaryInner() {
                 ))}
               </ul>
 
-              {/* Installed Modules */}
               <h2 style={{
                 fontSize: "13px", color: "#D4AF37", fontWeight: 600, letterSpacing: "1px",
                 textTransform: "uppercase", borderBottom: "1px solid #222",
                 paddingBottom: "14px", marginBottom: "20px",
               }}>
-                Installed Modules ({config.modules.length})
+                Configured Slots ({allPopulatedSlots.length})
               </h2>
 
-              {config.modules.length === 0 ? (
+              {allPopulatedSlots.length === 0 ? (
                 <div style={{ color: "#444", fontSize: "14px", fontStyle: "italic" }}>
-                  No modules configured.
+                  No slots configured.
                 </div>
               ) : (
                 <div style={{
@@ -568,26 +624,24 @@ function OrderSummaryInner() {
                   gap: "10px", marginBottom: "auto", overflowY: "auto", maxHeight: "260px",
                   paddingRight: "4px",
                 }}>
-                  {config.modules.map((mod) => (
+                  {allPopulatedSlots.map((mod) => (
                     <div
-                      key={mod.instanceId}
+                      key={mod.id}
                       className="module-chip"
                       style={{
                         display: "flex", alignItems: "center", gap: "10px",
-                        background: "#0d0d0d", padding: "10px 14px",
-                        borderRadius: "8px", border: "1px solid #222",
+                        background: mod.isCustom ? "rgba(212, 175, 55, 0.05)" : "#0d0d0d", 
+                        padding: "10px 14px",
+                        borderRadius: "8px", 
+                        border: mod.isCustom ? "1px solid rgba(212, 175, 55, 0.2)" : "1px solid #222",
                       }}
                     >
                       <div style={{ flexShrink: 0 }}>
-                        {getModuleIcon(
-                          mod.name,
-                          config.materialColor === "mat-white" ? "#333" : "#00E5FF",
-                          18
-                        )}
+                        {mod.render(config.materialColor === "mat-white" ? "#333" : (mod.isCustom ? "#D4AF37" : "#00E5FF"))}
                       </div>
                       <div style={{ overflow: "hidden" }}>
                         <div style={{ fontSize: "10px", color: "#555", marginBottom: "2px" }}>
-                          {mod.size}M
+                          {mod.size}M {mod.isCustom ? "(Icon)" : ""}
                         </div>
                         <div style={{
                           fontSize: "12px", color: "#ccc",
@@ -650,7 +704,7 @@ function OrderSummaryInner() {
       </div>
 
       {/* ══════════════════════════════════════════
-          HIDDEN PDF TEMPLATE — captures to canvas
+          HIDDEN PDF TEMPLATE 
       ══════════════════════════════════════════ */}
       <div
         ref={pdfRef}
@@ -660,7 +714,6 @@ function OrderSummaryInner() {
           padding: "60px", fontFamily: "'Inter', sans-serif",
         }}
       >
-        {/* PDF Header */}
         <div style={{
           display: "flex", justifyContent: "space-between", alignItems: "flex-start",
           borderBottom: "1px solid #222", paddingBottom: "30px", marginBottom: "40px",
@@ -681,14 +734,12 @@ function OrderSummaryInner() {
           </div>
         </div>
 
-        {/* PDF Panel render */}
         <div style={{ display: "flex", justifyContent: "center", marginBottom: "48px" }}>
           <div style={{ width: "60%", maxWidth: "500px" }}>
             <DynamicPanelPreview config={config} isPdf />
           </div>
         </div>
 
-        {/* PDF Specs */}
         <div style={{ marginBottom: "40px" }}>
           <div style={{
             fontSize: "13px", color: "#D4AF37", textTransform: "uppercase",
@@ -709,25 +760,24 @@ function OrderSummaryInner() {
           </div>
         </div>
 
-        {/* PDF Modules */}
-        {config.modules.length > 0 && (
+        {allPopulatedSlots.length > 0 && (
           <div style={{ marginBottom: "40px" }}>
             <div style={{
               fontSize: "13px", color: "#D4AF37", textTransform: "uppercase",
               letterSpacing: "1px", fontWeight: 600, marginBottom: "16px",
             }}>
-              Installed Modules
+              Configured Slots
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px" }}>
-              {config.modules.map((mod) => (
-                <div key={mod.instanceId} style={{
+              {allPopulatedSlots.map((mod) => (
+                <div key={mod.id} style={{
                   display: "flex", alignItems: "center", gap: "10px",
                   background: "#0a0a0a", padding: "10px 14px",
                   borderRadius: "6px", border: "1px solid #1a1a1a",
                 }}>
-                  <div>{getModuleIcon(mod.name, "#D4AF37", 16)}</div>
+                  <div>{mod.render("#D4AF37")}</div>
                   <div>
-                    <div style={{ fontSize: "10px", color: "#555" }}>{mod.size}M</div>
+                    <div style={{ fontSize: "10px", color: "#555" }}>{mod.size}M {mod.isCustom ? "(Icon)" : ""}</div>
                     <div style={{ fontSize: "12px", color: "#ccc" }}>{mod.name}</div>
                   </div>
                 </div>
@@ -736,7 +786,6 @@ function OrderSummaryInner() {
           </div>
         )}
 
-        {/* PDF Footer */}
         <div style={{
           fontSize: "11px", color: "#444", textAlign: "center",
           marginTop: "60px", paddingTop: "20px", borderTop: "1px solid #1a1a1a",
@@ -747,10 +796,9 @@ function OrderSummaryInner() {
     </>
   );
 }
-
 export default function OrderSummaryPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#050505" }} />}>
+    <Suspense fallback={<div style={{ background: "#050505", minHeight: "100vh" }} />}>
       <OrderSummaryInner />
     </Suspense>
   );
