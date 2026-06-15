@@ -1,57 +1,101 @@
 "use client";
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 
 const sections = [
   {
-    title: "Seamless Automation, Tailored for You",
-    desc: "From basic smart setups to fully integrated home automation — customized to your lifestyle.",
-    img: "https://images.unsplash.com/photo-1558002038-1055907df827?q=80&w=1200", // Replace with your high-res smart home image
+    num: "01",
+    tag: "Smart Architecture",
+    title: "Seamless Automation, Tailored for You.",
+    desc: "From basic smart setups to fully integrated home automation — custom-engineered to adapt intuitively to your daily lifestyle.",
+    img: "https://firebasestorage.googleapis.com/v0/b/cube-8c773.firebasestorage.app/o/ChatGPT%20Image%20Jun%2015%2C%202026%2C%2004_52_36%20PM.png?alt=media&token=4405ffa9-c5e9-4f74-961e-d5e6d8e5796d0.+=crop",
     align: "left"
   },
   {
-    title: "Monitor and Manage Remotely, Effortlessly",
-    desc: "From live views of each room to smart control of lights, security, and more. Xerovolt brings your home to your fingertips.",
-    img: "https://images.unsplash.com/photo-1512486130939-2c4f7996006f?q=80&w=1200", // Replace with your mobile app/monitoring image
+    num: "02",
+    tag: "Complete Control",
+    title: "Monitor and Manage Remotely, Effortlessly.",
+    desc: "From live views of each room to granular control of lighting, climate, and security. Xerovolt brings your entire home to your fingertips.",
+    img: "https://firebasestorage.googleapis.com/v0/b/cube-8c773.firebasestorage.app/o/ChatGPT%20Image%20Jun%2015%2C%202026%2C%2004_58_10%20PM.png?alt=media&token=a77d8e47-d38a-4c6a-8bd4-20a2e9e7859c=crop",
     align: "right"
   }
 ];
+
+// Individual section component to handle localized scroll animations
+function CinematicSection({ section }: { section: typeof sections[0] }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"]
+  });
+
+  // Creates a subtle parallax effect for the background image
+  const y = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [1.1, 1, 1.1]);
+
+  return (
+    <div ref={containerRef} className="relative h-[120vh] flex items-center justify-center overflow-hidden">
+      
+      {/* Parallax Background */}
+      <motion.div 
+        style={{ y, scale }}
+        className="absolute inset-0 w-full h-[130%] -top-[15%] z-0"
+      >
+        <img
+          src={section.img}
+          alt={section.title}
+          className="w-full h-full object-cover opacity-60"
+        />
+      </motion.div>
+
+      {/* Heavy Cinematic Vignette & Gradients */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#030303] via-transparent to-[#030303]" />
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,transparent_0%,#030303_100%)] opacity-80" />
+
+      {/* Floating Glass Content Card */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6">
+        <div className={`flex w-full ${section.align === 'right' ? 'justify-end' : 'justify-start'}`}>
+          <motion.div 
+            initial={{ opacity: 0, y: 40, filter: "blur(10px)" }}
+            whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            viewport={{ once: true, margin: "-20%" }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="max-w-2xl relative"
+          >
+            {/* The Glass Panel */}
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-2xl rounded-3xl border border-white/10 -m-8 sm:-m-12 z-[-1]" />
+            
+            <div className="flex items-center gap-4 mb-6">
+              <span className="text-sm font-mono text-zinc-500 tracking-wider">
+                {section.num}
+              </span>
+              <div className="h-[1px] w-12 bg-white/20" />
+              <span className="text-xs uppercase tracking-[0.2em] font-semibold text-transparent bg-clip-text bg-gradient-to-r from-zinc-300 to-zinc-600">
+                {section.tag}
+              </span>
+            </div>
+
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-light tracking-tighter text-white leading-[1.1] mb-8">
+              {section.title}
+            </h2>
+            
+            <p className="text-lg sm:text-xl text-zinc-400 leading-relaxed font-light max-w-lg">
+              {section.desc}
+            </p>
+          </motion.div>
+        </div>
+      </div>
+      
+    </div>
+  );
+}
 
 export default function ScrollSections() {
   return (
     <section className="bg-[#030303]">
       {sections.map((section, idx) => (
-        <div key={idx} className="relative min-h-screen flex items-center px-6 py-24 border-b border-white/5">
-          {/* Background Image Container */}
-          <div className="absolute inset-0 z-0">
-            <motion.img 
-              initial={{ scale: 1.1, opacity: 0 }}
-              whileInView={{ scale: 1, opacity: 0.4 }}
-              transition={{ duration: 1.5, ease: "easeOut" }}
-              src={section.img}
-              alt={section.title}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-[#030303] via-transparent to-[#030303]"></div>
-          </div>
-
-          {/* Text Content */}
-          <div className={`relative z-10 max-w-7xl mx-auto w-full flex ${section.align === 'right' ? 'justify-end' : 'justify-start'}`}>
-            <motion.div 
-              initial={{ opacity: 0, x: section.align === 'left' ? -50 : 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ margin: "-100px" }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="max-w-xl"
-            >
-              <h2 className="text-4xl md:text-6xl font-medium tracking-tight text-white mb-6">
-                {section.title}
-              </h2>
-              <p className="text-xl text-zinc-400 leading-relaxed">
-                {section.desc}
-              </p>
-            </motion.div>
-          </div>
-        </div>
+        <CinematicSection key={idx} section={section} />
       ))}
     </section>
   );

@@ -29,19 +29,19 @@ const PANEL_MODELS = [
     slots: 8,
     description: "Maximum control for master setups and scenes.",
   },
-   {
+  {
     id: "10-gang",
     name: "10-Button Panel",
     slots: 10,
     description: "Maximum control for master setups and scenes.",
   },
-     {
+  {
     id: "12-gang",
     name: "12-Button Panel",
     slots: 12,
     description: "Maximum control for master setups and scenes.",
   },
-       {
+  {
     id: "16-gang",
     name: "16-Button Panel",
     slots: 16,
@@ -148,17 +148,36 @@ export default function PanelSelectorPage() {
             </p>
           </div>
 
-          {/* Grid Selection */}
+          {/* Centered Grid Selection Matching Image Layout */}
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
               gap: "24px",
               marginBottom: "60px",
+              maxWidth: "1000px",
+              margin: "0 auto 60px auto"
             }}
           >
-            {PANEL_MODELS.map((model) => {
+            {PANEL_MODELS.map((model, index) => {
               const isSelected = selectedModel === model.id;
+              
+              // Calculate graphic layout based on image logic (1 square graphic per 2 modules)
+              const numModules = Math.max(1, Math.floor(model.slots / 2));
+              let cols = numModules;
+              
+              // Wrap to 2 rows for 12 and 16 module sizes to match image graphics
+              if (model.slots === 12) {
+                cols = 3;
+              } else if (model.slots === 16) {
+                cols = 4;
+              } else if (model.slots === 10) {
+                cols = 5;
+              }
+
+              const iconColor = isSelected ? "#D4AF37" : "#555";
+
               return (
                 <div
                   key={model.id}
@@ -167,12 +186,13 @@ export default function PanelSelectorPage() {
                   style={{
                     background: "linear-gradient(145deg, #111111 0%, #0a0a0a 100%)",
                     border: "1px solid #1f1f1f",
-                    borderRadius: "16px",
-                    padding: "40px 24px",
+                    borderRadius: "8px",
+                    padding: "24px 32px",
                     cursor: "pointer",
-                    textAlign: "center",
+                    textAlign: "left",
                     position: "relative",
-                    overflow: "hidden"
+                    overflow: "hidden",
+                    width: "310px", // Fixed width to force the exact 3-top, 2-bottom flex wrap layout
                   }}
                 >
                   {/* Subtle highlight glow inside the card if selected */}
@@ -189,47 +209,46 @@ export default function PanelSelectorPage() {
                     }} />
                   )}
 
-                  {/* Visual Representation of the Panel */}
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: model.slots > 4 ? "1fr 1fr" : "1fr",
-                      gap: "6px",
-                      width: "fit-content",
-                      margin: "0 auto 32px",
-                      background: "linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%)",
-                      padding: "16px",
-                      borderRadius: "6px",
-                      border: "1px solid #222",
-                      boxShadow: "inset 0 2px 10px rgba(0,0,0,0.8), 0 10px 20px rgba(0,0,0,0.4)",
-                    }}
-                  >
-                    {Array.from({ length: model.slots }).map((_, i) => (
-                      <div
-                        key={i}
-                        style={{
-                          width: "36px",
-                          height: "18px",
-                          background: isSelected 
-                            ? "linear-gradient(180deg, #D4AF37 0%, #aa8c2c 100%)" 
-                            : "linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%)",
-                          borderRadius: "3px",
-                          border: isSelected ? "1px solid #ffdb6b" : "1px solid #333",
-                          boxShadow: isSelected 
-                            ? "inset 0 1px 2px rgba(255,255,255,0.4), 0 2px 4px rgba(0,0,0,0.5)" 
-                            : "inset 0 1px 1px rgba(255,255,255,0.05), 0 2px 4px rgba(0,0,0,0.5)",
-                          transition: "all 0.3s ease"
-                        }}
-                      />
-                    ))}
+                  <div style={{ fontSize: "14px", fontWeight: "700", color: "#777", marginBottom: "8px" }}>
+                    Size {index + 1}
                   </div>
 
-                  <h3 style={{ fontSize: "18px", color: isSelected ? "#D4AF37" : "#fff", marginBottom: "12px", fontWeight: 500, letterSpacing: "0.5px" }}>
-                    {model.name}
-                  </h3>
-                  <p style={{ fontSize: "13px", color: "#777", lineHeight: 1.5, margin: 0 }}>
-                    {model.description}
-                  </p>
+                  <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                    <h3 style={{
+                      fontSize: "28px",
+                      color: isSelected ? "#D4AF37" : "#fff",
+                      margin: 0,
+                      fontWeight: 700,
+                    }}>
+                      {model.slots} Module
+                    </h3>
+
+                    {/* Graphic Representation (Nested bordered rectangles matching image style) */}
+                    <div style={{
+                      display: "grid",
+                      gridTemplateColumns: `repeat(${cols}, 1fr)`,
+                      gap: "2px",
+                      padding: "3px",
+                      border: `1.5px solid ${iconColor}`,
+                      borderRadius: "3px",
+                      backgroundColor: "transparent",
+                      transition: "border-color 0.3s ease"
+                    }}>
+                      {Array.from({ length: numModules }).map((_, i) => (
+                        <div
+                          key={i}
+                          style={{
+                            width: "14px",
+                            height: "22px",
+                            border: `1.5px solid ${iconColor}`,
+                            borderRadius: "2px",
+                            backgroundColor: isSelected ? "rgba(212, 175, 55, 0.15)" : "transparent",
+                            transition: "all 0.3s ease"
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 </div>
               );
             })}
@@ -238,7 +257,7 @@ export default function PanelSelectorPage() {
           {/* Action Footer */}
           <div style={{ display: "flex", justifyContent: "center", paddingBottom: "40px" }}>
             <button
-              onClick={() =>  router.push(`/panel-customizer/material?model=${selectedModel}`)}
+              onClick={() => router.push(`/panel-customizer/material?model=${selectedModel}`)}
               disabled={!selectedModel || isNavigating}
               className="xerovolt-button"
               style={{
