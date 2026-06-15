@@ -1,6 +1,15 @@
 "use client";
 
-import Link from "next/link";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  motion,
+  useMotionValue,
+  useSpring,
+  useTransform,
+  useMotionTemplate,
+  useScroll,
+  Variants,
+} from "framer-motion";
 import {
   Music,
   Home,
@@ -9,126 +18,379 @@ import {
   ArrowRight,
   Wind,
   Laptop,
+  Cpu,
+  Layers
 } from "lucide-react";
-
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 
-export default function ServicesPage() {
-  const services = [
-    {
-      icon: Music,
-      title: "Audio & Video",
-      description:
-        "Experience immersive entertainment with our state-of-the-art audio and video solutions. From custom home theaters to multi-room audio systems, we bring the cinema to you.",
-      color: "bg-purple-400/20 text-purple-400",
-      href: "/audio-video",
-    },
-    {
-      icon: Home,
-      title: "Home Automations",
-      description:
-        "Transform your living space with intelligent automation. Control lighting, climate, and appliances seamlessly from a single intuitive interface.",
-      color: "bg-blue-400/20 text-blue-400",
-      href: "/home-automation",
-    },
-    {
-      icon: Shield,
-      title: "Security Services",
-      description:
-        "Protect what matters most with advanced security systems. Our comprehensive surveillance and monitoring solutions ensure peace of mind 24/7.",
-      color: "bg-red-400/20 text-red-400",
-      href: "/security",
-    },
-    {
-      icon: Tablet,
-      title: "Smart Panels",
-      description:
-        "Centralize control with elegant smart panels. Access all your home's features with touch-screen precision and modern design aesthetics.",
-      color: "bg-yellow-400/20 text-yellow-400",
-      href: "/smart-panels",
-    },
-    {
-      icon: Wind,
-      title: "Energy Recovery Ventilator",
-      description:
-        "High-efficiency ventilation that delivers fresh air while conserving energy and maintaining indoor comfort.",
-      color: "bg-green-400/20 text-green-400",
-      href: "/ERV", 
-    },
-    {
-  icon: Laptop,
-  title: "Software Development",
-  description:
-    "Custom software development focused on performance, reliability, and growth.",
-  color: "bg-pink-400/20 text-pink-400",
-  href: "/software-development",
-    }
-  ];
+// --- Mock Components for Runnable Canvas ---
+
+
+
+interface ServiceData {
+  icon: React.ElementType;
+  title: string;
+  description: string;
+  color: string;
+  glow: string;
+  href: string;
+}
+
+const services: ServiceData[] = [
+  {
+    icon: Music,
+    title: "Audio & Video",
+    description: "Experience immersive entertainment with our state-of-the-art audio and video solutions. From custom home theaters to multi-room audio systems.",
+    color: "text-purple-400",
+    glow: "rgba(192, 132, 252, 0.4)",
+    href: "/audio-video",
+  },
+  {
+    icon: Home,
+    title: "Home Automations",
+    description: "Transform your living space with intelligent automation. Control lighting, climate, and appliances seamlessly from a single intuitive interface.",
+    color: "text-blue-400",
+    glow: "rgba(96, 165, 250, 0.4)",
+    href: "/home-automation",
+  },
+  {
+    icon: Shield,
+    title: "Security Services",
+    description: "Protect what matters most with advanced security systems. Our comprehensive surveillance and monitoring solutions ensure peace of mind 24/7.",
+    color: "text-rose-400",
+    glow: "rgba(251, 113, 133, 0.4)",
+    href: "/security",
+  },
+  {
+    icon: Tablet,
+    title: "Smart Panels",
+    description: "Centralize control with elegant smart panels. Access all your home's features with touch-screen precision and modern design aesthetics.",
+    color: "text-amber-400",
+    glow: "rgba(251, 191, 36, 0.4)",
+    href: "/smart-panels",
+  },
+  {
+    icon: Wind,
+    title: "Energy Recovery",
+    description: "High-efficiency ventilation that delivers fresh air while conserving energy and maintaining absolute indoor comfort.",
+    color: "text-emerald-400",
+    glow: "rgba(52, 211, 153, 0.4)",
+    href: "/ERV",
+  },
+  {
+    icon: Laptop,
+    title: "Software Core",
+    description: "Custom spatial software development focused on performance, reliability, and seamless integration with your environment.",
+    color: "text-cyan-400",
+    glow: "rgba(34, 211, 238, 0.4)",
+    href: "/software-development",
+  },
+];
+
+// --- 3D Interactive Service Card Component ---
+const InteractiveCard = ({ service, index }: { service: ServiceData; index: number }) => {
+  const cardRef = useRef<HTMLDivElement>(null);
+  
+  // Local Mouse Tracking
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const isHovered = useMotionValue(0);
+
+  // Springs for buttery smooth physics
+  const springConfig = { damping: 25, stiffness: 150, mass: 0.5 };
+  const smoothX = useSpring(mouseX, springConfig);
+  const smoothY = useSpring(mouseY, springConfig);
+  const smoothHover = useSpring(isHovered, { damping: 20, stiffness: 100 });
+
+  // Exaggerated 3D Rotation
+  const rotateX = useTransform(smoothY, [-0.5, 0.5], [18, -18]);
+  const rotateY = useTransform(smoothX, [-0.5, 0.5], [-18, 18]);
+
+  // Dynamic Glare (Glass sheen effect)
+  const glareX = useTransform(smoothX, [-0.5, 0.5], [100, -100]);
+  const glareY = useTransform(smoothY, [-0.5, 0.5], [100, -100]);
+  const glareBackground = useMotionTemplate`linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.08) ${glareX}%, transparent 80%)`;
+
+  // Cursor following flashlight
+  const lightBackground = useMotionTemplate`radial-gradient(600px circle at ${useTransform(smoothX, [-0.5, 0.5], [0, 100])}% ${useTransform(smoothY, [-0.5, 0.5], [0, 100])}%, rgba(255,255,255,0.05), transparent 50%)`;
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const { left, top, width, height } = cardRef.current.getBoundingClientRect();
+    const x = (e.clientX - left) / width - 0.5;
+    const y = (e.clientY - top) / height - 0.5;
+    mouseX.set(x);
+    mouseY.set(y);
+    isHovered.set(1);
+  };
+
+  const handleMouseLeave = () => {
+    mouseX.set(0);
+    mouseY.set(0);
+    isHovered.set(0);
+  };
+
+  const Icon = service.icon;
 
   return (
-    <div className="min-h-screen w-full bg-[var(--graphite)] text-white">
-      <Header />
+    <motion.div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      initial={{ opacity: 0, y: 50, rotateX: 20 }}
+      whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.8, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
+      className="relative h-full w-full perspective-[1500px] cursor-pointer group"
+    >
+      <motion.div
+        className="relative h-full w-full rounded-[2.5rem] border border-white/[0.08] bg-black/40 backdrop-blur-2xl p-8 shadow-2xl overflow-hidden transform-gpu"
+        style={{
+          rotateX,
+          rotateY,
+          transformStyle: "preserve-3d",
+        }}
+      >
+        {/* Dynamic Inner Flashlight */}
+        <motion.div
+          className="absolute inset-0 pointer-events-none mix-blend-screen"
+          style={{ background: lightBackground, opacity: smoothHover }}
+        />
 
-      {/* HERO */}
-      <section className="pt-32 pb-20 text-center bg-gradient-to-b from-black to-[#1a1a1a]">
-        <div className="max-w-3xl mx-auto px-6">
-          <div className="inline-block bg-white/10 backdrop-blur-md text-yellow-400 px-4 py-2 rounded-full text-sm mb-6">
-            Our Expertise
+        {/* Dynamic Glass Sheen */}
+        <motion.div
+          className="absolute inset-0 pointer-events-none mix-blend-overlay opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+          style={{ background: glareBackground, transform: "translateZ(1px)" }}
+        />
+
+        {/* Deep Background Ambient Color */}
+        <div 
+          className="absolute inset-0 opacity-0 group-hover:opacity-30 transition-opacity duration-700 pointer-events-none blur-[60px]"
+          style={{ 
+            background: `radial-gradient(circle at 50% 50%, ${service.glow}, transparent 60%)`,
+            transform: "translateZ(-50px)" 
+          }}
+        />
+
+        {/* Giant Abstract Icon Recessed in Background */}
+        <div 
+          className="absolute -bottom-8 -right-8 opacity-0 group-hover:opacity-[0.03] transition-all duration-700 transform-gpu pointer-events-none"
+          style={{ transform: "translateZ(-40px) scale(1.5)" }}
+        >
+          <Icon className="w-64 h-64 text-white" />
+        </div>
+
+        {/* --- Foreground Content (Pushed out in 3D) --- */}
+        <motion.div 
+          className="relative z-10 flex flex-col h-full transform-gpu"
+          style={{ transform: "translateZ(60px)" }}
+        >
+          <div className="flex items-center justify-between mb-8">
+            <motion.div 
+              className={`w-16 h-16 rounded-[1.25rem] flex items-center justify-center bg-white/[0.03] border border-white/10 group-hover:bg-white/[0.08] transition-all duration-500 shadow-lg ${service.color}`}
+              style={{ transform: "translateZ(30px)" }}
+            >
+              <Icon className="w-7 h-7" />
+            </motion.div>
+            
+            <motion.div 
+              className="w-12 h-12 rounded-full border border-white/5 flex items-center justify-center bg-black/20 text-white/20 group-hover:text-white group-hover:border-white/20 transition-all duration-500"
+              style={{ transform: "translateZ(20px)" }}
+            >
+              <ArrowRight className="w-5 h-5 -rotate-45 group-hover:rotate-0 group-hover:translate-x-0.5 transition-transform duration-500" />
+            </motion.div>
           </div>
 
-          <h1 className="text-4xl lg:text-5xl font-bold mb-6">
-            Premium Services for Modern Living
-          </h1>
+          <motion.h3 
+            className="text-2xl font-semibold tracking-tight text-white mb-4"
+            style={{ transform: "translateZ(40px)" }}
+          >
+            {service.title}
+          </motion.h3>
 
-          <p className="text-gray-400 text-lg">
-            Elevate your lifestyle with our cutting-edge technology solutions
-            tailored for your home and business.
-          </p>
-        </div>
+          <motion.p 
+            className="text-sm leading-relaxed text-zinc-400 group-hover:text-zinc-300 transition-colors flex-grow"
+            style={{ transform: "translateZ(20px)" }}
+          >
+            {service.description}
+          </motion.p>
+
+          <motion.div 
+            className="mt-8 pt-6 border-t border-white/[0.05] flex items-center"
+            style={{ transform: "translateZ(30px)" }}
+          >
+            <span className="text-xs tracking-[0.2em] uppercase font-bold text-zinc-600 group-hover:text-white transition-colors">
+              Access Module
+            </span>
+            <div className="h-[2px] bg-gradient-to-r from-white to-transparent ml-4 flex-grow origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-700 ease-out opacity-50" />
+          </motion.div>
+        </motion.div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+// --- Ambient 3D Background Component ---
+const SpatialBackground = ({ globalX, globalY }: { globalX: any, globalY: any }) => {
+  const { scrollY } = useScroll();
+  const scrollParallax1 = useTransform(scrollY, [0, 1000], [0, -150]);
+  const scrollParallax2 = useTransform(scrollY, [0, 1000], [0, 200]);
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden perspective-[1000px]">
+      {/* Deep Space Gradient */}
+      <div className="absolute inset-0 bg-[#020203]" />
+      
+      {/* 3D Grid floor */}
+      <motion.div 
+        className="absolute bottom-[-20%] left-[-20%] right-[-20%] h-[60%] border-t border-white/[0.02]"
+        style={{
+          rotateX: 70,
+          backgroundImage: "linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px)",
+          backgroundSize: "4rem 4rem",
+          y: scrollParallax1
+        }}
+      />
+
+      {/* Floating Orbs mapping to mouse globally */}
+      <motion.div
+        className="absolute top-[10%] left-[20%] w-[500px] h-[500px] rounded-full bg-emerald-500/5 blur-[120px]"
+        style={{
+          x: useTransform(globalX, [-0.5, 0.5], [-50, 50]),
+          y: useTransform(globalY, [-0.5, 0.5], [-50, 50]),
+        }}
+      />
+      <motion.div
+        className="absolute bottom-[20%] right-[10%] w-[600px] h-[600px] rounded-full bg-indigo-500/5 blur-[150px]"
+        style={{
+          x: useTransform(globalX, [-0.5, 0.5], [80, -80]),
+          y: scrollParallax2,
+        }}
+      />
+
+      {/* High-res Noise */}
+      <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay">
+        <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+          <filter id="noiseFilter3">
+            <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch" />
+          </filter>
+          <rect width="100%" height="100%" filter="url(#noiseFilter3)" />
+        </svg>
+      </div>
+    </div>
+  );
+};
+
+// --- Main Page Layout ---
+export default function PremiumServicesPage() {
+  const pageRef = useRef<HTMLDivElement>(null);
+  const [dimensions, setDimensions] = useState({ width: 1200, height: 800 });
+  
+  // Global 3D Tracking
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const smoothX = useSpring(mouseX, { damping: 40, stiffness: 100, mass: 0.5 });
+  const smoothY = useSpring(mouseY, { damping: 40, stiffness: 100, mass: 0.5 });
+
+  useEffect(() => {
+    setDimensions({ width: window.innerWidth, height: window.innerHeight });
+    const handleResize = () => setDimensions({ width: window.innerWidth, height: window.innerHeight });
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      // Normalize to -0.5 to 0.5
+      const nx = (e.clientX / window.innerWidth) - 0.5;
+      const ny = (e.clientY / window.innerHeight) - 0.5;
+      mouseX.set(nx);
+      mouseY.set(ny);
+    };
+
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, [mouseX, mouseY]);
+
+  // Global Hero Parallax
+  const heroRotateX = useTransform(smoothY, [-0.5, 0.5], [6, -6]);
+  const heroRotateY = useTransform(smoothX, [-0.5, 0.5], [-6, 6]);
+  const heroTranslateZ = useTransform(smoothY, [-0.5, 0.5], [20, 50]);
+
+  const textReveal: Variants = {
+    hidden: { opacity: 0, z: -100, rotateX: -20, filter: "blur(15px)" },
+    visible: { 
+      opacity: 1, 
+      z: 0, 
+      rotateX: 0,
+      filter: "blur(0px)",
+      transition: { duration: 1.4, ease: [0.16, 1, 0.3, 1] } 
+    }
+  };
+
+  return (
+    <div 
+      ref={pageRef}
+      className="min-h-screen w-full text-white overflow-x-hidden selection:bg-zinc-800 selection:text-white relative font-sans"
+    >
+      <Header />
+      <SpatialBackground globalX={smoothX} globalY={smoothY} />
+
+      {/* Global Ambient Cursor Light */}
+      <motion.div 
+        className="fixed inset-0 z-0 pointer-events-none"
+        style={{ 
+          background: useMotionTemplate`radial-gradient(800px circle at ${useTransform(smoothX, [-0.5, 0.5], [0, 100])}% ${useTransform(smoothY, [-0.5, 0.5], [0, 100])}%, rgba(255,255,255,0.03), transparent 60%)`
+        }}
+      />
+
+      {/* --- 3D HERO SECTION --- */}
+      <section className="relative z-10 pt-48 pb-20 px-6 max-w-7xl mx-auto flex flex-col items-center text-center perspective-[2000px]">
+        <motion.div 
+          initial="hidden"
+          animate="visible"
+          variants={{
+            visible: { transition: { staggerChildren: 0.15 } }
+          }}
+          className="max-w-4xl space-y-8 transform-gpu"
+          style={{ 
+            rotateX: heroRotateX, 
+            rotateY: heroRotateY,
+            z: heroTranslateZ,
+            transformStyle: "preserve-3d" 
+          }}
+        >
+          <motion.h1 
+            variants={textReveal} 
+            className="text-6xl md:text-8xl font-light tracking-tighter leading-[1.05]"
+            style={{ transform: "translateZ(120px)" }}
+          >
+            Architectural <br/>
+            <span className="font-bold bg-clip-text text-transparent bg-gradient-to-br from-white via-zinc-300 to-zinc-700">
+              Intelligence.
+            </span>
+          </motion.h1>
+
+          <motion.p 
+            variants={textReveal} 
+            className="text-lg md:text-2xl text-zinc-400 max-w-2xl mx-auto font-light leading-relaxed"
+            style={{ transform: "translateZ(60px)" }}
+          >
+            Elevate your environment with  technologies. Tailored integration for homes and enterprise systems.
+          </motion.p>
+        </motion.div>
       </section>
 
-      {/* SERVICES GRID */}
-      <section className="py-20 bg-black/40 border-y border-white/10">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-5xl mx-auto">
-            {services.map((service, i) => {
-              const Icon = service.icon;
-
-              return (
-                <div
-                  key={i}
-                  className="group relative overflow-hidden bg-black/50 border border-white/10 rounded-3xl p-10 hover:border-yellow-400/30 transition-all duration-300"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                  <div className="relative z-10">
-                    <div
-                      className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 ${service.color} group-hover:scale-110 transition-transform duration-300`}
-                    >
-                      <Icon className="w-8 h-8" />
-                    </div>
-
-                    <h3 className="text-2xl font-bold mb-4">
-                      {service.title}
-                    </h3>
-
-                    <p className="text-gray-400 leading-relaxed mb-8">
-                      {service.description}
-                    </p>
-
-                    {/* ✅ LINK */}
-                    <Link
-                      href={service.href}
-                      className="inline-flex items-center text-yellow-400 font-medium group/link"
-                    >
-                      <span className="mr-2">Learn more</span>
-                      <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
-                    </Link>
-                  </div>
-                </div>
-              );
-            })}
+      {/* --- SERVICES GRID --- */}
+      <section className="relative z-10 py-32 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 lg:gap-12">
+            {services.map((service, i) => (
+              <a href={service.href} key={i} className="block no-underline h-[420px]">
+                <InteractiveCard service={service} index={i} />
+              </a>
+            ))}
           </div>
         </div>
       </section>
