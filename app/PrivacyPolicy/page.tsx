@@ -129,9 +129,7 @@ export default function PrivacyPolicy() {
             </p>
             <p className="pl-6 border-l-2 border-cyan-500 text-slate-400 italic">
               Xerovolt<br/>
-              Plot No.102, Survey No, 41 & 42, Kavuri Hills Phase 1,<br/>
-              beside line of Jubilee Ridge Hotel, Guttala_Begumpet,<br/>
-              Madhapur, Telangana, 500033
+             F92V+FF8, SBH Officers Colony, Mega Hills, Madhapur, Hyderabad, Telangana 500081
             </p>
 
             <h2 className="text-2xl font-bold text-white mt-12 mb-4">Sharing Your Personal Information</h2>
