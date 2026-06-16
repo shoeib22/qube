@@ -16,7 +16,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    // Added data-scroll-behavior="smooth" right here
+    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className="font-sans text-white bg-black min-h-screen" suppressHydrationWarning>
         <AuthProvider>
           <CartProvider>
