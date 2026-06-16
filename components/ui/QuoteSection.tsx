@@ -52,7 +52,7 @@ export default function QuoteSection() {
            <div className="w-px h-16 bg-gradient-to-b from-white/20 to-transparent" />
            
            <span className="text-xs tracking-[0.3em] uppercase text-zinc-500 font-semibold">
-             The Xerovolt Promise
+             The Xerovolt Vision
            </span>
         </motion.div>
         
