@@ -1,7 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Briefcase, Users, Home, LayoutGrid, ArrowRight } from "lucide-react";
+import { Briefcase, Users, Home, LayoutGrid, ArrowRight, VolumeX, Volume2 } from "lucide-react";
+import { video } from "motion/react-client";
 
 const solutions = [
   {
@@ -9,7 +10,7 @@ const solutions = [
     icon: Briefcase,
     title: "Busy Professionals",
     desc: "Automate routines, hands-free control, and remote monitoring. Your home prepares itself before you even walk through the door.",
-    img: "https://firebasestorage.googleapis.com/v0/b/cube-8c773.firebasestorage.app/o/_%20(1).jpeg?alt=media&token=83dd58a1-b123-409c-8ffc-20e8aad7c1c0",
+    video: "https://firebasestorage.googleapis.com/v0/b/cube-8c773.firebasestorage.app/o/Professional_enters_automated_lu%E2%80%A6_202606161729.mp4?alt=media&token=c6e3c273-0c63-4280-88f2-2d45717a7e2b",
     color: "from-blue-500/20",
     iconBg: "bg-blue-500/20 text-blue-400"
   },
@@ -18,7 +19,7 @@ const solutions = [
     icon: Users,
     title: "Modern Families",
     desc: "Kid-safe controls, smart security, and energy savings for your home. Keep an eye on things from anywhere, effortlessly.",
-    img: "https://firebasestorage.googleapis.com/v0/b/cube-8c773.firebasestorage.app/o/%E2%80%9CModern%20Indian%20Living%20Room%20Ideas%20%E2%9C%A8%20Cozy%20Minimalist%20Decor%20with%20Warm%20Lighting%20%E2%80%9D.jpeg?alt=media&token=15787905-51f0-409e-bd49-3125971ba3ad",
+    video: "https://firebasestorage.googleapis.com/v0/b/cube-8c773.firebasestorage.app/o/Family_playing_in_living_room_202606161747%20(1).mp4?alt=media&token=c6093332-dc8b-45e0-8e22-b2914e4713fd",
     color: "from-emerald-500/20",
     iconBg: "bg-emerald-500/20 text-emerald-400"
   },
@@ -44,9 +45,27 @@ const solutions = [
 
 export default function SmartSolutions() {
   const [activeTab, setActiveTab] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+
+  // Auto-play functionality
+  useEffect(() => {
+    if (isHovered) return;
+
+    const interval = setInterval(() => {
+      setActiveTab((prev) => (prev + 1) % solutions.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [activeTab, isHovered]);
 
   return (
-    <section className="relative py-32 bg-[#050505] overflow-hidden" id="solutions">
+    <section 
+      className="relative py-32 bg-[#050505] overflow-hidden" 
+      id="solutions"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       {/* Dynamic Background Glow */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-50 transition-opacity duration-1000">
         <div 
@@ -80,20 +99,54 @@ export default function SmartSolutions() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">
           
-          {/* Left Side: Editorial Image Display */}
+          {/* Left Side: Editorial Media Display */}
           <div className="lg:col-span-7 relative w-full aspect-[4/5] md:aspect-square lg:aspect-[4/5] rounded-[2rem] overflow-hidden bg-zinc-900 border border-white/10 group">
             <AnimatePresence mode="wait">
-              <motion.img
-                key={activeTab}
-                initial={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }}
-                animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                exit={{ opacity: 0, filter: "blur(10px)" }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                src={solutions[activeTab].img}
-                alt={solutions[activeTab].title}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-              />
+              {solutions[activeTab].video ? (
+                <motion.video
+                  key={activeTab}
+                  initial={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }}
+                  animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, filter: "blur(10px)" }}
+                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                  src={solutions[activeTab].video}
+                  autoPlay
+                  loop
+                  muted={isMuted}
+                  playsInline
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                />
+              ) : (
+                <motion.img
+                  key={activeTab}
+                  initial={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }}
+                  animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, filter: "blur(10px)" }}
+                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                  src={solutions[activeTab].img}
+                  alt={solutions[activeTab].title}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                />
+              )}
             </AnimatePresence>
+
+            {/* Mute/Unmute Button Overlay - Only shows if there's a video */}
+            {solutions[activeTab].video && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsMuted(!isMuted);
+                }}
+                className="absolute bottom-6 right-6 z-20 p-3 rounded-full bg-black/40 text-white/90 backdrop-blur-md border border-white/10 hover:bg-black/60 hover:text-white transition-all duration-300"
+                aria-label={isMuted ? "Unmute video" : "Mute video"}
+              >
+                {isMuted ? (
+                  <VolumeX className="w-5 h-5" />
+                ) : (
+                  <Volume2 className="w-5 h-5" />
+                )}
+              </button>
+            )}
             
             {/* Inner shadow overlay for premium feel */}
             <div className="absolute inset-0 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1)] rounded-[2rem] pointer-events-none" />
