@@ -84,8 +84,8 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-white/10 text-xs">
           <p>&copy; {new Date().getFullYear()} Xerovolt. All Rights Reserved.</p>
           <div className="flex gap-6 mt-4 md:mt-0">
-            <Link href="#" className="hover:text-white transition-colors">Privacy Policy</Link>
-            <Link href="#" className="hover:text-white transition-colors">Terms of Service</Link>
+            <Link href="/PrivacyPolicy" className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link href="/termsandconditions" className="hover:text-white transition-colors">Terms of Service</Link>
           </div>
         </div>
       </div>
