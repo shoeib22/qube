@@ -30,41 +30,43 @@ function CinematicSection({ section }: { section: typeof sections[0] }) {
     offset: ["start end", "end start"]
   });
 
-  // Creates a subtle parallax effect for the background image
+  // Parallax effect restricted to Y-axis for optimal GPU performance
   const y = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
-  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [1.1, 1, 1.1]);
 
   return (
     <div ref={containerRef} className="relative h-[120vh] flex items-center justify-center overflow-hidden">
       
       {/* Parallax Background */}
       <motion.div 
-        style={{ y, scale }}
+        style={{ y, willChange: "transform" }}
         className="absolute inset-0 w-full h-[130%] -top-[15%] z-0"
       >
         <img
           src={section.img}
           alt={section.title}
+          loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover opacity-60"
         />
       </motion.div>
 
-      {/* Heavy Cinematic Vignette & Gradients */}
-      <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#030303] via-transparent to-[#030303]" />
-      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,transparent_0%,#030303_100%)] opacity-80" />
+      {/* Heavy Cinematic Vignette & Gradients - Static, no repaints */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#030303] via-transparent to-[#030303] pointer-events-none" />
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,transparent_0%,#030303_100%)] opacity-80 pointer-events-none" />
 
       {/* Floating Glass Content Card */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 pointer-events-none">
         <div className={`flex w-full ${section.align === 'right' ? 'justify-end' : 'justify-start'}`}>
           <motion.div 
             initial={{ opacity: 0, y: 40, filter: "blur(10px)" }}
             whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             viewport={{ once: true, margin: "-20%" }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="max-w-2xl relative"
+            style={{ willChange: "transform, opacity, filter" }}
+            className="max-w-2xl relative pointer-events-auto"
           >
             {/* The Glass Panel */}
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-2xl rounded-3xl border border-white/10 -m-8 sm:-m-12 z-[-1]" />
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-2xl rounded-3xl border border-white/10 -m-8 sm:-m-12 z-[-1]" style={{ WebkitBackdropFilter: "blur(24px)" }} />
             
             <div className="flex items-center gap-4 mb-6">
               <span className="text-sm font-mono text-zinc-500 tracking-wider">

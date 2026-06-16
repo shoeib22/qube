@@ -20,7 +20,6 @@ const cards = [
   }
 ];
 
-// Added the Variants type
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
   show: {
@@ -29,7 +28,6 @@ const containerVariants: Variants = {
   }
 };
 
-// Added the Variants type and 'as const' to the ease array
 const cardVariants: Variants = {
   hidden: { opacity: 0, y: 30 },
   show: { 
@@ -45,7 +43,7 @@ const cardVariants: Variants = {
 export default function FeatureGrid() {
   return (
     <section className="py-32 bg-[#030303] relative overflow-hidden">
-      {/* Subtle Background Glow */}
+      {/* Subtle Background Glow - Static, no repaint cost */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] bg-white/[0.02] blur-[100px] rounded-full pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -57,6 +55,7 @@ export default function FeatureGrid() {
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
+              style={{ willChange: "transform, opacity" }}
               className="text-sm uppercase tracking-[0.2em] text-zinc-500 font-semibold mb-4"
             >
               Why Xerovolt
@@ -66,6 +65,7 @@ export default function FeatureGrid() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
+              style={{ willChange: "transform, opacity" }}
               className="text-4xl md:text-5xl font-light text-white tracking-tight"
             >
               Engineering the standard <br className="hidden md:block" />
@@ -86,13 +86,17 @@ export default function FeatureGrid() {
             <motion.div 
               key={idx} 
               variants={cardVariants}
+              style={{ willChange: "transform, opacity" }}
               className="group relative aspect-[4/5] rounded-[2rem] overflow-hidden cursor-pointer"
             >
-              {/* Image with slow cinematic scale */}
+              {/* Image with slow cinematic scale, hardware accelerated */}
               <img 
                 src={card.img} 
                 alt={card.title}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
+                loading="lazy"
+                decoding="async"
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-105 transform-gpu"
+                style={{ willChange: "transform" }}
               />
               
               {/* Inner Glass Border */}
@@ -109,7 +113,7 @@ export default function FeatureGrid() {
                   </h3>
                   
                   {/* Floating Action Icon */}
-                  <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/10 opacity-0 -translate-x-4 transition-all duration-500 group-hover:opacity-100 group-hover:translate-x-0">
+                  <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/10 opacity-0 -translate-x-4 transition-all duration-500 group-hover:opacity-100 group-hover:translate-x-0 transform-gpu">
                     <ArrowUpRight className="w-5 h-5 text-white" />
                   </div>
                 </div>

@@ -18,15 +18,15 @@ import {
   ArrowRight,
   Wind,
   Laptop,
-  Cpu,
-  Layers
 } from "lucide-react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 
-// --- Mock Components for Runnable Canvas ---
+// --- Constants & Pre-rendered Assets ---
 
-
+// Base64 encoded version of your exact SVG noise. 
+// This forces the browser to rasterize it once and cache it, bypassing live DOM rendering.
+const NOISE_PATTERN = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='100%25' height='100%25'%3E%3Cfilter id='noiseFilter3'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter3)'/%3E%3C/svg%3E")`;
 
 interface ServiceData {
   icon: React.ElementType;
@@ -91,41 +91,45 @@ const services: ServiceData[] = [
 // --- 3D Interactive Service Card Component ---
 const InteractiveCard = ({ service, index }: { service: ServiceData; index: number }) => {
   const cardRef = useRef<HTMLDivElement>(null);
+  const rafId = useRef<number | null>(null);
   
-  // Local Mouse Tracking
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const isHovered = useMotionValue(0);
 
-  // Springs for buttery smooth physics
   const springConfig = { damping: 25, stiffness: 150, mass: 0.5 };
   const smoothX = useSpring(mouseX, springConfig);
   const smoothY = useSpring(mouseY, springConfig);
   const smoothHover = useSpring(isHovered, { damping: 20, stiffness: 100 });
 
-  // Exaggerated 3D Rotation
   const rotateX = useTransform(smoothY, [-0.5, 0.5], [18, -18]);
   const rotateY = useTransform(smoothX, [-0.5, 0.5], [-18, 18]);
 
-  // Dynamic Glare (Glass sheen effect)
   const glareX = useTransform(smoothX, [-0.5, 0.5], [100, -100]);
-  const glareY = useTransform(smoothY, [-0.5, 0.5], [100, -100]);
   const glareBackground = useMotionTemplate`linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.08) ${glareX}%, transparent 80%)`;
-
-  // Cursor following flashlight
   const lightBackground = useMotionTemplate`radial-gradient(600px circle at ${useTransform(smoothX, [-0.5, 0.5], [0, 100])}% ${useTransform(smoothY, [-0.5, 0.5], [0, 100])}%, rgba(255,255,255,0.05), transparent 50%)`;
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
-    const { left, top, width, height } = cardRef.current.getBoundingClientRect();
-    const x = (e.clientX - left) / width - 0.5;
-    const y = (e.clientY - top) / height - 0.5;
-    mouseX.set(x);
-    mouseY.set(y);
-    isHovered.set(1);
+    
+    // Throttle calculations to frame rate
+    if (rafId.current) return;
+    rafId.current = requestAnimationFrame(() => {
+      const { left, top, width, height } = cardRef.current!.getBoundingClientRect();
+      const x = (e.clientX - left) / width - 0.5;
+      const y = (e.clientY - top) / height - 0.5;
+      mouseX.set(x);
+      mouseY.set(y);
+      isHovered.set(1);
+      rafId.current = null;
+    });
   };
 
   const handleMouseLeave = () => {
+    if (rafId.current) {
+      cancelAnimationFrame(rafId.current);
+      rafId.current = null;
+    }
     mouseX.set(0);
     mouseY.set(0);
     isHovered.set(0);
@@ -143,6 +147,7 @@ const InteractiveCard = ({ service, index }: { service: ServiceData; index: numb
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.8, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
       className="relative h-full w-full perspective-[1500px] cursor-pointer group"
+      style={{ willChange: "transform, opacity" }}
     >
       <motion.div
         className="relative h-full w-full rounded-[2.5rem] border border-white/[0.08] bg-black/40 backdrop-blur-2xl p-8 shadow-2xl overflow-hidden transform-gpu"
@@ -150,80 +155,77 @@ const InteractiveCard = ({ service, index }: { service: ServiceData; index: numb
           rotateX,
           rotateY,
           transformStyle: "preserve-3d",
+          willChange: "transform",
+          WebkitBackdropFilter: "blur(24px)", // Fallback optimization for Safari
         }}
       >
-        {/* Dynamic Inner Flashlight */}
         <motion.div
-          className="absolute inset-0 pointer-events-none mix-blend-screen"
-          style={{ background: lightBackground, opacity: smoothHover }}
+          className="absolute inset-0 pointer-events-none mix-blend-screen transform-gpu"
+          style={{ background: lightBackground, opacity: smoothHover, willChange: "background, opacity" }}
         />
 
-        {/* Dynamic Glass Sheen */}
         <motion.div
-          className="absolute inset-0 pointer-events-none mix-blend-overlay opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-          style={{ background: glareBackground, transform: "translateZ(1px)" }}
+          className="absolute inset-0 pointer-events-none mix-blend-overlay opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform-gpu"
+          style={{ background: glareBackground, transform: "translateZ(1px)", willChange: "background, opacity" }}
         />
 
-        {/* Deep Background Ambient Color */}
         <div 
-          className="absolute inset-0 opacity-0 group-hover:opacity-30 transition-opacity duration-700 pointer-events-none blur-[60px]"
+          className="absolute inset-0 opacity-0 group-hover:opacity-30 transition-opacity duration-700 pointer-events-none blur-[60px] transform-gpu"
           style={{ 
             background: `radial-gradient(circle at 50% 50%, ${service.glow}, transparent 60%)`,
             transform: "translateZ(-50px)" 
           }}
         />
 
-        {/* Giant Abstract Icon Recessed in Background */}
         <div 
-          className="absolute -bottom-8 -right-8 opacity-0 group-hover:opacity-[0.03] transition-all duration-700 transform-gpu pointer-events-none"
+          className="absolute -bottom-8 -right-8 opacity-0 group-hover:opacity-[0.03] transition-all duration-700 pointer-events-none transform-gpu"
           style={{ transform: "translateZ(-40px) scale(1.5)" }}
         >
           <Icon className="w-64 h-64 text-white" />
         </div>
 
-        {/* --- Foreground Content (Pushed out in 3D) --- */}
         <motion.div 
           className="relative z-10 flex flex-col h-full transform-gpu"
           style={{ transform: "translateZ(60px)" }}
         >
           <div className="flex items-center justify-between mb-8">
             <motion.div 
-              className={`w-16 h-16 rounded-[1.25rem] flex items-center justify-center bg-white/[0.03] border border-white/10 group-hover:bg-white/[0.08] transition-all duration-500 shadow-lg ${service.color}`}
+              className={`w-16 h-16 rounded-[1.25rem] flex items-center justify-center bg-white/[0.03] border border-white/10 group-hover:bg-white/[0.08] transition-all duration-500 shadow-lg ${service.color} transform-gpu`}
               style={{ transform: "translateZ(30px)" }}
             >
               <Icon className="w-7 h-7" />
             </motion.div>
             
             <motion.div 
-              className="w-12 h-12 rounded-full border border-white/5 flex items-center justify-center bg-black/20 text-white/20 group-hover:text-white group-hover:border-white/20 transition-all duration-500"
+              className="w-12 h-12 rounded-full border border-white/5 flex items-center justify-center bg-black/20 text-white/20 group-hover:text-white group-hover:border-white/20 transition-all duration-500 transform-gpu"
               style={{ transform: "translateZ(20px)" }}
             >
-              <ArrowRight className="w-5 h-5 -rotate-45 group-hover:rotate-0 group-hover:translate-x-0.5 transition-transform duration-500" />
+              <ArrowRight className="w-5 h-5 -rotate-45 group-hover:rotate-0 group-hover:translate-x-0.5 transition-transform duration-500 transform-gpu" />
             </motion.div>
           </div>
 
           <motion.h3 
-            className="text-2xl font-semibold tracking-tight text-white mb-4"
+            className="text-2xl font-semibold tracking-tight text-white mb-4 transform-gpu"
             style={{ transform: "translateZ(40px)" }}
           >
             {service.title}
           </motion.h3>
 
           <motion.p 
-            className="text-sm leading-relaxed text-zinc-400 group-hover:text-zinc-300 transition-colors flex-grow"
+            className="text-sm leading-relaxed text-zinc-400 group-hover:text-zinc-300 transition-colors flex-grow transform-gpu"
             style={{ transform: "translateZ(20px)" }}
           >
             {service.description}
           </motion.p>
 
           <motion.div 
-            className="mt-8 pt-6 border-t border-white/[0.05] flex items-center"
+            className="mt-8 pt-6 border-t border-white/[0.05] flex items-center transform-gpu"
             style={{ transform: "translateZ(30px)" }}
           >
             <span className="text-xs tracking-[0.2em] uppercase font-bold text-zinc-600 group-hover:text-white transition-colors">
               Access Module
             </span>
-            <div className="h-[2px] bg-gradient-to-r from-white to-transparent ml-4 flex-grow origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-700 ease-out opacity-50" />
+            <div className="h-[2px] bg-gradient-to-r from-white to-transparent ml-4 flex-grow origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-700 ease-out opacity-50 transform-gpu" />
           </motion.div>
         </motion.div>
       </motion.div>
@@ -239,45 +241,41 @@ const SpatialBackground = ({ globalX, globalY }: { globalX: any, globalY: any })
 
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden perspective-[1000px]">
-      {/* Deep Space Gradient */}
       <div className="absolute inset-0 bg-[#020203]" />
       
-      {/* 3D Grid floor */}
       <motion.div 
         className="absolute bottom-[-20%] left-[-20%] right-[-20%] h-[60%] border-t border-white/[0.02]"
         style={{
           rotateX: 70,
           backgroundImage: "linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px)",
           backgroundSize: "4rem 4rem",
-          y: scrollParallax1
+          y: scrollParallax1,
+          willChange: "transform"
         }}
       />
 
-      {/* Floating Orbs mapping to mouse globally */}
       <motion.div
-        className="absolute top-[10%] left-[20%] w-[500px] h-[500px] rounded-full bg-emerald-500/5 blur-[120px]"
+        className="absolute top-[10%] left-[20%] w-[500px] h-[500px] rounded-full bg-emerald-500/5 blur-[120px] transform-gpu"
         style={{
           x: useTransform(globalX, [-0.5, 0.5], [-50, 50]),
           y: useTransform(globalY, [-0.5, 0.5], [-50, 50]),
+          willChange: "transform"
         }}
       />
       <motion.div
-        className="absolute bottom-[20%] right-[10%] w-[600px] h-[600px] rounded-full bg-indigo-500/5 blur-[150px]"
+        className="absolute bottom-[20%] right-[10%] w-[600px] h-[600px] rounded-full bg-indigo-500/5 blur-[150px] transform-gpu"
         style={{
           x: useTransform(globalX, [-0.5, 0.5], [80, -80]),
           y: scrollParallax2,
+          willChange: "transform"
         }}
       />
 
-      {/* High-res Noise */}
-      <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay">
-        <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-          <filter id="noiseFilter3">
-            <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch" />
-          </filter>
-          <rect width="100%" height="100%" filter="url(#noiseFilter3)" />
-        </svg>
-      </div>
+      {/* Pre-rendered static noise background */}
+      <div 
+        className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none mix-blend-overlay"
+        style={{ backgroundImage: NOISE_PATTERN, backgroundRepeat: "repeat" }}
+      />
     </div>
   );
 };
@@ -285,35 +283,33 @@ const SpatialBackground = ({ globalX, globalY }: { globalX: any, globalY: any })
 // --- Main Page Layout ---
 export default function PremiumServicesPage() {
   const pageRef = useRef<HTMLDivElement>(null);
-  const [dimensions, setDimensions] = useState({ width: 1200, height: 800 });
+  const rafId = useRef<number | null>(null);
   
-  // Global 3D Tracking
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const smoothX = useSpring(mouseX, { damping: 40, stiffness: 100, mass: 0.5 });
   const smoothY = useSpring(mouseY, { damping: 40, stiffness: 100, mass: 0.5 });
 
   useEffect(() => {
-    setDimensions({ width: window.innerWidth, height: window.innerHeight });
-    const handleResize = () => setDimensions({ width: window.innerWidth, height: window.innerHeight });
-    
     const handleMouseMove = (e: MouseEvent) => {
-      // Normalize to -0.5 to 0.5
-      const nx = (e.clientX / window.innerWidth) - 0.5;
-      const ny = (e.clientY / window.innerHeight) - 0.5;
-      mouseX.set(nx);
-      mouseY.set(ny);
+      // Throttle global mouse tracking to frame rate
+      if (rafId.current) return;
+      rafId.current = requestAnimationFrame(() => {
+        const nx = (e.clientX / window.innerWidth) - 0.5;
+        const ny = (e.clientY / window.innerHeight) - 0.5;
+        mouseX.set(nx);
+        mouseY.set(ny);
+        rafId.current = null;
+      });
     };
 
-    window.addEventListener("resize", handleResize);
-    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
     return () => {
-      window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousemove", handleMouseMove);
+      if (rafId.current) cancelAnimationFrame(rafId.current);
     };
   }, [mouseX, mouseY]);
 
-  // Global Hero Parallax
   const heroRotateX = useTransform(smoothY, [-0.5, 0.5], [6, -6]);
   const heroRotateY = useTransform(smoothX, [-0.5, 0.5], [-6, 6]);
   const heroTranslateZ = useTransform(smoothY, [-0.5, 0.5], [20, 50]);
@@ -337,11 +333,11 @@ export default function PremiumServicesPage() {
       <Header />
       <SpatialBackground globalX={smoothX} globalY={smoothY} />
 
-      {/* Global Ambient Cursor Light */}
       <motion.div 
-        className="fixed inset-0 z-0 pointer-events-none"
+        className="fixed inset-0 z-0 pointer-events-none transform-gpu"
         style={{ 
-          background: useMotionTemplate`radial-gradient(800px circle at ${useTransform(smoothX, [-0.5, 0.5], [0, 100])}% ${useTransform(smoothY, [-0.5, 0.5], [0, 100])}%, rgba(255,255,255,0.03), transparent 60%)`
+          background: useMotionTemplate`radial-gradient(800px circle at ${useTransform(smoothX, [-0.5, 0.5], [0, 100])}% ${useTransform(smoothY, [-0.5, 0.5], [0, 100])}%, rgba(255,255,255,0.03), transparent 60%)`,
+          willChange: "background"
         }}
       />
 
@@ -358,13 +354,14 @@ export default function PremiumServicesPage() {
             rotateX: heroRotateX, 
             rotateY: heroRotateY,
             z: heroTranslateZ,
-            transformStyle: "preserve-3d" 
+            transformStyle: "preserve-3d",
+            willChange: "transform"
           }}
         >
           <motion.h1 
             variants={textReveal} 
-            className="text-6xl md:text-8xl font-light tracking-tighter leading-[1.05]"
-            style={{ transform: "translateZ(120px)" }}
+            className="text-6xl md:text-8xl font-light tracking-tighter leading-[1.05] transform-gpu"
+            style={{ transform: "translateZ(120px)", willChange: "transform, opacity, filter" }}
           >
             Architectural <br/>
             <span className="font-bold bg-clip-text text-transparent bg-gradient-to-br from-white via-zinc-300 to-zinc-700">
@@ -374,10 +371,10 @@ export default function PremiumServicesPage() {
 
           <motion.p 
             variants={textReveal} 
-            className="text-lg md:text-2xl text-zinc-400 max-w-2xl mx-auto font-light leading-relaxed"
-            style={{ transform: "translateZ(60px)" }}
+            className="text-lg md:text-2xl text-zinc-400 max-w-2xl mx-auto font-light leading-relaxed transform-gpu"
+            style={{ transform: "translateZ(60px)", willChange: "transform, opacity, filter" }}
           >
-            Elevate your environment with  technologies. Tailored integration for homes and enterprise systems.
+            Elevate your environment with technologies. Tailored integration for homes and enterprise systems.
           </motion.p>
         </motion.div>
       </section>
