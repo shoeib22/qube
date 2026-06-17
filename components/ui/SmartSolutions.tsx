@@ -1,7 +1,7 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Briefcase, Users, Home, LayoutGrid, ArrowRight, VolumeX, Volume2 } from "lucide-react";
+import { useState, useRef } from "react";
+import { motion, useScroll, useMotionValueEvent, AnimatePresence } from "framer-motion";
+import { Briefcase, Users, Home, LayoutGrid, Sparkles } from "lucide-react";
 
 const solutions = [
   {
@@ -9,250 +9,321 @@ const solutions = [
     icon: Briefcase,
     title: "Busy Professionals",
     desc: "Automate routines, hands-free control, and remote monitoring. Your home prepares itself before you even walk through the door.",
-    video: "https://firebasestorage.googleapis.com/v0/b/cube-8c773.firebasestorage.app/o/Professional_enters_automated_lu%E2%80%A6_202606161729.mp4?alt=media&token=c6e3c273-0c63-4280-88f2-2d45717a7e2b",
-    color: "from-blue-500/20",
-    iconBg: "bg-blue-500/20 text-blue-400"
+    color: "#3b82f6", // Blue
   },
   {
     id: "families",
     icon: Users,
     title: "Modern Families",
     desc: "Kid-safe controls, smart security, and energy savings for your home. Keep an eye on things from anywhere, effortlessly.",
-    video: "https://firebasestorage.googleapis.com/v0/b/cube-8c773.firebasestorage.app/o/Family_playing_in_living_room_202606161747%20(1).mp4?alt=media&token=c6093332-dc8b-45e0-8e22-b2914e4713fd",
-    color: "from-emerald-500/20",
-    iconBg: "bg-emerald-500/20 text-emerald-400"
+    color: "#10b981", // Emerald
   },
   {
     id: "luxury",
     icon: Home,
     title: "Luxury Estates",
     desc: "High-end automation, custom ambiance, and seamless entertainment integrated perfectly into your interior design.",
-    img: "https://firebasestorage.googleapis.com/v0/b/cube-8c773.firebasestorage.app/o/%F0%9F%8F%A1%E2%9C%A8%20Transform%20Your%20Space_%20Innovative%20Home%20Decor%20Ideas%20%E2%9C%A8%F0%9F%8F%A1.webp?alt=media&token=88aa53e9-af74-4a90-b1f4-013815aeedb3",
-    color: "from-purple-500/20",
-    iconBg: "bg-purple-500/20 text-purple-400"
+    color: "#a855f7", // Purple
   },
   {
     id: "renters",
     icon: LayoutGrid,
     title: "Renters & Small Spaces",
     desc: "Voice control, fall detection, and assisted living tech. Wireless retrofit modules that require zero rewiring.",
-    img: "https://firebasestorage.googleapis.com/v0/b/cube-8c773.firebasestorage.app/o/_%20(1).webp?alt=media&token=48123ca0-247c-47ed-b847-37f3050b7fd2",
-    color: "from-orange-500/20",
-    iconBg: "bg-orange-500/20 text-orange-400"
+    color: "#f97316", // Orange
   }
 ];
 
-// --- MediaLayer Component ---
-// Extracted to manage play/pause state without re-rendering the whole page
-const MediaLayer = ({ 
-  item, 
-  isActive, 
-  isMuted 
-}: { 
-  item: typeof solutions[0]; 
-  isActive: boolean; 
-  isMuted: boolean;
-}) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    if (!videoRef.current) return;
-    
-    // Only play the video if it is currently visible to save CPU/Network
-    if (isActive) {
-      videoRef.current.play().catch(() => {
-        // Catch auto-play policy errors cleanly
-      });
-    } else {
-      videoRef.current.pause();
-      // Optional: reset to beginning when hidden
-      // videoRef.current.currentTime = 0; 
-    }
-  }, [isActive]);
+// --- 2D Glowing Blueprint Node ---
+// Recreates the exact tactical crosshair & tag aesthetic from the screenshot
+const BlueprintNode = ({ cx, cy, color, tag, isActive, delay = 0 }: { cx: number, cy: number, color: string, tag?: string, isActive: boolean, delay?: number }) => {
+  if (!isActive) return null;
 
   return (
-    <motion.div
-      initial={false}
-      animate={{
-        opacity: isActive ? 1 : 0,
-        scale: isActive ? 1 : 1.05, // Slightly reduced scale jump for smoother visual
-        filter: isActive ? "blur(0px)" : "blur(10px)",
-        zIndex: isActive ? 10 : 0
-      }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden rounded-[2rem]"
+    <motion.g 
+      initial={{ opacity: 0, scale: 0.8 }} 
+      animate={{ opacity: 1, scale: 1 }} 
+      exit={{ opacity: 0, scale: 0.8 }}
+      transition={{ delay, duration: 0.5, ease: "easeOut" }}
     >
-      {item.video ? (
-        <video
-          ref={videoRef}
-          src={item.video}
-          loop
-          muted={isMuted}
-          playsInline
-          preload="auto" // Forces browser to download file eagerly
-          className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 pointer-events-auto"
-        />
-      ) : (
-        <img
-          src={item.img}
-          alt={item.title}
-          loading="eager" // Bypasses lazy loading
-          className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 pointer-events-auto"
-        />
+      {/* Background Radial Glow */}
+      <circle cx={cx} cy={cy} r={50} fill={`url(#glowRadial)`} opacity={0.4} />
+      
+      {/* Strike-through Crosshair Line */}
+      <motion.line 
+        x1={cx - 25} y1={cy} x2={cx + 25} y2={cy} 
+        stroke={color} strokeWidth={1.5} 
+        initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: delay + 0.2, duration: 0.5 }}
+      />
+      
+      {/* Outer Radar Ring */}
+      <motion.circle 
+        cx={cx} cy={cy} r={14} fill="none" stroke={color} strokeWidth={1.5}
+        initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: delay + 0.1, type: "spring" }}
+      />
+      
+      {/* Inner Solid Core */}
+      <circle cx={cx} cy={cy} r={4} fill={color} />
+
+      {/* Floating Tactical Text Tag */}
+      {tag && (
+        <g>
+          <motion.line 
+            x1={cx + 10} y1={cy - 10} x2={cx + 30} y2={cy - 30} 
+            stroke={color} strokeWidth={1} opacity={0.5}
+            initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: delay + 0.4 }}
+          />
+          <motion.rect 
+            x={cx + 30} y={cy - 42} width={130} height={20} 
+            fill="#050505" stroke={color} strokeWidth={1} opacity={0.8}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: delay + 0.5 }}
+          />
+          <motion.text 
+            x={cx + 38} y={cy - 28} fill={color} fontSize={8} className="font-mono uppercase tracking-widest font-semibold"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: delay + 0.6 }}
+          >
+            {tag}
+          </motion.text>
+        </g>
       )}
-    </motion.div>
+    </motion.g>
+  );
+};
+
+// --- Master Blueprint SVG Component ---
+const FloorPlanVisualizer = ({ activeTab }: { activeTab: number }) => {
+  const activeColor = solutions[activeTab].color;
+
+  // Zone Activation Logic based on the selected tab
+  const isZoneActive = (zones: number[]) => zones.includes(activeTab);
+
+  return (
+    <div className="w-full h-full flex items-center justify-center p-4 lg:p-8 relative">
+      {/* Outer Screen Glare/Vignette */}
+      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_100px_rgba(0,0,0,0.8)] z-20" />
+
+      <svg viewBox="0 0 800 500" className="w-full h-auto drop-shadow-[0_0_15px_rgba(255,255,255,0.05)]">
+        <defs>
+          {/* Dynamic Radial Glow that updates with the active color */}
+          <radialGradient id="glowRadial" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor={activeColor} stopOpacity={0.4} />
+            <stop offset="100%" stopColor={activeColor} stopOpacity={0} />
+          </radialGradient>
+        </defs>
+
+        {/* --- CORNER BRACKETS --- */}
+        <g stroke={activeColor} strokeWidth={2} fill="none" opacity={0.7} className="transition-all duration-700">
+          <path d="M 20 40 L 20 20 L 40 20" />
+          <path d="M 780 20 L 780 40 L 780 20 L 760 20" />
+          <path d="M 20 460 L 20 480 L 40 480" />
+          <path d="M 780 460 L 780 480 L 760 480" />
+        </g>
+
+        {/* --- ROOM: LIVING ROOM (Top Left) --- */}
+        {/* Active for: Families (1), Luxury (2) */}
+        <g opacity={isZoneActive([1, 2]) ? 1 : 0.15} className="transition-opacity duration-700 ease-in-out">
+          {isZoneActive([1, 2]) && <rect x={40} y={40} width={360} height={220} fill="url(#glowRadial)" opacity={0.5} />}
+          <rect x={40} y={40} width={360} height={220} fill="none" stroke={activeColor} strokeWidth={1} />
+          <text x={60} y={65} fill={activeColor} fontSize={10} className="font-mono tracking-[0.2em]">LIVING ROOM</text>
+          
+          {/* Architectural Details */}
+          <rect x={80} y={100} width={120} height={40} fill="none" stroke={activeColor} strokeWidth={0.5} />
+          <circle cx={280} cy={160} r={30} fill="none" stroke={activeColor} strokeWidth={0.5} />
+          
+          <AnimatePresence>
+            <BlueprintNode cx={200} cy={140} color={activeColor} tag="MESH OPTIMIZED" isActive={isZoneActive([1, 2])} delay={0.2} />
+          </AnimatePresence>
+        </g>
+
+       {/* --- ROOM: MASTER SUITE (Top Right) --- */}
+        {/* Active for: Professionals (0), Luxury (2) */}
+        <g opacity={isZoneActive([0, 2]) ? 1 : 0.15} className="transition-opacity duration-700 ease-in-out">
+          {isZoneActive([0, 2]) && <rect x={400} y={40} width={360} height={220} fill="url(#glowRadial)" opacity={0.5} />}
+          <rect x={400} y={40} width={360} height={220} fill="none" stroke={activeColor} strokeWidth={1} />
+          <text x={420} y={65} fill={activeColor} fontSize={10} className="font-mono tracking-[0.2em]">MASTER SUITE</text>
+          
+          {/* Architectural Details */}
+          <rect x={580} y={80} width={140} height={120} fill="none" stroke={activeColor} strokeWidth={0.5} />
+          {/* Fixed the typo on the line below */}
+          <rect x={540} y={90} width={30} height={30} fill="none" stroke={activeColor} strokeWidth={0.5} />
+          
+          <AnimatePresence>
+            {/* Implemented explicitly requested branding correction */}
+            <BlueprintNode cx={550} cy={160} color={activeColor} tag="XEROVOLT CORE ACTIVE" isActive={isZoneActive([0, 2])} delay={0.4} />
+          </AnimatePresence>
+        </g>
+
+        {/* --- ROOM: KITCHEN (Bottom Left) --- */}
+        {/* Active for: Families (1), Luxury (2) */}
+        <g opacity={isZoneActive([1, 2]) ? 1 : 0.15} className="transition-opacity duration-700 ease-in-out">
+          {isZoneActive([1, 2]) && <rect x={40} y={260} width={300} height={200} fill="url(#glowRadial)" opacity={0.5} />}
+          <rect x={40} y={260} width={300} height={200} fill="none" stroke={activeColor} strokeWidth={1} />
+          <text x={60} y={285} fill={activeColor} fontSize={10} className="font-mono tracking-[0.2em]">KITCHEN</text>
+          
+          {/* Architectural Details */}
+          <rect x={80} y={320} width={180} height={60} fill="none" stroke={activeColor} strokeWidth={0.5} />
+          <line x1={80} y1={420} x2={260} y2={420} stroke={activeColor} strokeWidth={0.5} />
+          
+          <AnimatePresence>
+            <BlueprintNode cx={160} cy={350} color={activeColor} tag="APPLIANCE SYNC" isActive={isZoneActive([1, 2])} delay={0.3} />
+          </AnimatePresence>
+        </g>
+
+        {/* --- ROOM: OFFICE / STUDIO (Bottom Middle) --- */}
+        {/* Active for: Professionals (0), Luxury (2), Renters (3) */}
+        <g opacity={isZoneActive([0, 2, 3]) ? 1 : 0.15} className="transition-opacity duration-700 ease-in-out">
+          {isZoneActive([0, 2, 3]) && <rect x={340} y={260} width={260} height={200} fill="url(#glowRadial)" opacity={0.5} />}
+          <rect x={340} y={260} width={260} height={200} fill="none" stroke={activeColor} strokeWidth={1} />
+          <text x={360} y={285} fill={activeColor} fontSize={10} className="font-mono tracking-[0.2em]">OFFICE</text>
+          
+          {/* Architectural Details */}
+          <rect x={420} y={340} width={100} height={50} fill="none" stroke={activeColor} strokeWidth={0.5} />
+          <circle cx={470} cy={420} r={15} fill="none" stroke={activeColor} strokeWidth={0.5} />
+          
+          <AnimatePresence>
+            <BlueprintNode cx={470} cy={365} color={activeColor} tag="WIRELESS MESH OK" isActive={isZoneActive([0, 2, 3])} delay={0.5} />
+          </AnimatePresence>
+        </g>
+
+        {/* --- ROOM: BATH (Bottom Right) --- */}
+        {/* Active for: Luxury (2), Renters (3) */}
+        <g opacity={isZoneActive([2, 3]) ? 1 : 0.15} className="transition-opacity duration-700 ease-in-out">
+          {isZoneActive([2, 3]) && <rect x={600} y={260} width={160} height={200} fill="url(#glowRadial)" opacity={0.5} />}
+          <rect x={600} y={260} width={160} height={200} fill="none" stroke={activeColor} strokeWidth={1} />
+          <text x={620} y={285} fill={activeColor} fontSize={10} className="font-mono tracking-[0.2em]">BATH</text>
+          
+          {/* Architectural Details */}
+          <rect x={640} y={300} width={80} height={120} rx={10} fill="none" stroke={activeColor} strokeWidth={0.5} />
+          
+          <AnimatePresence>
+            <BlueprintNode cx={680} cy={360} color={activeColor} isActive={isZoneActive([2, 3])} delay={0.6} />
+          </AnimatePresence>
+        </g>
+
+        {/* --- TELEMETRY WIDGET (Bottom Right) --- */}
+        <g transform="translate(640, 440)" className="transition-all duration-700">
+          <line x1={0} y1={25} x2={120} y2={25} stroke={activeColor} strokeWidth={1} opacity={0.3} />
+          
+          {/* Temp */}
+          <text x={10} y={15} fill={activeColor} fontSize={18} className="font-mono font-bold">24°</text>
+          <text x={12} y={35} fill={activeColor} fontSize={8} opacity={0.6} className="font-mono tracking-widest">TEMP</text>
+          
+          {/* Devices Active */}
+          <text x={60} y={15} fill={activeColor} fontSize={18} className="font-mono font-bold">
+            {activeTab === 2 ? '42' : activeTab === 0 ? '18' : activeTab === 1 ? '26' : '12'}
+          </text>
+          <text x={55} y={35} fill={activeColor} fontSize={8} opacity={0.6} className="font-mono tracking-widest">DEVICES</text>
+        </g>
+      </svg>
+    </div>
   );
 };
 
 // --- Main Component ---
 export default function SmartSolutions() {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
 
-  // Auto-play functionality
-  useEffect(() => {
-    if (isHovered) return;
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"]
+  });
 
-    const interval = setInterval(() => {
-      setActiveTab((prev) => (prev + 1) % solutions.length);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [activeTab, isHovered]);
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    if (latest < 0.25) setActiveTab(0);
+    else if (latest < 0.5) setActiveTab(1);
+    else if (latest < 0.75) setActiveTab(2);
+    else setActiveTab(3);
+  });
 
   return (
-    <section 
-      className="relative py-32 bg-[#050505] overflow-hidden" 
-      id="solutions"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {/* Dynamic Background Glow */}
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-50 transition-opacity duration-1000">
+    <section ref={containerRef} className="relative h-[400vh] bg-[#020202] w-full font-sans" id="solutions">
+      
+      <div className="sticky top-0 h-screen w-full flex flex-col-reverse lg:flex-row items-center justify-center overflow-hidden px-6 lg:px-20">
+        
+        {/* Dynamic Vignette / Glow */}
         <div 
-          className={`absolute top-1/2 left-1/4 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr ${solutions[activeTab].color} to-transparent rounded-full blur-[120px] transition-all duration-1000 ease-in-out`}
+          className="absolute inset-0 z-0 opacity-10 transition-colors duration-1000 blur-[200px]"
+          style={{ backgroundColor: solutions[activeTab].color }}
         />
-      </div>
+        <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,transparent_0%,#020202_100%)] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <div className="mb-20 max-w-2xl">
-          <motion.p 
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-zinc-500 tracking-widest uppercase text-sm font-medium mb-4"
-          >
-            Tailored Experiences
-          </motion.p>
-          <motion.h2 
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="text-4xl md:text-6xl font-light tracking-tight text-white leading-tight"
-          >
-            Smart living, designed <br />
-            <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white to-white/50">
-              around your lifestyle.
-            </span>
-          </motion.h2>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">
+        {/* Left Side: Typography */}
+        <div className="w-full lg:w-1/2 relative z-10 flex flex-col justify-center h-full pb-20 lg:pb-0">
+          <motion.div className="flex items-center gap-2 mb-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <Sparkles className="w-4 h-4 text-zinc-500" />
+            <p className="text-zinc-500 tracking-widest uppercase text-xs font-bold">
+              Next-Gen Ecosystem
+            </p>
+          </motion.div>
           
-          {/* Left Side: Editorial Media Display */}
-          <div className="lg:col-span-7 relative w-full aspect-[4/5] md:aspect-square lg:aspect-[4/5] rounded-[2rem] bg-zinc-900 border border-white/10 group shadow-2xl">
-            
-            {/* Render ALL media simultaneously for instant caching */}
-            {solutions.map((item, idx) => (
-              <MediaLayer 
-                key={item.id} 
-                item={item} 
-                isActive={activeTab === idx} 
-                isMuted={isMuted} 
-              />
-            ))}
+          <h2 className="text-5xl md:text-7xl font-medium tracking-tighter text-white leading-[1.1] mb-12">
+            Designed around <br />
+            <span 
+              className="text-transparent bg-clip-text transition-colors duration-1000"
+              style={{ backgroundImage: `linear-gradient(to right, #ffffff, ${solutions[activeTab].color})` }}
+            >
+              your reality.
+            </span>
+          </h2>
 
-            {/* Mute/Unmute Button Overlay */}
-            {solutions[activeTab].video && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsMuted(!isMuted);
-                }}
-                className="absolute bottom-6 right-6 z-20 p-3 rounded-full bg-black/40 text-white/90 backdrop-blur-md border border-white/10 hover:bg-black/60 hover:text-white transition-all duration-300"
-                aria-label={isMuted ? "Unmute video" : "Mute video"}
+          <div className="relative h-48 w-full max-w-lg">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, x: -20, filter: "blur(10px)" }}
+                animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, x: 20, filter: "blur(10px)" }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className="absolute inset-0"
               >
-                {isMuted ? (
-                  <VolumeX className="w-5 h-5" />
-                ) : (
-                  <Volume2 className="w-5 h-5" />
-                )}
-              </button>
-            )}
-            
-            {/* Inner shadow overlay for premium feel */}
-            <div className="absolute inset-0 z-30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1)] rounded-[2rem] pointer-events-none" />
-          </div>
-
-          {/* Right Side: Interactive Accordion Menu */}
-          <div className="lg:col-span-5 flex flex-col justify-center h-full gap-2">
-            {solutions.map((item, idx) => {
-              const isActive = activeTab === idx;
-              return (
-                <div 
-                  key={item.id}
-                  onClick={() => setActiveTab(idx)}
-                  className="group cursor-pointer"
-                >
-                  <div className={`relative overflow-hidden transition-all duration-500 rounded-2xl ${
-                    isActive ? "bg-white/5 border border-white/10 p-6 shadow-2xl backdrop-blur-sm" : "p-6 hover:bg-white/[0.02]"
-                  }`}>
-                    
-                    <div className="flex items-center gap-6">
-                      <div className={`p-4 rounded-xl transition-all duration-500 ${
-                        isActive ? item.iconBg : "bg-zinc-900 text-zinc-500 group-hover:text-zinc-300"
-                      }`}>
-                        <item.icon className="w-6 h-6" strokeWidth={isActive ? 2 : 1.5} />
-                      </div>
-                      
-                      <h3 className={`text-2xl transition-all duration-500 ${
-                        isActive ? "font-semibold text-white" : "font-light text-zinc-400 group-hover:text-zinc-200"
-                      }`}>
-                        {item.title}
-                      </h3>
-                    </div>
-
-                    {/* Expandable Content area */}
-                    <AnimatePresence>
-                      {isActive && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                          className="overflow-hidden"
-                        >
-                          <div className="pt-6 pl-[4.5rem]">
-                            <p className="text-zinc-400 text-base leading-relaxed mb-6">
-                              {item.desc}
-                            </p>
-                            <button className="flex items-center gap-2 text-sm font-medium text-white group/btn">
-                              Explore solutions
-                              <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
-                            </button>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                <div className="flex items-center gap-4 mb-4">
+                  <div 
+                    className="p-3 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_0_30px_rgba(255,255,255,0.05)]"
+                    style={{ color: solutions[activeTab].color }}
+                  >
+                    {(() => {
+                      const Icon = solutions[activeTab].icon;
+                      return <Icon className="w-6 h-6" strokeWidth={2} />;
+                    })()}
                   </div>
+                  <h3 className="text-2xl font-semibold text-zinc-100 tracking-tight">
+                    {solutions[activeTab].title}
+                  </h3>
                 </div>
-              );
-            })}
+                
+                <p className="text-zinc-400 text-lg leading-relaxed mb-8">
+                  {solutions[activeTab].desc}
+                </p>
+              </motion.div>
+            </AnimatePresence>
           </div>
-
+          
+          {/* Scroll Progress Lines */}
+          <div className="absolute bottom-12 left-0 flex gap-3">
+            {solutions.map((_, idx) => (
+              <div 
+                key={idx} 
+                className="h-1 rounded-full overflow-hidden bg-white/10"
+                style={{ width: activeTab === idx ? '48px' : '16px', transition: 'width 0.5s cubic-bezier(0.16, 1, 0.3, 1)' }}
+              >
+                {activeTab === idx && (
+                  <motion.div 
+                    layoutId="activeIndicator"
+                    className="h-full w-full"
+                    style={{ backgroundColor: solutions[idx].color }}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
         </div>
+
+        {/* Right Side: The Master Blueprint Canvas */}
+        <div className="w-full lg:w-1/2 h-[50vh] lg:h-full relative z-10">
+          <FloorPlanVisualizer activeTab={activeTab} />
+        </div>
+
       </div>
     </section>
   );

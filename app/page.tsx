@@ -2,7 +2,7 @@
 import Header from "../components/Header";
 import Hero from "../components/Hero";
 import FeatureStrip from "../components/ui/FeatureStrip";
-import SmartSolutions from "../components/ui/SmartSolutions";
+import SmartSolutionsWrapper from "../components/ui/SmartSolutionsWrapper"; // Import the wrapper
 import ScrollSections from "../components/ui/ScrollSections";
 import QuoteSection from "../components/ui/QuoteSection";
 import FeatureGrid from "../components/ui/FeatureGrid";
@@ -15,12 +15,12 @@ export default function HomePage() {
       <Header />
       <Hero />
       <FeatureStrip />
-      <SmartSolutions />
+      <SmartSolutionsWrapper /> 
       <ScrollSections />
       <QuoteSection />
       <FeatureGrid />
       <Stats />
-           <Footer />
+      <Footer />
     </>
   );
 }
