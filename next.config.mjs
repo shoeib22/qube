@@ -1,14 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    // This allows Next.js to trust your internal folders like /logo or /api
     localPatterns: [
-      {
-        pathname: '/logo/**',
-      },
-      {
-        pathname: '/api/products/**',
-      },
+      { pathname: '/logo/**' },
+      { pathname: '/api/products/**' },
     ],
     remotePatterns: [
       {
@@ -23,6 +18,6 @@ const nextConfig = {
       },
     ],
   },
-};
+}
 
-export default nextConfig;
+export default nextConfig
