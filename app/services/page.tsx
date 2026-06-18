@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
+// 1. Import Next.js Link for instant page transitions
+import Link from "next/link";
 import {
   motion,
   useMotionValue,
@@ -9,6 +11,7 @@ import {
   useMotionTemplate,
   useScroll,
   Variants,
+  MotionValue // 2. Import MotionValue for strict typing
 } from "framer-motion";
 import {
   Music,
@@ -18,18 +21,16 @@ import {
   ArrowRight,
   Wind,
   Laptop,
+  LucideIcon // 3. Import the strict Lucide icon type
 } from "lucide-react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 
 // --- Constants & Pre-rendered Assets ---
-
-// Base64 encoded version of your exact SVG noise. 
-// This forces the browser to rasterize it once and cache it, bypassing live DOM rendering.
 const NOISE_PATTERN = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='100%25' height='100%25'%3E%3Cfilter id='noiseFilter3'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter3)'/%3E%3C/svg%3E")`;
 
 interface ServiceData {
-  icon: React.ElementType;
+  icon: LucideIcon; // 4. Apply the strict type here
   title: string;
   description: string;
   color: string;
@@ -135,7 +136,8 @@ const InteractiveCard = ({ service, index }: { service: ServiceData; index: numb
     isHovered.set(0);
   };
 
-  const Icon = service.icon;
+  // 5. Explicitly cast the component for the JSX parser
+  const Icon = service.icon as LucideIcon;
 
   return (
     <motion.div
@@ -234,7 +236,13 @@ const InteractiveCard = ({ service, index }: { service: ServiceData; index: numb
 };
 
 // --- Ambient 3D Background Component ---
-const SpatialBackground = ({ globalX, globalY }: { globalX: any, globalY: any }) => {
+const SpatialBackground = ({ 
+  globalX, 
+  globalY 
+}: { 
+  globalX: MotionValue<number>; 
+  globalY: MotionValue<number>; 
+}) => {
   const { scrollY } = useScroll();
   const scrollParallax1 = useTransform(scrollY, [0, 1000], [0, -150]);
   const scrollParallax2 = useTransform(scrollY, [0, 1000], [0, 200]);
@@ -384,9 +392,9 @@ export default function PremiumServicesPage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 lg:gap-12">
             {services.map((service, i) => (
-              <a href={service.href} key={i} className="block no-underline h-[420px]">
+              <Link href={service.href} key={i} className="block no-underline h-[420px]">
                 <InteractiveCard service={service} index={i} />
-              </a>
+              </Link>
             ))}
           </div>
         </div>
