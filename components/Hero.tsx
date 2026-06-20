@@ -281,22 +281,23 @@ export default function SpatialPremiumHero() {
   return (
     <section
       ref={containerRef}
-      className="relative w-full h-screen min-h-[900px] flex items-center justify-center overflow-hidden bg-[#020202] font-sans selection:bg-emerald-500/30 selection:text-white"
-      style={{ perspective: "1500px" }}
+      className="relative w-full min-h-[100dvh] flex items-center justify-center overflow-hidden bg-[#020202] font-sans selection:bg-emerald-500/30 selection:text-white md:[perspective:1500px]"
     >
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_#1a1a24_0%,_#020202_70%)] z-0 pointer-events-none" />
 
       {/* Pre-rendered static noise background */}
       <div 
-        className="absolute inset-0 z-0 opacity-[0.04] pointer-events-none mix-blend-overlay"
+        className="absolute inset-0 z-0 opacity-[0.04] pointer-events-none md:mix-blend-overlay"
         style={{ backgroundImage: NOISE_PATTERN, backgroundRepeat: "repeat" }}
       />
 
-      <CursorFlare smoothX={smoothX} smoothY={smoothY} />
+      <div className="hidden md:block">
+        <CursorFlare smoothX={smoothX} smoothY={smoothY} />
+      </div>
 
       <motion.div
         className="relative z-10 w-full max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center"
-        style={{ rotateX, rotateY, transformStyle: "preserve-3d", willChange: "transform" }}
+        style={{ rotateX, rotateY, willChange: "transform" }}
       >
         <motion.div
           className="flex flex-col items-start text-left"

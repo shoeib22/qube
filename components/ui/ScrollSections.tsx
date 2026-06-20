@@ -33,8 +33,9 @@ function CinematicSection({ section }: { section: typeof sections[0] }) {
   // Parallax effect restricted to Y-axis for optimal GPU performance
   const y = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
 
+  // 1. Swapped h-[120vh] to h-[120dvh] to prevent URL bar thrashing on mobile
   return (
-    <div ref={containerRef} className="relative h-[120vh] flex items-center justify-center overflow-hidden">
+    <div ref={containerRef} className="relative h-[120dvh] flex items-center justify-center overflow-hidden">
       
       {/* Parallax Background */}
       <motion.div 
@@ -62,11 +63,13 @@ function CinematicSection({ section }: { section: typeof sections[0] }) {
             whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             viewport={{ once: true, margin: "-20%" }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            style={{ willChange: "transform, opacity, filter" }}
+            style={{ willChange: "transform, opacity" }} // 2. Removed `filter` from willChange to save mobile memory overhead
             className="max-w-2xl relative pointer-events-auto"
           >
-            {/* The Glass Panel */}
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-2xl rounded-3xl border border-white/10 -m-8 sm:-m-12 z-[-1]" style={{ WebkitBackdropFilter: "blur(24px)" }} />
+            {/* 3. Softened the backdrop filter on mobile: 
+                Mobile chips struggle with 24px blur over moving elements. 
+                Removed inline style so Tailwind's responsive classes can do their job properly. */}
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-md md:backdrop-blur-2xl rounded-3xl border border-white/10 -m-8 sm:-m-12 z-[-1]" />
             
             <div className="flex items-center gap-4 mb-6">
               <span className="text-sm font-mono text-zinc-500 tracking-wider">

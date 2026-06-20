@@ -35,7 +35,6 @@ const solutions = [
 ];
 
 // --- 2D Glowing Blueprint Node ---
-// Recreates the exact tactical crosshair & tag aesthetic from the screenshot
 const BlueprintNode = ({ cx, cy, color, tag, isActive, delay = 0 }: { cx: number, cy: number, color: string, tag?: string, isActive: boolean, delay?: number }) => {
   if (!isActive) return null;
 
@@ -120,13 +119,11 @@ const FloorPlanVisualizer = ({ activeTab }: { activeTab: number }) => {
         </g>
 
         {/* --- ROOM: LIVING ROOM (Top Left) --- */}
-        {/* Active for: Families (1), Luxury (2) */}
         <g opacity={isZoneActive([1, 2]) ? 1 : 0.15} className="transition-opacity duration-700 ease-in-out">
           {isZoneActive([1, 2]) && <rect x={40} y={40} width={360} height={220} fill="url(#glowRadial)" opacity={0.5} />}
           <rect x={40} y={40} width={360} height={220} fill="none" stroke={activeColor} strokeWidth={1} />
           <text x={60} y={65} fill={activeColor} fontSize={10} className="font-mono tracking-[0.2em]">LIVING ROOM</text>
           
-          {/* Architectural Details */}
           <rect x={80} y={100} width={120} height={40} fill="none" stroke={activeColor} strokeWidth={0.5} />
           <circle cx={280} cy={160} r={30} fill="none" stroke={activeColor} strokeWidth={0.5} />
           
@@ -136,31 +133,25 @@ const FloorPlanVisualizer = ({ activeTab }: { activeTab: number }) => {
         </g>
 
        {/* --- ROOM: MASTER SUITE (Top Right) --- */}
-        {/* Active for: Professionals (0), Luxury (2) */}
         <g opacity={isZoneActive([0, 2]) ? 1 : 0.15} className="transition-opacity duration-700 ease-in-out">
           {isZoneActive([0, 2]) && <rect x={400} y={40} width={360} height={220} fill="url(#glowRadial)" opacity={0.5} />}
           <rect x={400} y={40} width={360} height={220} fill="none" stroke={activeColor} strokeWidth={1} />
           <text x={420} y={65} fill={activeColor} fontSize={10} className="font-mono tracking-[0.2em]">MASTER SUITE</text>
           
-          {/* Architectural Details */}
           <rect x={580} y={80} width={140} height={120} fill="none" stroke={activeColor} strokeWidth={0.5} />
-          {/* Fixed the typo on the line below */}
           <rect x={540} y={90} width={30} height={30} fill="none" stroke={activeColor} strokeWidth={0.5} />
           
           <AnimatePresence>
-            {/* Implemented explicitly requested branding correction */}
             <BlueprintNode cx={550} cy={160} color={activeColor} tag="XEROVOLT CORE ACTIVE" isActive={isZoneActive([0, 2])} delay={0.4} />
           </AnimatePresence>
         </g>
 
         {/* --- ROOM: KITCHEN (Bottom Left) --- */}
-        {/* Active for: Families (1), Luxury (2) */}
         <g opacity={isZoneActive([1, 2]) ? 1 : 0.15} className="transition-opacity duration-700 ease-in-out">
           {isZoneActive([1, 2]) && <rect x={40} y={260} width={300} height={200} fill="url(#glowRadial)" opacity={0.5} />}
           <rect x={40} y={260} width={300} height={200} fill="none" stroke={activeColor} strokeWidth={1} />
           <text x={60} y={285} fill={activeColor} fontSize={10} className="font-mono tracking-[0.2em]">KITCHEN</text>
           
-          {/* Architectural Details */}
           <rect x={80} y={320} width={180} height={60} fill="none" stroke={activeColor} strokeWidth={0.5} />
           <line x1={80} y1={420} x2={260} y2={420} stroke={activeColor} strokeWidth={0.5} />
           
@@ -170,13 +161,11 @@ const FloorPlanVisualizer = ({ activeTab }: { activeTab: number }) => {
         </g>
 
         {/* --- ROOM: OFFICE / STUDIO (Bottom Middle) --- */}
-        {/* Active for: Professionals (0), Luxury (2), Renters (3) */}
         <g opacity={isZoneActive([0, 2, 3]) ? 1 : 0.15} className="transition-opacity duration-700 ease-in-out">
           {isZoneActive([0, 2, 3]) && <rect x={340} y={260} width={260} height={200} fill="url(#glowRadial)" opacity={0.5} />}
           <rect x={340} y={260} width={260} height={200} fill="none" stroke={activeColor} strokeWidth={1} />
           <text x={360} y={285} fill={activeColor} fontSize={10} className="font-mono tracking-[0.2em]">OFFICE</text>
           
-          {/* Architectural Details */}
           <rect x={420} y={340} width={100} height={50} fill="none" stroke={activeColor} strokeWidth={0.5} />
           <circle cx={470} cy={420} r={15} fill="none" stroke={activeColor} strokeWidth={0.5} />
           
@@ -186,13 +175,11 @@ const FloorPlanVisualizer = ({ activeTab }: { activeTab: number }) => {
         </g>
 
         {/* --- ROOM: BATH (Bottom Right) --- */}
-        {/* Active for: Luxury (2), Renters (3) */}
         <g opacity={isZoneActive([2, 3]) ? 1 : 0.15} className="transition-opacity duration-700 ease-in-out">
           {isZoneActive([2, 3]) && <rect x={600} y={260} width={160} height={200} fill="url(#glowRadial)" opacity={0.5} />}
           <rect x={600} y={260} width={160} height={200} fill="none" stroke={activeColor} strokeWidth={1} />
           <text x={620} y={285} fill={activeColor} fontSize={10} className="font-mono tracking-[0.2em]">BATH</text>
           
-          {/* Architectural Details */}
           <rect x={640} y={300} width={80} height={120} rx={10} fill="none" stroke={activeColor} strokeWidth={0.5} />
           
           <AnimatePresence>
@@ -204,11 +191,9 @@ const FloorPlanVisualizer = ({ activeTab }: { activeTab: number }) => {
         <g transform="translate(640, 440)" className="transition-all duration-700">
           <line x1={0} y1={25} x2={120} y2={25} stroke={activeColor} strokeWidth={1} opacity={0.3} />
           
-          {/* Temp */}
           <text x={10} y={15} fill={activeColor} fontSize={18} className="font-mono font-bold">24°</text>
           <text x={12} y={35} fill={activeColor} fontSize={8} opacity={0.6} className="font-mono tracking-widest">TEMP</text>
           
-          {/* Devices Active */}
           <text x={60} y={15} fill={activeColor} fontSize={18} className="font-mono font-bold">
             {activeTab === 2 ? '42' : activeTab === 0 ? '18' : activeTab === 1 ? '26' : '12'}
           </text>
@@ -239,11 +224,12 @@ export default function SmartSolutions() {
   return (
     <section ref={containerRef} className="relative h-[400vh] bg-[#020202] w-full font-sans" id="solutions">
       
-      <div className="sticky top-0 h-screen w-full flex flex-col-reverse lg:flex-row items-center justify-center overflow-hidden px-6 lg:px-20">
+      {/* 1. Updated h-screen to h-[100dvh] for mobile viewport stability */}
+      <div className="sticky top-0 h-[100dvh] w-full flex flex-col-reverse lg:flex-row items-center justify-center overflow-hidden px-6 lg:px-20">
         
-        {/* Dynamic Vignette / Glow */}
+        {/* 2. Scaled down the heavy blur-[200px] to blur-[100px] on mobile to save GPU memory */}
         <div 
-          className="absolute inset-0 z-0 opacity-10 transition-colors duration-1000 blur-[200px]"
+          className="absolute inset-0 z-0 opacity-10 transition-colors duration-1000 blur-[100px] md:blur-[200px]"
           style={{ backgroundColor: solutions[activeTab].color }}
         />
         <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,transparent_0%,#020202_100%)] pointer-events-none" />
@@ -276,6 +262,7 @@ export default function SmartSolutions() {
                 exit={{ opacity: 0, x: 20, filter: "blur(10px)" }}
                 transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                 className="absolute inset-0"
+                style={{ willChange: "transform, opacity, filter" }}
               >
                 <div className="flex items-center gap-4 mb-4">
                   <div 
@@ -320,7 +307,8 @@ export default function SmartSolutions() {
         </div>
 
         {/* Right Side: The Master Blueprint Canvas */}
-        <div className="w-full lg:w-1/2 h-[50vh] lg:h-full relative z-10">
+        {/* 3. Changed h-[50vh] to h-[50dvh] to prevent layout jumps on mobile scroll */}
+        <div className="w-full lg:w-1/2 h-[50dvh] lg:h-full relative z-10">
           <FloorPlanVisualizer activeTab={activeTab} />
         </div>
 

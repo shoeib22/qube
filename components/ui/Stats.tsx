@@ -47,8 +47,8 @@ export default function Stats() {
   return (
     <section className="relative py-32 lg:py-48 bg-[#030303] overflow-hidden">
       
-      {/* Deep Ambient Glow - Added transform-gpu to prevent unnecessary layout repaints */}
-      <div className="absolute top-1/2 left-1/2 w-[800px] h-[400px] bg-white/[0.02] blur-[150px] rounded-full pointer-events-none transform-gpu -translate-x-1/2 -translate-y-1/2" />
+      {/* 1. Responsive Glow: Scaled down width and blur strictly for mobile to prevent massive paint zones */}
+      <div className="absolute top-1/2 left-1/2 w-[300px] md:w-[800px] h-[300px] md:h-[400px] bg-white/[0.02] blur-[80px] md:blur-[150px] rounded-full pointer-events-none transform-gpu -translate-x-1/2 -translate-y-1/2" />
 
       <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
         
@@ -58,7 +58,7 @@ export default function Stats() {
           whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
           viewport={{ once: true }}
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-          style={{ willChange: "transform, opacity, filter" }}
+          style={{ willChange: "transform, opacity" }} // 2. Removed `filter` to save mobile GPU memory
           className="mb-24"
         >
           <p className="text-sm uppercase tracking-[0.3em] text-zinc-500 font-semibold mb-6">
@@ -84,7 +84,7 @@ export default function Stats() {
             <motion.div 
               key={idx}
               variants={itemVariants}
-              style={{ willChange: "transform, opacity, filter" }}
+              style={{ willChange: "transform, opacity" }} // 3. Removed `filter` from willChange here as well
               className="relative group p-8 lg:p-12 rounded-[2rem] bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors duration-500 flex flex-col items-center justify-center overflow-hidden"
             >
               {/* Top-left corner accent */}
