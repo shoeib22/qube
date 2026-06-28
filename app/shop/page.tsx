@@ -125,9 +125,8 @@ export default function ShopPage() {
           </motion.div>
         )}
 
-        {/* ── Configurator Banner ── */}
-        {!loading && !error && (
-          <Link href="/configurator" className="block mb-12 sm:mb-16">
+        {/* ── Configurator Banner — always visible ── */}
+        <Link href="/configurator" className="block mb-10 sm:mb-14">
             <div className="group flex items-center justify-between gap-4 w-full px-6 sm:px-8 py-5 sm:py-6 rounded-3xl bg-[#155cfc]/10 border border-[#155cfc]/30 hover:bg-[#155cfc]/15 transition-all duration-300 cursor-pointer">
               <div className="flex items-center gap-4 sm:gap-5 min-w-0">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-[#155cfc]/20 border border-[#155cfc]/30 flex items-center justify-center flex-shrink-0">
@@ -146,7 +145,6 @@ export default function ShopPage() {
               </div>
             </div>
           </Link>
-        )}
 
         {/* Content Area */}
         <AnimatePresence mode="wait">
