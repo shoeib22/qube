@@ -20,8 +20,9 @@ if (getApps().length === 0) {
         storageBucket: `cube-8c773.firebasestorage.app`, 
       });
       console.log('✅ [FirebaseAdmin] Initialized successfully');
-    } catch (error: any) {
-      console.error('❌ [FirebaseAdmin] Initialization Failed:', error.message);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      console.error('❌ [FirebaseAdmin] Initialization Failed:', message);
     }
   } else {
     console.warn('⚠️ [FirebaseAdmin] Missing Env Vars. Check your .env.local names.');

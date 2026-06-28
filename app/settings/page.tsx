@@ -132,7 +132,7 @@ export default function SecurityPage() {
       <h4 className="text-sm font-bold text-[#f2994a] uppercase tracking-wider">Security Tip</h4>
     </div>
     <p className="text-sm text-gray-500 leading-relaxed">
-      Use a unique password that you don't use on other websites. We recommend at least 12 characters with a mix of symbols.
+      Use a unique password that you don&apos;t use on other websites. We recommend at least 12 characters with a mix of symbols.
     </p>
   </div>
 

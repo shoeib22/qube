@@ -1,7 +1,13 @@
 "use client";
 import { motion, Variants } from "framer-motion";
 
-const stats = [
+const stats: {
+  num: string;
+  value: string;
+  title: string;
+  description: string;
+  energy?: boolean;
+}[] = [
   {
     num: "01",
     value: "400+",
@@ -19,6 +25,7 @@ const stats = [
     value: "30%",
     title: "Energy Reduced",
     description: "Average drop in utility costs via intelligent automation.",
+    energy: true,
   }
 ];
 
@@ -60,7 +67,7 @@ export default function Stats() {
           style={{ willChange: "transform, opacity" }}
           className="mb-16 sm:mb-24"
         >
-          <p className="text-sm uppercase tracking-[0.3em] text-zinc-500 font-semibold mb-6">
+          <p className="eyebrow mb-6">
             Proven Impact
           </p>
           <h2 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-light tracking-tighter text-white leading-tight">
@@ -88,18 +95,24 @@ export default function Stats() {
             >
               {/* Top-left corner accent */}
               <div className="absolute top-6 left-8 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                <span className="text-xs font-mono text-zinc-600 tracking-wider">
+                <span className="text-xs font-mono text-brand tracking-wider">
                   {stat.num}
                 </span>
               </div>
 
-              {/* Massive Value Text */}
-              <h3 className="text-7xl md:text-8xl font-light tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-white/30 mb-6">
+              {/* Massive Value Text — energy stats render in amber per the design system */}
+              <h3
+                className={`text-7xl md:text-8xl font-light tracking-tighter text-transparent bg-clip-text mb-6 ${
+                  stat.energy
+                    ? "bg-gradient-to-b from-energy to-energy/40"
+                    : "bg-gradient-to-b from-white to-white/30"
+                }`}
+              >
                 {stat.value}
               </h3>
-              
+
               {/* Content Divider - Swapped width animation for scale-x to prevent layout thrashing */}
-              <div className="w-12 h-px bg-white/20 mb-6 transition-transform duration-500 ease-out origin-center group-hover:scale-x-[2] group-hover:bg-white/40 transform-gpu" />
+              <div className="w-12 h-px bg-white/20 mb-6 transition-transform duration-500 ease-out origin-center group-hover:scale-x-[2] group-hover:bg-brand transform-gpu" />
 
               {/* Title & Description */}
               <h4 className="text-xl text-white font-medium mb-3">

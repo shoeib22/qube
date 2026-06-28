@@ -12,7 +12,7 @@ async function isAdmin(request: Request) {
         // Use modular getAuth
         const decodedToken = await getAuth(admin).verifyIdToken(token);
         return decodedToken.role === 'admin';
-    } catch (error) {
+    } catch {
         return false;
     }
 }
@@ -33,8 +33,9 @@ export async function GET(request: NextRequest) {
         }));
 
         return NextResponse.json({ users });
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }
 
@@ -56,7 +57,8 @@ export async function PUT(request: Request) {
         await db.collection('users').doc(userId).update({ role });
 
         return NextResponse.json({ success: true, message: `User role updated to ${role}` });
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }

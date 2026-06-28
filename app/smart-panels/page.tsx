@@ -7,9 +7,9 @@ import {
   useSpring,
   useTransform,
   useMotionTemplate,
-  useScroll,
   AnimatePresence,
   Variants,
+  type MotionValue,
 } from "framer-motion";
 import {
   Smartphone,
@@ -18,14 +18,11 @@ import {
   Zap,
   ArrowRight,
   X,
-  Cpu,
-  ArrowLeft,
   Power,
   Sun,
   Moon,
   Volume2,
-  Lock,
-  Import
+  Lock
 } from "lucide-react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
@@ -33,7 +30,7 @@ import BackArrow from "../../components/backarrow";
 // ------------------------------------------
 
 // --- Custom 3D Visualizer: The Holographic Smart Panel ---
-const HolographicSmartPanel = ({ mouseX, mouseY }: { mouseX: any, mouseY: any }) => {
+const HolographicSmartPanel = ({ mouseX, mouseY }: { mouseX: MotionValue<number>, mouseY: MotionValue<number> }) => {
   const rotateX = useTransform(mouseY, [-0.5, 0.5], [15, -15]);
   const rotateY = useTransform(mouseX, [-0.5, 0.5], [-15, 15]);
 
@@ -195,7 +192,7 @@ const SpatialBentoCard = ({ children, className = "", glowColor = "rgba(251, 191
 };
 
 // --- Spatial Background Environment ---
-const SpatialBackground = ({ globalX, globalY }: { globalX: any, globalY: any }) => {
+const SpatialBackground = ({ globalX, globalY }: { globalX: MotionValue<number>, globalY: MotionValue<number> }) => {
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden perspective-[1200px]">
       <div className="absolute inset-0 bg-[#020202]" />

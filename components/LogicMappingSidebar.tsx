@@ -2,7 +2,7 @@
 
 "use client";
 
-import React, { useCallback } from "react";
+import React from "react";
 import { SlotConfig } from "../types";
 import { PANEL_SLOTS } from "../lib/panelLayout";
 import { getIconById } from "../lib/iconLibrary";
@@ -130,6 +130,7 @@ export default function LogicMappingSidebar({
                 }}
               >
                 {hasCustomIcon ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- data-URL user upload, not optimizable by next/image
                   <img
                     src={customIconDataUrls[slotConfig!.iconId!]}
                     alt=""

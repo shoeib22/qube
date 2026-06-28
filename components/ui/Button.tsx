@@ -14,16 +14,16 @@ const cn = (...args: Array<string | false | null | undefined>) =>
   args.filter(Boolean).join(" ");
 
 const baseStyles =
-  "inline-flex items-center justify-center rounded-full font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed";
+  "inline-flex items-center justify-center rounded-full font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed";
 
 const variantStyles: Record<Variant, string> = {
-  // Updated from orange to #155cfc
+  // Voltaic design system — emerald brand accent
   primary:
-    "bg-[#155cfc] text-white hover:bg-[#155cfc]/50 focus:ring-[#155cfc] focus:ring-offset-[2px] focus:ring-offset-black",
-  ghost: 
-    "bg-transparent text-white hover:bg-[#155cfc]/10 focus:ring-[#155cfc]/50",
+    "bg-brand text-black hover:bg-brand-strong hover:shadow-glow focus:ring-brand focus:ring-offset-[2px] focus:ring-offset-bg",
+  ghost:
+    "bg-transparent text-text hover:bg-brand-soft hover:text-brand focus:ring-brand/50",
   outline:
-    "bg-transparent border border-[#155cfc]/40 text-white hover:border-[#155cfc] hover:bg-[#155cfc]/50 focus:ring-[#155cfc]/50",
+    "bg-transparent border border-brand/40 text-text hover:border-brand hover:bg-brand-soft hover:text-brand focus:ring-brand/50",
 };
 
 const padding = "px-6 py-2";

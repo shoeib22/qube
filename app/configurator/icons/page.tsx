@@ -43,14 +43,6 @@ export default function IconsPage() {
     e.dataTransfer.setData("text/plain", iconId);
   };
 
-  const handleSlotDrop = (slotIndex: number, e: React.DragEvent) => {
-    e.preventDefault();
-    const iconId = e.dataTransfer.getData("text/plain");
-    if (!iconId) return;
-    const icon = BUILT_IN_ICONS.find(i => i.id === iconId) ?? customIcons.find(i => i.id === iconId);
-    if (icon) assignIcon(slotIndex, icon.id, icon.name);
-  };
-
   const handleIconClick = (iconId: string, iconName: string) => {
     if (selectedSlot !== null) {
       assignIcon(selectedSlot, iconId, iconName);
@@ -141,6 +133,7 @@ export default function IconsPage() {
                     <button key={icon.id} draggable onDragStart={e => handleDragStart(e, icon.id)}
                       onClick={() => handleIconClick(icon.id, icon.name)} title={icon.name}
                       className="aspect-square p-2 border border-gray-200 rounded-lg hover:border-[#155cfc] transition-colors">
+                      {/* eslint-disable-next-line @next/next/no-img-element -- data-URL user upload, not optimizable by next/image */}
                       <img src={icon.dataUrl} alt={icon.name} className="w-full h-full object-contain" />
                     </button>
                   ))}

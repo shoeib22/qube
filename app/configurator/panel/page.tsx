@@ -2,11 +2,9 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useConfigurator } from "@/context/ConfiguratorContext";
 import ConfiguratorLayout from "@/components/configurator/ConfiguratorLayout";
 
 export default function PanelPage() {
-  const { state } = useConfigurator();
   const router = useRouter();
 
   // Edge is always pre-selected; auto-advance on mount

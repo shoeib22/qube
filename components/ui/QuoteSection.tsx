@@ -7,7 +7,7 @@ export default function QuoteSection() {
       
       {/* Ambient glow — hidden on mobile */}
       <div className="hidden sm:flex absolute inset-0 pointer-events-none justify-center items-center">
-        <div className="w-[600px] md:w-[800px] h-[400px] bg-white/[0.02] blur-[120px] rounded-full" />
+        <div className="w-[600px] md:w-[800px] h-[400px] bg-brand-soft blur-[140px] rounded-full" />
       </div>
 
       <div className="max-w-5xl mx-auto text-center relative z-10">
@@ -31,7 +31,7 @@ export default function QuoteSection() {
           viewport={{ once: true, margin: "-10%" }}
           className="relative z-10 text-xl sm:text-3xl md:text-5xl lg:text-6xl text-zinc-600 leading-[1.3] font-light tracking-tight"
         >
-          Whether you're setting up basic smart devices or creating a fully 
+          Whether you&apos;re setting up basic smart devices or creating a fully
           integrated automation system,{" "}
           <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-white/60 font-medium">
             Xerovolt tailors its solutions
@@ -49,9 +49,9 @@ export default function QuoteSection() {
            className="mt-20 md:mt-24 flex flex-col items-center gap-6"
         >
            {/* Fading Vertical Line */}
-           <div className="w-px h-16 bg-gradient-to-b from-white/20 to-transparent" />
-           
-           <span className="text-xs tracking-[0.3em] uppercase text-zinc-500 font-semibold">
+           <div className="w-px h-16 bg-gradient-to-b from-brand/50 to-transparent" />
+
+           <span className="eyebrow">
              The Xerovolt Vision
            </span>
         </motion.div>

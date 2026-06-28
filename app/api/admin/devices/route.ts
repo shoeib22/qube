@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
   if (error) return Response.json({ error: error.message }, { status: 500 });
 
   // Fetch friendly names/rooms from Firestore deviceRegistry
-  let registry: Record<string, { friendlyName?: string; room?: string }> = {};
+  const registry: Record<string, { friendlyName?: string; room?: string }> = {};
   if (db && states && states.length > 0) {
     const regSnap = await db.collection("deviceRegistry").get();
     regSnap.docs.forEach(doc => { registry[doc.id] = doc.data() as { friendlyName?: string; room?: string }; });

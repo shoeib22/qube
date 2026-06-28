@@ -7,12 +7,11 @@ import {
   getDocs,
   setDoc,
   deleteDoc,
-  serverTimestamp,
   query,
   orderBy,
 } from "firebase/firestore";
-import { getFirebaseDb, PANEL_CONFIGS_PATH, XEROVOLT_APP_ID } from "./firebase";
-import { PanelConfig, SlotConfig } from "../types";
+import { getFirebaseDb, PANEL_CONFIGS_PATH } from "./firebase";
+import { PanelConfig } from "../types";
 
 const db = () => getFirebaseDb();
 const colRef = () => collection(db(), PANEL_CONFIGS_PATH());

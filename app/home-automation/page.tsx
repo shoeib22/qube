@@ -7,26 +7,18 @@ import {
   useSpring,
   useTransform,
   useMotionTemplate,
-  useScroll,
   AnimatePresence,
   Variants,
+  type MotionValue,
 } from "framer-motion";
 import {
-  Home,
   Lightbulb,
   Thermometer,
   ShieldCheck,
-  ArrowRight,
   X,
-  Cpu,
-  ArrowLeft,
-  Wifi,
   Activity,
-  Layers,
-  Lock,
   Fingerprint,
   Zap,
-  Video,
   ChevronRight,
   Power
 } from "lucide-react";
@@ -241,7 +233,7 @@ const BentoLighting = () => (
   </div>
 );
 
-const SpatialBackground = ({ globalX, globalY }: { globalX: any, globalY: any }) => {
+const SpatialBackground = ({ globalX, globalY }: { globalX: MotionValue<number>, globalY: MotionValue<number> }) => {
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden perspective-[1200px]">
       <div className="absolute inset-0 bg-[#020202]" />

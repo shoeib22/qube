@@ -20,7 +20,7 @@ export default function PaymentFailurePage() {
 
                     <h1 className="text-3xl font-bold text-white mb-4">Payment Failed</h1>
                     <p className="text-gray-400 mb-8 leading-relaxed">
-                        We couldn't process your payment. This could be due to a declined transaction, network issue, or cancellation. No money has been deducted.
+                        We couldn&apos;t process your payment. This could be due to a declined transaction, network issue, or cancellation. No money has been deducted.
                     </p>
 
                     <div className="space-y-4">

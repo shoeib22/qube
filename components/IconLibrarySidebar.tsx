@@ -23,7 +23,6 @@ export default function IconLibrarySidebar({
   customIconDataUrls,
   isProcessing,
   uploadError,
-  userId,
   onIconDragStart,
   onIconDragEnd,
   onFileUpload,
@@ -402,6 +401,7 @@ function CustomIconTile({
       )}
 
       {dataUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element -- data-URL user upload, not optimizable by next/image
         <img
           src={dataUrl}
           alt={icon.name}

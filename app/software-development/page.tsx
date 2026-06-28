@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Code2, Cpu, ShieldCheck, Laptop2, X } from "lucide-react";
 import Header from "../../components/Header";
@@ -19,7 +19,7 @@ export default function Page() {
     {icon:Laptop2,title:"Performance",desc:"Fast and maintainable."},
   ];
 
-  async function handleSubmit(e:any){
+  async function handleSubmit(e: FormEvent){
     e.preventDefault();
     setLoading(true);
     await new Promise(r=>setTimeout(r,1000));
@@ -97,7 +97,7 @@ export default function Page() {
     </section>
 
     <section className="py-28 text-center">
-      <h2 className="text-5xl font-light">Let's build something remarkable.</h2>
+      <h2 className="text-5xl font-light">Let&apos;s build something remarkable.</h2>
       <button onClick={()=>setShowForm(true)}
       className="mt-10 rounded-full bg-yellow-400 text-black px-10 py-5 font-bold">
       Book Consultation

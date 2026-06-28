@@ -23,14 +23,15 @@ export default function LoginPage() {
       await signInWithEmailAndPassword(auth, email, password);
       console.log("Authentication successful:", { email });
       router.push('/');
-    } catch (err: any) {
+    } catch (err) {
       console.error("Login failed", err);
       // Map firebase error codes to user friendly messages
-      if (err.code === 'auth/invalid-credential') {
+      const code = (err as { code?: string }).code;
+      if (code === 'auth/invalid-credential') {
         setError("Invalid email or password.");
-      } else if (err.code === 'auth/user-not-found') {
+      } else if (code === 'auth/user-not-found') {
         setError("No account found with this email.");
-      } else if (err.code === 'auth/wrong-password') {
+      } else if (code === 'auth/wrong-password') {
         setError("Incorrect password.");
       } else {
         setError("Failed to login. Please try again.");
@@ -144,7 +145,7 @@ export default function LoginPage() {
           </Link>
 
           <p className="mt-8 text-[10px] uppercase tracking-widest text-gray-500">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link
               href="/register"
               className="font-bold text-white transition-colors hover:text-[#f2994a]"

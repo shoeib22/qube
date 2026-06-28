@@ -13,7 +13,7 @@ function PaymentSuccessContent() {
 
     const transactionId = searchParams.get("id");
     const [status, setStatus] = useState<"loading" | "success" | "failed">("loading");
-    const [orderDetails, setOrderDetails] = useState<any>(null);
+    const [orderDetails, setOrderDetails] = useState<{ amount?: number } | null>(null);
 
     useEffect(() => {
         if (!transactionId) {
@@ -66,7 +66,7 @@ function PaymentSuccessContent() {
                 <div>
                     <h2 className="text-3xl font-bold text-white mb-2">Payment Failed</h2>
                     <p className="text-gray-400 max-w-md mx-auto">
-                        We couldn't verify your payment. If the amount was deducted, it will be refunded automatically within 5-7 business days.
+                        We couldn&apos;t verify your payment. If the amount was deducted, it will be refunded automatically within 5-7 business days.
                     </p>
                 </div>
                 <div className="flex gap-4">

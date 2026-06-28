@@ -26,7 +26,7 @@ export interface PaymentVerifyResponse {
         amount: number;
         state: string;
         responseCode: string;
-        paymentInstrument: any;
+        paymentInstrument: Record<string, unknown>;
     };
 }
 
@@ -74,6 +74,6 @@ export const generateStatusChecksum = (apiEndpoint: string, saltKey: string, sal
 /**
  * Encode payload to Base64
  */
-export const encodePayload = (payload: any): string => {
+export const encodePayload = (payload: unknown): string => {
     return Buffer.from(JSON.stringify(payload)).toString('base64');
 };

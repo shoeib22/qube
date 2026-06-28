@@ -10,7 +10,7 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center mb-24 gap-8">
           <h2 className="text-3xl md:text-5xl font-light text-white text-center md:text-left">
             Are you ready for the <br />
-            <span className="font-medium text-blue-500">Xerovolt experience?</span>
+            <span className="font-medium text-brand">Xerovolt experience?</span>
           </h2>
           <Link href="/contact">
             <button className="bg-white text-black px-8 py-4 rounded-full text-sm font-bold hover:bg-gray-200 transition-colors whitespace-nowrap">
@@ -53,10 +53,10 @@ export default function Footer() {
           <div className="space-y-4">
             <h4 className="text-white font-medium mb-6 uppercase tracking-wider text-xs">Menu</h4>
             <ul className="space-y-4">
-              <li><Link href="/" className="hover:text-blue-400 transition-colors">Home</Link></li>
-              <li><Link href="/services" className="hover:text-blue-400 transition-colors">Solutions</Link></li>
-              <li><Link href="/support" className="hover:text-blue-400 transition-colors">Support</Link></li>
-              <li><Link href="/contact" className="hover:text-blue-400 transition-colors">Contact Us</Link></li>
+              <li><Link href="/" className="hover:text-brand transition-colors">Home</Link></li>
+              <li><Link href="/services" className="hover:text-brand transition-colors">Solutions</Link></li>
+              <li><Link href="/support" className="hover:text-brand transition-colors">Support</Link></li>
+              <li><Link href="/contact" className="hover:text-brand transition-colors">Contact Us</Link></li>
             </ul>
           </div>
 
@@ -64,16 +64,16 @@ export default function Footer() {
           <div className="space-y-4">
             <h4 className="text-white font-medium mb-6 uppercase tracking-wider text-xs">Connect</h4>
             <div className="flex gap-4">
-              <a href="#" className="p-3 rounded-full bg-white/5 hover:bg-blue-600 hover:text-white transition-all duration-300">
+              <a href="#" className="p-3 rounded-full bg-white/5 hover:bg-brand hover:text-black transition-all duration-300">
                 <Instagram className="w-4 h-4" />
               </a>
-              <a href="#" className="p-3 rounded-full bg-white/5 hover:bg-blue-600 hover:text-white transition-all duration-300">
+              <a href="#" className="p-3 rounded-full bg-white/5 hover:bg-brand hover:text-black transition-all duration-300">
                 <Linkedin className="w-4 h-4" />
               </a>
-              <a href="#" className="p-3 rounded-full bg-white/5 hover:bg-blue-600 hover:text-white transition-all duration-300">
+              <a href="#" className="p-3 rounded-full bg-white/5 hover:bg-brand hover:text-black transition-all duration-300">
                 <Twitter className="w-4 h-4" />
               </a>
-              <a href="#" className="p-3 rounded-full bg-white/5 hover:bg-blue-600 hover:text-white transition-all duration-300">
+              <a href="#" className="p-3 rounded-full bg-white/5 hover:bg-brand hover:text-black transition-all duration-300">
                 <Facebook className="w-4 h-4" />
               </a>
             </div>

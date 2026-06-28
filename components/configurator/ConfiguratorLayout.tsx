@@ -1,6 +1,7 @@
 "use client";
 
 import React, { ReactNode, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { STEPS } from "@/lib/configuratorData";
 import { useConfigurator } from "@/context/ConfiguratorContext";
@@ -49,10 +50,10 @@ export default function ConfiguratorLayout({
 
       {/* Header */}
       <div className="border-b border-gray-200 px-4 sm:px-6 py-3 flex items-center justify-between bg-white gap-2">
-        <a href="/" className="flex items-center gap-2 flex-shrink-0">
+        <Link href="/" className="flex items-center gap-2 flex-shrink-0">
           <span className="text-lg font-black tracking-tight text-gray-900">Xerovolt</span>
           <span className="hidden sm:inline text-xs text-gray-400 font-medium">Smart Panel Studio</span>
-        </a>
+        </Link>
 
         {/* Auto-select toggle — icon-only on mobile */}
         <button

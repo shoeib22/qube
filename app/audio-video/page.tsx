@@ -10,6 +10,7 @@ import {
   useScroll,
   AnimatePresence,
   Variants,
+  type MotionValue,
 } from "framer-motion";
 import {
   Music,
@@ -17,13 +18,12 @@ import {
   Speaker,
   ArrowRight,
   X,
-  Cpu,
-  ArrowLeft,
   Settings2,
   Volume2,
   Aperture,
   Crosshair,
-  Waves
+  Waves,
+  type LucideIcon,
 } from "lucide-react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
@@ -67,7 +67,7 @@ const steps = [
   { step: "04", title: "Spatial Integration", description: "Unified automation linking lighting, climate, and AV for one-touch atmospheric scenes." },
 ];
 
-const SpatialAudioSphere = ({ mouseX, mouseY }: { mouseX: any, mouseY: any }) => {
+const SpatialAudioSphere = ({ mouseX, mouseY }: { mouseX: MotionValue<number>, mouseY: MotionValue<number> }) => {
   const rotateX = useTransform(mouseY, [-0.5, 0.5], [25, -25]);
   const rotateY = useTransform(mouseX, [-0.5, 0.5], [-25, 25]);
 
@@ -132,7 +132,7 @@ const SpatialAudioSphere = ({ mouseX, mouseY }: { mouseX: any, mouseY: any }) =>
   );
 };
 
-const DisassembledScreenArray = ({ mouseX, mouseY }: { mouseX: any, mouseY: any }) => {
+const DisassembledScreenArray = ({ mouseX, mouseY }: { mouseX: MotionValue<number>, mouseY: MotionValue<number> }) => {
   const rotateX = useTransform(mouseY, [-0.5, 0.5], [20, -20]);
   const rotateY = useTransform(mouseX, [-0.5, 0.5], [-20, 20]);
 
@@ -205,7 +205,15 @@ const DisassembledScreenArray = ({ mouseX, mouseY }: { mouseX: any, mouseY: any 
 };
 
 
-const FeatureCard = ({ feature, index }: { feature: any; index: number }) => {
+type Feature = {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  glow: string;
+  color: string;
+};
+
+const FeatureCard = ({ feature, index }: { feature: Feature; index: number }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -265,7 +273,7 @@ const FeatureCard = ({ feature, index }: { feature: any; index: number }) => {
   );
 };
 
-const SpatialBackground = ({ globalX, globalY }: { globalX: any, globalY: any }) => {
+const SpatialBackground = ({ globalX, globalY }: { globalX: MotionValue<number>, globalY: MotionValue<number> }) => {
   const { scrollY } = useScroll();
   const scrollParallax1 = useTransform(scrollY, [0, 1000], [0, -200]);
 

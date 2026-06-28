@@ -41,6 +41,7 @@ function CinematicSection({ section }: { section: typeof sections[0] }) {
         style={{ y, willChange: "transform" }}
         className="absolute inset-0 w-full h-[120%] -top-[10%] z-0"
       >
+        {/* eslint-disable-next-line @next/next/no-img-element -- decorative full-bleed parallax image with manual lazy/decoding */}
         <img
           src={section.img}
           alt={section.title}
@@ -69,9 +70,9 @@ function CinematicSection({ section }: { section: typeof sections[0] }) {
             <div className="absolute inset-0 bg-black/50 sm:bg-black/40 backdrop-blur-sm md:backdrop-blur-2xl rounded-2xl sm:rounded-3xl border border-white/10 -m-5 sm:-m-8 md:-m-12 z-[-1]" />
 
             <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
-              <span className="text-xs sm:text-sm font-mono text-zinc-500 tracking-wider">{section.num}</span>
-              <div className="h-[1px] w-10 sm:w-12 bg-white/20" />
-              <span className="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-semibold text-transparent bg-clip-text bg-gradient-to-r from-zinc-300 to-zinc-600">
+              <span className="text-xs sm:text-sm font-mono text-brand tracking-wider">{section.num}</span>
+              <div className="h-[1px] w-10 sm:w-12 bg-gradient-to-r from-brand/60 to-transparent" />
+              <span className="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-semibold text-brand">
                 {section.tag}
               </span>
             </div>

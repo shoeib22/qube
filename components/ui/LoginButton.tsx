@@ -11,19 +11,19 @@ interface LoginButtonProps
 }
 
 const styles = {
-  base: "inline-flex items-center gap-2 font-semibold rounded-full transition-all px-6 py-2",
+  base: "inline-flex items-center gap-2 font-semibold rounded-full transition-all duration-200 px-6 py-2",
 
-  // PRIMARY → #155cfc
+  // PRIMARY → emerald brand
   primary:
-    "bg-[#155cfc] text-white hover:bg-[#155cfc] active:bg-[#155cfc] shadow-md",
+    "bg-brand text-black hover:bg-brand-strong hover:shadow-glow active:scale-95",
 
   // GHOST
   ghost:
-    "bg-transparent text-white hover:bg-white/10 border border-white/10",
+    "bg-transparent text-text hover:bg-white/10 border border-border",
 
   // OUTLINE
   outline:
-    "bg-transparent text-[#155cfc]  hover:bg-[#155cfc] hover:text-black",
+    "bg-transparent border border-brand/40 text-brand hover:bg-brand hover:text-black hover:border-brand",
 };
 
 export default function LoginButton({

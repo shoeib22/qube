@@ -44,7 +44,7 @@ const rightPanelReveal = {
 const ENERGY_BARS = [40, 65, 45, 80, 55, 90, 75, 100] as const;
 
 // ─── Initialization Overlay Component ──────────────────────────────────────────
-const InitializingScreen = memo(function InitializingScreen({ router }: { router: any }) {
+const InitializingScreen = memo(function InitializingScreen({ router }: { router: ReturnType<typeof useRouter> }) {
   const [step, setStep] = useState(0);
 
   useEffect(() => {
@@ -64,7 +64,7 @@ const InitializingScreen = memo(function InitializingScreen({ router }: { router
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5, ease: "easeInOut" }}
-      className="fixed inset-0 z-[999] bg-[#020202] flex flex-col items-center justify-center font-mono selection:bg-emerald-500/30 overflow-hidden"
+      className="fixed inset-0 z-[999] bg-[#08090b] flex flex-col items-center justify-center font-mono selection:bg-brand-strong/30 overflow-hidden"
     >
       {/* CRT Scanline Overlay for Depth */}
       <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_50%,rgba(0,0,0,0.2)_50%)] bg-[length:100%_4px] pointer-events-none z-50 opacity-30" />
@@ -72,7 +72,7 @@ const InitializingScreen = memo(function InitializingScreen({ router }: { router
       
       {/* Expanding Radar Pulse */}
       <motion.div 
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vh] h-[60vh] border border-emerald-500/20 rounded-full pointer-events-none"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vh] h-[60vh] border border-brand-strong/20 rounded-full pointer-events-none"
         initial={{ scale: 0, opacity: 1 }}
         animate={{ scale: 2, opacity: 0 }}
         transition={{ duration: 2.5, repeat: Infinity, ease: "easeOut" }}
@@ -84,9 +84,9 @@ const InitializingScreen = memo(function InitializingScreen({ router }: { router
           transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
           className="mb-8 relative"
         >
-          <Loader2 className="w-12 h-12 text-emerald-500 opacity-80" strokeWidth={1} />
+          <Loader2 className="w-12 h-12 text-brand-strong opacity-80" strokeWidth={1} />
           {/* Inner Glow */}
-          <div className="absolute inset-0 bg-emerald-500/20 blur-xl rounded-full" />
+          <div className="absolute inset-0 bg-brand-strong/20 blur-xl rounded-full" />
         </motion.div>
 
         <div className="w-full space-y-3 text-xs tracking-widest text-zinc-500 uppercase min-h-[120px]">
@@ -97,16 +97,16 @@ const InitializingScreen = memo(function InitializingScreen({ router }: { router
           <AnimatePresence>
             {step >= 1 && (
               <motion.div key="step-1" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
-                &gt; Establishing Secure Uplink... <span className="text-emerald-500">OK</span>
+                &gt; Establishing Secure Uplink... <span className="text-brand-strong">OK</span>
               </motion.div>
             )}
             {step >= 2 && (
               <motion.div key="step-2" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
-                &gt; Decrypting Xerovolt Core... <span className="text-emerald-500">OK</span>
+                &gt; Decrypting Xerovolt Core... <span className="text-brand-strong">OK</span>
               </motion.div>
             )}
             {step >= 3 && (
-              <motion.div key="step-3" initial={{ opacity: 0, x: -10, scale: 0.95 }} animate={{ opacity: 1, x: 0, scale: 1 }} className="text-emerald-400 font-bold mt-4 border-t border-white/10 pt-4 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]">
+              <motion.div key="step-3" initial={{ opacity: 0, x: -10, scale: 0.95 }} animate={{ opacity: 1, x: 0, scale: 1 }} className="text-brand font-bold mt-4 border-t border-white/10 pt-4 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]">
                 &gt; ACCESS GRANTED. ROUTING...
               </motion.div>
             )}
@@ -115,7 +115,7 @@ const InitializingScreen = memo(function InitializingScreen({ router }: { router
 
         <div className="w-full h-[1px] bg-white/10 mt-12 relative overflow-hidden">
           <motion.div 
-            className="absolute top-0 left-0 h-full bg-emerald-500 shadow-[0_0_10px_rgba(52,211,153,0.8)]"
+            className="absolute top-0 left-0 h-full bg-brand-strong shadow-[0_0_10px_rgba(52,211,153,0.8)]"
             initial={{ width: "0%" }}
             animate={{ width: step === 0 ? "10%" : step === 1 ? "45%" : step === 2 ? "85%" : "100%" }}
             transition={{ duration: 0.8, ease: "circOut" }}
@@ -185,7 +185,7 @@ const GlassPanels = memo(function GlassPanels() {
       {...rightPanelReveal}
     >
       <motion.div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px]"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-brand-strong/10 rounded-full blur-[100px]"
         animate={{ scale: [1, 1.1, 1], opacity: [0.5, 0.8, 0.5] }}
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
         style={{ z: -100, willChange: "transform, opacity" }}
@@ -195,14 +195,14 @@ const GlassPanels = memo(function GlassPanels() {
       <motion.div animate={{ y: [-5, 5, -5] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} className="absolute top-[10%] right-[10%] z-[120]">
         <div className="w-64 p-6 rounded-3xl bg-white/[0.03] border border-white/10 backdrop-blur-xl shadow-2xl" style={{ WebkitBackdropFilter: "blur(24px)" }}>
           <div className="flex justify-between items-center mb-6">
-            <Shield className="text-emerald-400 h-6 w-6" />
-            <span className="text-xs text-emerald-400 font-mono tracking-widest uppercase flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Secured
+            <Shield className="text-brand h-6 w-6" />
+            <span className="text-xs text-brand font-mono tracking-widest uppercase flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" /> Secured
             </span>
           </div>
           <div className="space-y-3">
             <div className="h-1 w-full bg-white/10 rounded-full overflow-hidden transform-gpu">
-              <motion.div className="h-full bg-emerald-400 rounded-full" initial={{ width: "0%" }} animate={{ width: "100%" }} transition={{ duration: 2, delay: 1 }} />
+              <motion.div className="h-full bg-brand rounded-full" initial={{ width: "0%" }} animate={{ width: "100%" }} transition={{ duration: 2, delay: 1 }} />
             </div>
             <p className="text-xs text-zinc-400 font-mono uppercase tracking-wider">Perimeter Scanned</p>
           </div>
@@ -313,9 +313,9 @@ export default function SpatialPremiumHero() {
   return (
     <section
       ref={containerRef}
-      className="relative w-full min-h-[100dvh] flex items-center justify-center overflow-hidden bg-[#020202] font-sans selection:bg-emerald-500/30 selection:text-white md:[perspective:1500px]"
+      className="relative w-full min-h-[100dvh] flex items-center justify-center overflow-hidden bg-[#08090b] font-sans selection:bg-brand-strong/30 selection:text-white md:[perspective:1500px]"
     >
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_#1a1a24_0%,_#020202_70%)] z-0 pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_#1a1a24_0%,_#08090b_70%)] z-0 pointer-events-none" />
 
       {/* Mobile-Friendly Spatial Depth Rings */}
       <motion.div 
@@ -350,8 +350,8 @@ export default function SpatialPremiumHero() {
           <motion.div variants={textReveal} className="mb-8" animate={{ y: [-3, 3, -3] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}>
             <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-[0_0_20px_rgba(255,255,255,0.02)] transform-gpu">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-strong" />
               </span>
               <span className="text-zinc-300 text-xs font-semibold tracking-[0.2em] uppercase">
                 System Online
@@ -411,7 +411,7 @@ export default function SpatialPremiumHero() {
         </span>
         <div className="w-[1px] h-16 bg-zinc-800 relative overflow-hidden transform-gpu">
           <motion.div
-            className="absolute top-0 left-0 w-full h-1/3 bg-emerald-500"
+            className="absolute top-0 left-0 w-full h-1/3 bg-brand-strong"
             animate={{ top: ["-100%", "200%"] }}
             transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
             style={{ willChange: "top" }}

@@ -4,10 +4,8 @@ import React, { useState, useEffect } from 'react';
 import Link from "next/link";
 import Image from "next/image";
 import {
-  ArrowLeft, CreditCard, Truck, ShieldCheck, Lock, MapPin, Mail, Phone,
-  ShoppingBag, Loader2, Smartphone
+  ArrowLeft, Truck, Loader2, Smartphone
 } from 'lucide-react';
-import { useRouter } from "next/navigation";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { useCart } from "../../context/CartContext";
@@ -85,14 +83,14 @@ export default function CheckoutPage() {
           setIsProcessing(false);
         }, 1500);
       }
-    } catch (error) {
+    } catch {
       alert("An unexpected error occurred.");
       setIsProcessing(false);
     }
   };
 
   // Helper for safe image paths
-  const getSafePath = (item: any) => {
+  const getSafePath = (item: { imageUrl?: string; image?: string; id: string | number }) => {
     if (item.imageUrl) return item.imageUrl;
     const path = item.image || `/products/${item.id}.jpg`;
     return path.startsWith('/') ? path : `/${path}`;

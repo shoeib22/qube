@@ -33,6 +33,7 @@ export default function AccountDashboard() {
           <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
             <div className="w-24 h-24 rounded-full border border-dashed border-white/20 flex items-center justify-center overflow-hidden transition-all group-hover:border-[#f2994a]/50 bg-[#0c0c0c]">
               {profileImage ? (
+                // eslint-disable-next-line @next/next/no-img-element -- data-URL upload preview, not optimizable by next/image
                 <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
               ) : (
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#444" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>

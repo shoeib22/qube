@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
         // PhonePe expects a 200 OK to stop retrying the callback
         return NextResponse.json({ status: "SUCCESS" });
 
-    } catch (error: any) {
+    } catch (error) {
         console.error("❌ PhonePe Callback Error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }

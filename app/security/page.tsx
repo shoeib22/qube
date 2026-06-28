@@ -7,9 +7,9 @@ import {
   useSpring,
   useTransform,
   useMotionTemplate,
-  useScroll,
   AnimatePresence,
   Variants,
+  type MotionValue,
 } from "framer-motion";
 import {
   Shield,
@@ -18,11 +18,8 @@ import {
   Lock,
   ArrowRight,
   X,
-  Cpu,
-  ArrowLeft,
   ScanLine,
   Crosshair,
-  Fingerprint,
   Eye,
   Activity,
   AlertTriangle
@@ -33,7 +30,7 @@ import BackArrow from "../../components/backarrow";
 // ------------------------------------------
 
 // --- Custom 3D Visualizer 1: Active LiDAR Radar ---
-const ActiveRadarSphere = ({ mouseX, mouseY }: { mouseX: any, mouseY: any }) => {
+const ActiveRadarSphere = ({ mouseX, mouseY }: { mouseX: MotionValue<number>, mouseY: MotionValue<number> }) => {
   const rotateX = useTransform(mouseY, [-0.5, 0.5], [25, -25]);
   const rotateY = useTransform(mouseX, [-0.5, 0.5], [-25, 25]);
 
@@ -115,7 +112,7 @@ const ActiveRadarSphere = ({ mouseX, mouseY }: { mouseX: any, mouseY: any }) => 
 };
 
 // --- Custom 3D Visualizer 2: Biometric Vault Panel ---
-const BiometricVaultPanel = ({ mouseX, mouseY }: { mouseX: any, mouseY: any }) => {
+const BiometricVaultPanel = ({ mouseX, mouseY }: { mouseX: MotionValue<number>, mouseY: MotionValue<number> }) => {
   const rotateX = useTransform(mouseY, [-0.5, 0.5], [15, -15]);
   const rotateY = useTransform(mouseX, [-0.5, 0.5], [-15, 15]);
 
@@ -345,7 +342,7 @@ const BentoProtection = () => (
 );
 
 // --- Spatial Background Environment ---
-const SpatialBackground = ({ globalX, globalY }: { globalX: any, globalY: any }) => {
+const SpatialBackground = ({ globalX, globalY }: { globalX: MotionValue<number>, globalY: MotionValue<number> }) => {
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden perspective-[1200px]">
       <div className="absolute inset-0 bg-[#020202]" />

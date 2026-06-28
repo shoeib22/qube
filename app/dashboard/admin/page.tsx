@@ -10,9 +10,17 @@ interface KpiData {
   totalCustomers: number;
 }
 
+interface Order {
+  id?: string;
+  transactionId?: string;
+  amount?: number;
+  status?: string;
+  createdAt?: { seconds: number };
+}
+
 export default function AdminDashboard() {
   const [kpiData, setKpiData] = useState<KpiData | null>(null);
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

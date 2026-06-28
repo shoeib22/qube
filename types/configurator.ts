@@ -93,6 +93,6 @@ export interface SavedPanelConfig {
   orderNote: string;
   deviceId: string | null;
   orderId: string | null;
-  savedAt: any;
-  updatedAt: any;
+  savedAt: unknown;
+  updatedAt: unknown;
 }

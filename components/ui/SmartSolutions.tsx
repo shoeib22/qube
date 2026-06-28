@@ -9,28 +9,28 @@ const solutions = [
     icon: Briefcase,
     title: "Busy Professionals",
     desc: "Automate routines, hands-free control, and remote monitoring. Your home prepares itself before you even walk through the door.",
-    color: "#3b82f6", // Blue
+    color: "#34d399", // Brand emerald
   },
   {
     id: "families",
     icon: Users,
     title: "Modern Families",
     desc: "Kid-safe controls, smart security, and energy savings for your home. Keep an eye on things from anywhere, effortlessly.",
-    color: "#10b981", // Emerald
+    color: "#2dd4bf", // Teal
   },
   {
     id: "luxury",
     icon: Home,
     title: "Luxury Estates",
     desc: "High-end automation, custom ambiance, and seamless entertainment integrated perfectly into your interior design.",
-    color: "#a855f7", // Purple
+    color: "#10b981", // Deep emerald
   },
   {
     id: "renters",
     icon: LayoutGrid,
     title: "Renters & Small Spaces",
     desc: "Voice control, fall detection, and assisted living tech. Wireless retrofit modules that require zero rewiring.",
-    color: "#f97316", // Orange
+    color: "#f6b73c", // Energy amber
   }
 ];
 
@@ -222,7 +222,7 @@ export default function SmartSolutions() {
   });
 
   return (
-    <section ref={containerRef} className="relative h-[400vh] bg-[#020202] w-full font-sans" id="solutions">
+    <section ref={containerRef} className="relative h-[400vh] bg-[#08090b] w-full font-sans" id="solutions">
       
       {/* 1. Updated h-screen to h-[100dvh] for mobile viewport stability */}
       <div className="sticky top-0 h-[100dvh] w-full flex flex-col-reverse lg:flex-row items-center justify-center overflow-hidden px-6 lg:px-20">
@@ -232,13 +232,13 @@ export default function SmartSolutions() {
           className="absolute inset-0 z-0 opacity-10 transition-colors duration-1000 blur-[100px] md:blur-[200px]"
           style={{ backgroundColor: solutions[activeTab].color }}
         />
-        <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,transparent_0%,#020202_100%)] pointer-events-none" />
+        <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,transparent_0%,#08090b_100%)] pointer-events-none" />
 
         {/* Left Side: Typography */}
         <div className="w-full lg:w-1/2 relative z-10 flex flex-col justify-center h-full pb-20 lg:pb-0">
           <motion.div className="flex items-center gap-2 mb-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <Sparkles className="w-4 h-4 text-zinc-500" />
-            <p className="text-zinc-500 tracking-widest uppercase text-xs font-bold">
+            <Sparkles className="w-4 h-4 text-brand" />
+            <p className="eyebrow">
               Next-Gen Ecosystem
             </p>
           </motion.div>

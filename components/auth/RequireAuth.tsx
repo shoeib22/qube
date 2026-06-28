@@ -19,6 +19,7 @@ export default function RequireAuth({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let resolved = false;
     const unsub = auth.onAuthStateChanged(async (user) => {
       if (!user) {
         router.push("/login");
@@ -45,12 +46,13 @@ export default function RequireAuth({
         }
       }
 
+      resolved = true;
       setLoading(false);
     });
 
     // Fallback timeout in case auth hangs (e.g. network issues/bad config)
     const timeout = setTimeout(() => {
-      if (loading) {
+      if (!resolved) {
         console.warn("Auth check timed out, redirecting to login...");
         router.push("/login");
       }

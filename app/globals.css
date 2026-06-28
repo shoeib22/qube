@@ -1,7 +1,53 @@
 @import "tailwindcss";
+/* MARKER_XV_PROBE_42 */
+
+/* ============================================================================
+   XeroVolt "Voltaic" Design System
+   Single source of truth for the brand. Tokens below become real Tailwind
+   utilities (bg-brand, text-brand, border-border, shadow-glow, ...).
+   - brand  (emerald)  = ALL actions, links, focus, eyebrows
+   - energy (amber)    = data / energy visualisation ONLY — never buttons/links
+   ========================================================================== */
+@theme {
+  /* Surfaces */
+  --color-bg: #08090b;
+  --color-surface: rgba(255, 255, 255, 0.03);
+  --color-surface-2: rgba(255, 255, 255, 0.05);
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-border-strong: rgba(255, 255, 255, 0.16);
+
+  /* Brand — emerald */
+  --color-brand: #34d399;
+  --color-brand-strong: #10b981;
+  --color-brand-soft: rgba(52, 211, 153, 0.12);
+
+  /* Energy — amber (data viz only) */
+  --color-energy: #f6b73c;
+  --color-energy-soft: rgba(246, 183, 60, 0.12);
+
+  /* Text */
+  --color-text: #fafafa;
+  --color-muted: #a1a1aa; /* zinc-400 */
+  --color-faint: #71717a; /* zinc-500 */
+
+  /* Radii */
+  --radius-card: 1.5rem;
+  --radius-pill: 9999px;
+
+  /* Signature glow shadow */
+  --shadow-glow: 0 0 40px rgba(52, 211, 153, 0.18);
+  --shadow-glow-strong: 0 0 60px rgba(52, 211, 153, 0.3);
+
+  /* Motion */
+  --ease-voltaic: cubic-bezier(0.16, 1, 0.3, 1);
+}
 
 html {
   scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-bg);
 }
 
 /* Custom Scrollbar */
@@ -10,7 +56,7 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-  background: #0a0a0a;
+  background: #08090b;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -19,29 +65,49 @@ html {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: var(--color-brand-strong);
 }
 
-:root {
-  --graphite: #0f1316;
-  --clean-white: #ffffff;
-  --safety-yellow: #f6d24a;
-  --insulator-orange: #ff7a3d;
-  
-  /* Spacing */
-  --spacing-xs: 0.5rem;
-  --spacing-sm: 1rem;
-  --spacing-md: 1.5rem;
-  --spacing-lg: 2rem;
-  --spacing-xl: 3rem;
-  
-  /* Animations */
-  --transition-fast: 150ms ease-in-out;
-  --transition-base: 250ms ease-in-out;
-  --transition-slow: 400ms ease-in-out;
+/* ============================================================================
+   Reusable component utilities
+   ========================================================================== */
+
+/* Glass card surface — the canonical elevated panel */
+.surface {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
 }
 
-/* Animation utilities */
+.surface-hover {
+  transition: border-color 250ms var(--ease-voltaic),
+    background-color 250ms var(--ease-voltaic),
+    transform 250ms var(--ease-voltaic);
+}
+.surface-hover:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-2);
+}
+
+/* Mono uppercase brand label used above section titles */
+.eyebrow {
+  font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--color-brand);
+}
+
+/* Signature emerald glow */
+.glow {
+  box-shadow: var(--shadow-glow);
+}
+
+/* ============================================================================
+   Animations
+   ========================================================================== */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -63,11 +129,12 @@ html {
 }
 
 @keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+  0%,
+  100% {
+    box-shadow: 0 0 5px rgba(52, 211, 153, 0.5);
   }
   50% {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
+    box-shadow: 0 0 20px rgba(52, 211, 153, 0.8);
   }
 }
 
@@ -77,11 +144,6 @@ html {
 
 .animate-shimmer {
   animation: shimmer 2s infinite linear;
-  background: linear-gradient(
-    to right,
-    #1a1a1a 4%,
-    #2a2a2a 25%,
-    #1a1a1a 36%
-  );
+  background: linear-gradient(to right, #111315 4%, #1c1f22 25%, #111315 36%);
   background-size: 1000px 100%;
 }

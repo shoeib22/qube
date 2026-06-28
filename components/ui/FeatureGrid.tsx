@@ -56,7 +56,7 @@ export default function FeatureGrid() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               style={{ willChange: "transform, opacity" }}
-              className="text-sm uppercase tracking-[0.2em] text-zinc-500 font-semibold mb-4"
+              className="eyebrow mb-4"
             >
               Why Xerovolt
             </motion.p>
@@ -90,8 +90,9 @@ export default function FeatureGrid() {
               className="group relative aspect-[4/5] rounded-[2rem] overflow-hidden cursor-pointer"
             >
               {/* Image with slow cinematic scale, hardware accelerated */}
-              <img 
-                src={card.img} 
+              {/* eslint-disable-next-line @next/next/no-img-element -- decorative remote image (incl. unsplash host) with manual lazy/decoding */}
+              <img
+                src={card.img}
                 alt={card.title}
                 loading="lazy"
                 decoding="async"
@@ -113,8 +114,8 @@ export default function FeatureGrid() {
                   </h3>
                   
                   {/* Floating Action Icon */}
-                  <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/10 opacity-0 -translate-x-4 transition-all duration-500 group-hover:opacity-100 group-hover:translate-x-0 transform-gpu">
-                    <ArrowUpRight className="w-5 h-5 text-white" />
+                  <div className="w-10 h-10 rounded-full bg-brand text-black backdrop-blur-md flex items-center justify-center border border-brand opacity-0 -translate-x-4 transition-all duration-500 group-hover:opacity-100 group-hover:translate-x-0 transform-gpu">
+                    <ArrowUpRight className="w-5 h-5" />
                   </div>
                 </div>
                 

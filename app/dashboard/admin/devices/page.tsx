@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 
 interface Device {
@@ -20,16 +20,16 @@ export default function AdminDevicesPage() {
   const [editRoom, setEditRoom] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const fetchDevices = async () => {
+  const fetchDevices = useCallback(async () => {
     if (!user) { setLoading(false); return; }
     const token = await user.getIdToken();
     const res = await fetch("/api/admin/devices", { headers: { Authorization: `Bearer ${token}` } });
     const data = await res.json();
     setDevices(data.devices ?? []);
     setLoading(false);
-  };
+  }, [user]);
 
-  useEffect(() => { fetchDevices(); }, [user]);
+  useEffect(() => { fetchDevices(); }, [fetchDevices]);
 
   const startEdit = (d: Device) => {
     setEditingId(d.deviceId);

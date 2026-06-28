@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
             });
         }
 
-    } catch (error: any) {
+    } catch (error) {
         console.error("❌ Payment Verify Error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }

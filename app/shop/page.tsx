@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -27,11 +27,7 @@ export default function ShopPage() {
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -53,7 +49,11 @@ export default function ShopPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   const filteredProducts = selectedCategory === "All"
     ? products
@@ -173,7 +173,7 @@ export default function ShopPage() {
             </motion.div>
           ) : (
             <motion.div key="content" className="space-y-16 sm:space-y-24">
-              {displayCategories.map((category, catIdx) => {
+              {displayCategories.map((category) => {
                 const items = selectedCategory === "All"
                   ? products.filter((p) => p.category === category)
                   : filteredProducts;

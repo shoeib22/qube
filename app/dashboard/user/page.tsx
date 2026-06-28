@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import Link from "next/link";
+import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import {
   Package,
@@ -47,14 +46,7 @@ export default function UserAccountPage() {
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
   const { user, logout } = useAuth();
 
-  // Fetch addresses when addresses tab is active
-  useEffect(() => {
-    if (activeTab === "addresses" && user) {
-      fetchAddresses();
-    }
-  }, [activeTab, user]);
-
-  const fetchAddresses = async () => {
+  const fetchAddresses = useCallback(async () => {
     setLoadingAddresses(true);
     try {
       const token = await auth.currentUser?.getIdToken();
@@ -72,7 +64,14 @@ export default function UserAccountPage() {
     } finally {
       setLoadingAddresses(false);
     }
-  };
+  }, []);
+
+  // Fetch addresses when addresses tab is active
+  useEffect(() => {
+    if (activeTab === "addresses" && user) {
+      fetchAddresses();
+    }
+  }, [activeTab, user, fetchAddresses]);
 
   const handleDeleteAddress = async (id: string) => {
     if (!confirm('Are you sure you want to delete this address?')) return;
@@ -201,7 +200,6 @@ export default function UserAccountPage() {
                     total="₹ 5,000"
                     status="Delivered"
                     items={["Smart Hub Pro", "Smart Bulb (x2)"]}
-                    image="/images/products/smart-hub-pro.png"
                   />
 
                   {/* Mock Order Card 2 */}
@@ -211,7 +209,6 @@ export default function UserAccountPage() {
                     total="₹ 12,500"
                     status="Delivered"
                     items={["Smart Lock Ultra"]}
-                    image="/images/products/smart-lock-ultra.png"
                   />
                 </div>
               )}
@@ -319,7 +316,7 @@ export default function UserAccountPage() {
 
 // --- SUB-COMPONENTS ---
 
-function NavButton({ active, onClick, icon, label }: { active: boolean, onClick: () => void, icon: any, label: string }) {
+function NavButton({ active, onClick, icon, label }: { active: boolean, onClick: () => void, icon: React.ReactNode, label: string }) {
   return (
     <button
       onClick={onClick}
@@ -335,7 +332,7 @@ function NavButton({ active, onClick, icon, label }: { active: boolean, onClick:
   )
 }
 
-function OrderCard({ id, date, total, status, items, image }: { id: string, date: string, total: string, status: string, items: string[], image?: string }) {
+function OrderCard({ id, date, total, status, items }: { id: string, date: string, total: string, status: string, items: string[] }) {
   return (
     <div className="bg-[#121212] border border-gray-800 rounded-3xl p-6 group hover:border-gray-600 transition-colors">
       <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 pb-6 border-b border-gray-800 gap-4">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import PanelPreview from "@/components/configurator/PanelPreview";
 
@@ -40,9 +40,9 @@ export default function AdminConfigsPage() {
 
   const getToken = async () => user ? user.getIdToken() : "";
 
-  const fetchAll = async () => {
+  const fetchAll = useCallback(async () => {
     if (!user) { setLoading(false); return; }
-    const token = await getToken();
+    const token = await user.getIdToken();
     const [cRes, dRes] = await Promise.all([
       fetch("/api/admin/configs", { headers: { Authorization: `Bearer ${token}` } }),
       fetch("/api/admin/devices", { headers: { Authorization: `Bearer ${token}` } }),
@@ -52,9 +52,9 @@ export default function AdminConfigsPage() {
     setConfigs(cData.configs ?? []);
     setDevices(dData.devices ?? []);
     setLoading(false);
-  };
+  }, [user]);
 
-  useEffect(() => { fetchAll(); }, [user]);
+  useEffect(() => { fetchAll(); }, [fetchAll]);
 
   const handleLink = async (configId: string, deviceId: string | null) => {
     setSaving(true);

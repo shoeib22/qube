@@ -12,7 +12,17 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Operational / migration scripts run directly with Node (CommonJS).
+    "scripts/**",
+    "test_firestore.js",
   ]),
+  {
+    rules: {
+      // Performance-hint rule that over-fires on idiomatic React patterns we use
+      // intentionally: client mount-guards, fetch-on-mount, and localStorage hydration.
+      "react-hooks/set-state-in-effect": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

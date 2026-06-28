@@ -40,9 +40,11 @@ export default function Header() {
   }, [isMobileMenuOpen]);
 
   return (
-    <header 
+    <header
       className={`w-full fixed top-0 left-0 z-50 transition-all duration-300 ${
-        isScrolled || isMobileMenuOpen ? "bg-transparent" : "bg-transparent"
+        isScrolled && !isMobileMenuOpen
+          ? "bg-bg/70 backdrop-blur-xl border-b border-border"
+          : "bg-transparent border-b border-transparent"
       }`}
     >
       {/* Container is now w-full with horizontal padding instead of a fixed max-width */}
@@ -64,11 +66,11 @@ export default function Header() {
 
         {/* CENTER — NAVIGATION (Perfectly Centered) */}
         <nav className="hidden md:flex flex-none justify-center space-x-10 text-neutral-300 font-medium">
-          <Link href="/" className="hover:text-white transition-colors">Home</Link>
-          <Link href="/services" className="hover:text-white transition-colors">Solutions</Link>
-          <Link href="/shop" className="hover:text-white transition-colors">Shop</Link>
-          <Link href="/support" className="hover:text-white transition-colors">Support</Link>
-          <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
+          <Link href="/" className="hover:text-brand transition-colors">Home</Link>
+          <Link href="/services" className="hover:text-brand transition-colors">Solutions</Link>
+          <Link href="/shop" className="hover:text-brand transition-colors">Shop</Link>
+          <Link href="/support" className="hover:text-brand transition-colors">Support</Link>
+          <Link href="/contact" className="hover:text-brand transition-colors">Contact</Link>
         </nav>
 
         {/* RIGHT — ACTIONS (Rightmost) */}
@@ -80,7 +82,7 @@ export default function Header() {
           >
             <ShoppingCart className="w-6 h-6" />
             {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full border border-black">
+              <span className="absolute -top-1 -right-1 bg-brand text-black text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full border border-black">
                 {cartCount}
               </span>
             )}
@@ -102,7 +104,7 @@ export default function Header() {
           <Link href="/cart" className="relative text-white" onClick={() => setIsMobileMenuOpen(false)}>
             <ShoppingCart className="w-6 h-6" />
             {cartCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
+              <span className="absolute -top-2 -right-2 bg-brand text-black text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
                 {cartCount}
               </span>
             )}

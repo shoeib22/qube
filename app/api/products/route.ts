@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { db, storage } from '@/lib/firebaseAdmin';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
     try {
         if (!db || !storage) {
             return NextResponse.json({ success: false, error: "Firebase not initialized." }, { status: 500 });
@@ -47,8 +47,9 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json({ success: true, products });
 
-    } catch (error: any) {
+    } catch (error) {
         console.error('❌ API Error:', error);
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return NextResponse.json({ success: false, error: message }, { status: 500 });
     }
 }

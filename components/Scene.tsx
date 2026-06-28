@@ -3,14 +3,6 @@
 import { Canvas } from "@react-three/fiber";
 import { useGLTF, OrbitControls, Environment, PerspectiveCamera } from "@react-three/drei";
 import { Suspense } from "react";
-import { ThreeElements } from '@react-three/fiber'
-
-// Explicitly extend JSX.IntrinsicElements to fix type errors
-declare global {
-    namespace JSX {
-        interface IntrinsicElements extends ThreeElements { }
-    }
-}
 
 function Model() {
     const { scene } = useGLTF("/models/modern_villa.glb");

@@ -44,7 +44,7 @@ export default function WishlistPage() {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
             <div>
               <h1 className="text-4xl font-bold tracking-tight">Your Wishlist</h1>
-              <p className="text-gray-500 mt-2 text-base">Items you've saved for your future smart home ecosystem.</p>
+              <p className="text-gray-500 mt-2 text-base">Items you&apos;ve saved for your future smart home ecosystem.</p>
             </div>
             <Link href="/" className="bg-[#f2994a] text-black px-6 py-3 text-xs font-black uppercase tracking-widest hover:bg-white transition-all">
               Continue Shopping
@@ -59,6 +59,7 @@ export default function WishlistPage() {
               <div key={item.id} className="group bg-[#0c0c0c] border border-white/5 rounded-2xl overflow-hidden hover:border-[#f2994a]/30 transition-all">
                 {/* Product Image Space */}
                 <div className="aspect-square bg-white/[0.02] relative overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- product image from arbitrary stored URL, host not constrained */}
                   <img
                     src={item.image}
                     alt={item.name}
@@ -91,7 +92,7 @@ export default function WishlistPage() {
               <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
             </div>
             <h2 className="text-xl font-bold mb-2">Your wishlist is empty</h2>
-            <p className="text-gray-500 text-sm mb-8">You haven't saved any products to your wishlist yet.</p>
+            <p className="text-gray-500 text-sm mb-8">You haven&apos;t saved any products to your wishlist yet.</p>
           </div>
         )}
       </div>

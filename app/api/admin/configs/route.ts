@@ -8,11 +8,12 @@ export async function GET(request: NextRequest) {
 
   if (!db) return Response.json({ error: "Database unavailable" }, { status: 503 });
 
+  type ConfigDoc = { id: string; userId?: string; [key: string]: unknown };
   const snap = await db.collection("panelConfigs").orderBy("savedAt", "desc").limit(100).get();
-  const configs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const configs: ConfigDoc[] = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
   // Batch-resolve user emails
-  const userIds = [...new Set(configs.map((c: any) => c.userId).filter(Boolean))];
+  const userIds = [...new Set(configs.map((c) => c.userId).filter(Boolean))];
   const emailMap: Record<string, string> = {};
   if (auth && userIds.length > 0) {
     await Promise.all(
@@ -27,7 +28,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const enriched = configs.map((c: any) => ({ ...c, userEmail: emailMap[c.userId] ?? c.userId }));
+  const enriched = configs.map((c) => ({ ...c, userEmail: (c.userId && emailMap[c.userId]) ?? c.userId }));
 
   return Response.json({ configs: enriched });
 }

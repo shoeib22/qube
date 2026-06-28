@@ -1,8 +1,8 @@
 // lib/svgExport.ts — Xerovolt Manufacturing SVG Export (Laser Engraving)
 
-import { PanelConfig, SlotConfig } from "../types";
+import { PanelConfig } from "../types";
 import { PANEL_SLOTS, SLOT_WIDTH, SLOT_HEIGHT, PANEL_WIDTH, PANEL_HEIGHT } from "./panelLayout";
-import { BUILT_IN_ICONS, getIconById } from "./iconLibrary";
+import { getIconById } from "./iconLibrary";
 
 interface ExportOptions {
   includeSlotBorders?: boolean;
@@ -54,8 +54,6 @@ export function generateEngravingSVG(
     const slot = PANEL_SLOTS.find((s) => s.id === slotConfig.slotId);
     if (!slot) return;
 
-    const cx = slot.x + slot.w / 2;
-    const cy = slot.y + slot.h / 2;
     const x = slot.x + iconOffset;
     const y = slot.y + iconOffset;
 
@@ -155,7 +153,6 @@ export function downloadSVG(svgContent: string, filename: string): void {
 }
 
 // Patch PANEL_SLOTS with w/h
-import type { SlotPosition } from "../types";
 declare module "../types" {
   interface SlotPosition {
     w?: number;
@@ -163,6 +160,6 @@ declare module "../types" {
   }
 }
 PANEL_SLOTS.forEach((s) => {
-  (s as any).w = SLOT_WIDTH;
-  (s as any).h = SLOT_HEIGHT;
+  s.w = SLOT_WIDTH;
+  s.h = SLOT_HEIGHT;
 });

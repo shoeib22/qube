@@ -9,6 +9,7 @@ import {
   useMotionTemplate,
   useScroll,
   AnimatePresence,
+  type MotionValue,
 } from "framer-motion";
 import {
   Zap,
@@ -17,18 +18,14 @@ import {
   Droplets,
   ArrowRight,
   X,
-  Cpu,
-  ArrowLeft,
   Activity,
-  Fan,
   Download
 } from "lucide-react";
 
 const ERV_PDF_URL = "https://firebasestorage.googleapis.com/v0/b/cube-8c773.firebasestorage.app/o/erv-brochure.pdf?alt=media";
 
 import Header from "../../components/Header";
-import Footer from "../../components/Footer";
-import BackArrow from "components/backarrow"; 
+import BackArrow from "components/backarrow";
 
 const techSpecs = [
   { label: "Efficiency", value: "97%" },
@@ -37,7 +34,7 @@ const techSpecs = [
   { label: "Power", value: "1.5W" },
 ];
 
-const CinematicCore = ({ scrollYProgress, mouseX, mouseY }: { scrollYProgress: any, mouseX: any, mouseY: any }) => {
+const CinematicCore = ({ scrollYProgress, mouseY }: { scrollYProgress: MotionValue<number>, mouseY: MotionValue<number> }) => {
   // Map scroll progress to cinematic phases
   // 0.0 - 0.2: Intro / Hero
   // 0.2 - 0.5: Zoom in / Thermal Exchange active
@@ -54,7 +51,6 @@ const CinematicCore = ({ scrollYProgress, mouseX, mouseY }: { scrollYProgress: a
   
   // Mouse parallax overrides
   const mouseRotateX = useTransform(mouseY, [-0.5, 0.5], [15, -15]);
-  const mouseRotateY = useTransform(mouseX, [-0.5, 0.5], [-15, 15]);
 
   // Lighting shifts (Starts dark, gets intense amber/cyan, fades to blue blueprint)
   const coreOpacity = useTransform(scrollYProgress, [0, 0.1, 0.8, 1], [0.3, 1, 1, 0]);
@@ -132,7 +128,7 @@ const CinematicCore = ({ scrollYProgress, mouseX, mouseY }: { scrollYProgress: a
   );
 };
 
-const HUDOverlay = ({ scrollYProgress }: { scrollYProgress: any }) => {
+const HUDOverlay = ({ scrollYProgress }: { scrollYProgress: MotionValue<number> }) => {
   const hudOpacity = useTransform(scrollYProgress, [0.05, 0.1, 0.9, 0.95], [0, 1, 1, 0]);
   const tempValue = useTransform(scrollYProgress, [0.2, 0.4], [94, 72]); // External to internal cooling mapping
   const efficiencyValue = useTransform(scrollYProgress, [0.1, 0.3], [0, 97]);
@@ -191,7 +187,7 @@ const HUDOverlay = ({ scrollYProgress }: { scrollYProgress: any }) => {
   );
 };
 
-const NarrativeText = ({ scrollYProgress, fadeRange, title, subtitle, align = "center" }: any) => {
+const NarrativeText = ({ scrollYProgress, fadeRange, title, subtitle, align = "center" }: { scrollYProgress: MotionValue<number>, fadeRange: number[], title: React.ReactNode, subtitle: string, align?: string }) => {
   // fadeRange expects an array of 4 points: [fadeInStart, fadeInEnd, fadeOutStart, fadeOutEnd]
   const opacity = useTransform(scrollYProgress, fadeRange, [0, 1, 1, 0]);
   const y = useTransform(scrollYProgress, fadeRange, [50, 0, 0, -50]);
@@ -279,7 +275,7 @@ export default function ERVExperience() {
         />
 
         {/* The Central Cinematic Object */}
-        <CinematicCore scrollYProgress={scrollYProgress} mouseX={smoothX} mouseY={smoothY} />
+        <CinematicCore scrollYProgress={scrollYProgress} mouseY={smoothY} />
 
         {/* NARRATIVE TEXT LAYERS (Absolute positioned within the sticky container, driven by scroll) */}
         

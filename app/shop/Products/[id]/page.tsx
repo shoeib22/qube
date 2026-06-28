@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ShieldCheck, Zap, ArrowUpRight } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, ArrowUpRight } from 'lucide-react';
 import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
 
 // Import your layout components
@@ -47,11 +47,17 @@ export default function ProductDetailPage() {
     return img.startsWith('/') ? img : `/${img}`;
   };
 
-  useEffect(() => {
-    if (id) fetchProductData();
-  }, [id]);
+  const fetchRelated = useCallback(async (category: string) => {
+    try {
+      const res = await fetch('/api/products?category=' + encodeURIComponent(category));
+      const data = await res.json();
+      if (data.success) setRelatedProducts(data.products);
+    } catch (e) {
+      console.warn("Related products failed", e);
+    }
+  }, []);
 
-  const fetchProductData = async () => {
+  const fetchProductData = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(`/api/products/${id}`);
@@ -63,22 +69,16 @@ export default function ProductDetailPage() {
       } else {
         setError(data.error || 'Product not found');
       }
-    } catch (err) {
+    } catch {
       setError('Failed to load product');
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, fetchRelated]);
 
-  const fetchRelated = async (category: string) => {
-    try {
-      const res = await fetch('/api/products?category=' + encodeURIComponent(category));
-      const data = await res.json();
-      if (data.success) setRelatedProducts(data.products);
-    } catch (e) {
-      console.warn("Related products failed", e);
-    }
-  };
+  useEffect(() => {
+    if (id) fetchProductData();
+  }, [id, fetchProductData]);
   // ------------------------------------
 
   // --- 3D & PARALLAX LOGIC ---
@@ -300,7 +300,7 @@ export default function ProductDetailPage() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                {relatedProducts.filter(p => p.id !== product.id).slice(0, 3).map((item, idx) => (
+                {relatedProducts.filter(p => p.id !== product.id).slice(0, 3).map((item) => (
                   <Link 
                     key={item.id} 
                     href={`/shop/Products/${item.id}`} 
@@ -310,7 +310,7 @@ export default function ProductDetailPage() {
                     
                     <div className="relative w-full aspect-square rounded-2xl overflow-hidden bg-gradient-to-b from-white/[0.04] to-transparent flex items-center justify-center mb-6">
                       <Image
-                        src={getSafePath(item.image, (item as any).imageUrl, item.id)}
+                        src={getSafePath(item.image, (item as { imageUrl?: string }).imageUrl, item.id)}
                         alt={item.name}
                         fill
                         className="object-contain p-8 group-hover:scale-110 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"

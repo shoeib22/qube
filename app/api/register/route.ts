@@ -45,13 +45,15 @@ export async function POST(request: NextRequest) {
       uid: userRecord.uid
     }, { status: 201 });
 
-  } catch (error: any) {
-    console.error("Registration Error:", error.message);
-    
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Internal Server Error';
+    const code = (error as { code?: string }).code;
+    console.error("Registration Error:", message);
+
     // Handle specific Firebase errors (e.g., email already in use)
-    const status = error.code === 'auth/email-already-exists' ? 400 : 500;
+    const status = code === 'auth/email-already-exists' ? 400 : 500;
     return NextResponse.json({
-      error: error.message || 'Internal Server Error'
+      error: message
     }, { status });
   }
 }

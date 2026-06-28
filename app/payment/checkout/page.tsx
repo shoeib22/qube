@@ -8,7 +8,7 @@ export default function PaymentsPage() {
 
   // State for interactive features
   const [isCodEnabled, setIsCodEnabled] = useState(false);
-  const [savedCards, setSavedCards] = useState([
+  const [savedCards] = useState([
     { id: 1, provider: "Visa", lastFour: "4242", expiry: "12/28", name: "KASHIF USER", isDefault: true }
   ]);
 
@@ -34,10 +34,10 @@ export default function PaymentsPage() {
 
         {/* Tab Navigation */}
         <div className="flex gap-8 mb-12 border-b border-white/5 pb-1 overflow-x-auto no-scrollbar">
-          {['cards', 'upi', 'emi', 'other'].map((tab) => (
+          {(['cards', 'upi', 'emi', 'other'] as const).map((tab) => (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab as any)}
+              onClick={() => setActiveTab(tab)}
               className={`pb-4 text-xs font-black uppercase tracking-widest transition-all relative whitespace-nowrap ${activeTab === tab ? 'text-[#f2994a]' : 'text-gray-500 hover:text-white'
                 }`}
             >

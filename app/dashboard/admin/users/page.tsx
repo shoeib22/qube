@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ProtectedRoute from "../../../../components/ProtectedRoute";
 import { useAuth } from "../../../../context/AuthContext";
-import { auth } from "../../../../lib/firebase";
 
 interface UserData {
     id: string;
@@ -19,11 +18,7 @@ export default function AdminUsersPage() {
     const [updating, setUpdating] = useState<string | null>(null);
     const { user: currentUser } = useAuth(); // for getting the token
 
-    useEffect(() => {
-        fetchUsers();
-    }, [currentUser]);
-
-    const fetchUsers = async () => {
+    const fetchUsers = useCallback(async () => {
         if (!currentUser) return;
         setLoading(true);
         try {
@@ -42,7 +37,11 @@ export default function AdminUsersPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [currentUser]);
+
+    useEffect(() => {
+        fetchUsers();
+    }, [fetchUsers]);
 
     const handleRoleUpdate = async (userId: string, newRole: string) => {
         if (!currentUser) return;

@@ -2,13 +2,12 @@
 
 "use client";
 
-import React, { useCallback, useState, useRef } from "react";
+import React, { useCallback, useState } from "react";
 import { SlotConfig } from "../types";
 import {
   PANEL_SLOTS,
   PANEL_WIDTH,
   PANEL_HEIGHT,
-  PANEL_PADDING,
   SLOT_WIDTH,
   SLOT_HEIGHT,
   LED_WIDTH,
@@ -31,7 +30,6 @@ interface PanelCanvasProps {
 export default function PanelCanvas({
   slots,
   selectedSlotId,
-  draggingIconId,
   customIconDataUrls,
   onSlotClick,
   onDropIcon,
@@ -62,8 +60,6 @@ export default function PanelCanvas({
     [onDropIcon]
   );
 
-  // Scale to fit container while maintaining aspect ratio
-  const scale = 1;
   const svgWidth = PANEL_WIDTH;
   const svgHeight = PANEL_HEIGHT + 60; // extra for label
 

@@ -38,8 +38,9 @@ export async function GET(
             success: true,
             product: { id: doc.id, ...data, imageUrl: `/api/products/${doc.id}?image=true` },
         });
-    } catch (error: any) {
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return NextResponse.json({ success: false, error: message }, { status: 500 });
     }
 }
 
@@ -55,15 +56,16 @@ export async function PUT(
         const body = await request.json();
         const db = getFirestore(adminApp, 'qube-tech');
         
-        const updateData: any = {
+        const updateData: Record<string, unknown> = {
             ...body,
             updatedAt: FieldValue.serverTimestamp()
         };
 
         await db.collection('products').doc(id).update(updateData);
         return NextResponse.json({ success: true, message: 'Updated' });
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }
 
@@ -82,7 +84,8 @@ export async function DELETE(
             updatedAt: FieldValue.serverTimestamp()
         });
         return NextResponse.json({ success: true, message: 'Deleted' });
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }
