@@ -3,10 +3,10 @@ import { motion } from "framer-motion";
 
 export default function QuoteSection() {
   return (
-    <section className="relative py-48 lg:py-64 bg-[#030303] px-6 overflow-hidden flex items-center justify-center">
+    <section className="relative py-24 sm:py-48 lg:py-64 bg-[#030303] px-6 overflow-hidden flex items-center justify-center">
       
-      {/* Subtle Background Ambient Glow */}
-      <div className="absolute inset-0 pointer-events-none flex justify-center items-center">
+      {/* Ambient glow — hidden on mobile */}
+      <div className="hidden sm:flex absolute inset-0 pointer-events-none justify-center items-center">
         <div className="w-[600px] md:w-[800px] h-[400px] bg-white/[0.02] blur-[120px] rounded-full" />
       </div>
 
@@ -24,12 +24,12 @@ export default function QuoteSection() {
         </motion.div>
 
         {/* Cinematic Blur-Reveal Text */}
-        <motion.p 
-          initial={{ opacity: 0, y: 40, filter: "blur(12px)" }}
-          whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        <motion.p
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
           viewport={{ once: true, margin: "-10%" }}
-          className="relative z-10 text-3xl md:text-5xl lg:text-6xl text-zinc-600 leading-[1.3] font-light tracking-tight"
+          className="relative z-10 text-xl sm:text-3xl md:text-5xl lg:text-6xl text-zinc-600 leading-[1.3] font-light tracking-tight"
         >
           Whether you're setting up basic smart devices or creating a fully 
           integrated automation system,{" "}

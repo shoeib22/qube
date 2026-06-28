@@ -124,11 +124,11 @@ export default function CheckoutPage() {
               </div>
             </section>
 
-            <section className="bg-[#121212] border border-gray-800 rounded-3xl p-8">
+            <section className="bg-[#121212] border border-gray-800 rounded-3xl p-6 sm:p-8">
               <h2 className="text-xl font-semibold mb-6">Shipping Address</h2>
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <input type="text" name="address" value={formData.address} onChange={handleInputChange} placeholder="Address" className="w-full bg-black border border-gray-800 rounded-xl py-3 px-4" />
-                <div className="grid grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <input type="text" name="city" value={formData.city} onChange={handleInputChange} placeholder="City" className="bg-black border border-gray-800 rounded-xl py-3 px-4" />
                   <input type="text" name="state" value={formData.state} onChange={handleInputChange} placeholder="State" className="bg-black border border-gray-800 rounded-xl py-3 px-4" />
                   <input type="text" name="pincode" value={formData.pincode} onChange={handleInputChange} placeholder="Pincode" className="bg-black border border-gray-800 rounded-xl py-3 px-4" />

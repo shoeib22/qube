@@ -31,16 +31,15 @@ const containerVariants: Variants = {
 };
 
 const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 40, filter: "blur(10px)" },
-  show: { 
-    opacity: 1, 
-    y: 0, 
-    filter: "blur(0px)",
-    transition: { 
-      duration: 1, 
-      ease: [0.16, 1, 0.3, 1] as const 
-    } 
-  }
+  hidden: { opacity: 0, y: 40 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 1,
+      ease: [0.16, 1, 0.3, 1] as const,
+    },
+  },
 };
 
 export default function Stats() {
@@ -53,18 +52,18 @@ export default function Stats() {
       <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
         
         {/* Cinematic Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
-          whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-          style={{ willChange: "transform, opacity" }} // 2. Removed `filter` to save mobile GPU memory
-          className="mb-24"
+          style={{ willChange: "transform, opacity" }}
+          className="mb-16 sm:mb-24"
         >
           <p className="text-sm uppercase tracking-[0.3em] text-zinc-500 font-semibold mb-6">
             Proven Impact
           </p>
-          <h2 className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tighter text-white leading-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-light tracking-tighter text-white leading-tight">
             Innovation that fits <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-400 to-zinc-600 font-medium">
               every lifestyle.

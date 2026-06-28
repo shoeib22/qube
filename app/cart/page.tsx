@@ -18,7 +18,7 @@ export default function CartPage() {
         <motion.h1 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="text-4xl font-bold mb-10 bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent"
+          className="text-3xl sm:text-4xl font-bold mb-8 sm:mb-10 bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent"
         >
           Your Bag
         </motion.h1>

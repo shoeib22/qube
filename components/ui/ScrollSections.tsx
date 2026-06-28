@@ -21,77 +21,71 @@ const sections = [
   }
 ];
 
-// Individual section component to handle localized scroll animations
 function CinematicSection({ section }: { section: typeof sections[0] }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end start"]
   });
 
-  // Parallax effect restricted to Y-axis for optimal GPU performance
-  const y = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
+  // Parallax — only applied on sm+ via CSS. The transform still runs but won't
+  // compound with backdrop-blur-2xl on mobile (that's already md:backdrop-blur-2xl).
+  const y = useTransform(scrollYProgress, [0, 1], ["-8%", "8%"]);
 
-  // 1. Swapped h-[120vh] to h-[120dvh] to prevent URL bar thrashing on mobile
   return (
-    <div ref={containerRef} className="relative h-[120dvh] flex items-center justify-center overflow-hidden">
-      
+    <div ref={containerRef} className="relative h-[100dvh] sm:h-[120dvh] flex items-center justify-center overflow-hidden">
+
       {/* Parallax Background */}
-      <motion.div 
+      <motion.div
         style={{ y, willChange: "transform" }}
-        className="absolute inset-0 w-full h-[130%] -top-[15%] z-0"
+        className="absolute inset-0 w-full h-[120%] -top-[10%] z-0"
       >
         <img
           src={section.img}
           alt={section.title}
           loading="lazy"
           decoding="async"
-          className="w-full h-full object-cover opacity-60"
+          className="w-full h-full object-cover opacity-50 sm:opacity-60"
         />
       </motion.div>
 
-      {/* Heavy Cinematic Vignette & Gradients - Static, no repaints */}
+      {/* Vignette */}
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#030303] via-transparent to-[#030303] pointer-events-none" />
       <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,transparent_0%,#030303_100%)] opacity-80 pointer-events-none" />
 
-      {/* Floating Glass Content Card */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 pointer-events-none">
+      {/* Content Card */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 pointer-events-none">
         <div className={`flex w-full ${section.align === 'right' ? 'justify-end' : 'justify-start'}`}>
-          <motion.div 
-            initial={{ opacity: 0, y: 40, filter: "blur(10px)" }}
-            whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            viewport={{ once: true, margin: "-20%" }}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-15%" }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            style={{ willChange: "transform, opacity" }} // 2. Removed `filter` from willChange to save mobile memory overhead
-            className="max-w-2xl relative pointer-events-auto"
+            style={{ willChange: "transform, opacity" }}
+            className="max-w-xl sm:max-w-2xl relative pointer-events-auto"
           >
-            {/* 3. Softened the backdrop filter on mobile: 
-                Mobile chips struggle with 24px blur over moving elements. 
-                Removed inline style so Tailwind's responsive classes can do their job properly. */}
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-md md:backdrop-blur-2xl rounded-3xl border border-white/10 -m-8 sm:-m-12 z-[-1]" />
-            
-            <div className="flex items-center gap-4 mb-6">
-              <span className="text-sm font-mono text-zinc-500 tracking-wider">
-                {section.num}
-              </span>
-              <div className="h-[1px] w-12 bg-white/20" />
-              <span className="text-xs uppercase tracking-[0.2em] font-semibold text-transparent bg-clip-text bg-gradient-to-r from-zinc-300 to-zinc-600">
+            {/* Glassmorphic backing — light blur on mobile, heavy on desktop */}
+            <div className="absolute inset-0 bg-black/50 sm:bg-black/40 backdrop-blur-sm md:backdrop-blur-2xl rounded-2xl sm:rounded-3xl border border-white/10 -m-5 sm:-m-8 md:-m-12 z-[-1]" />
+
+            <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+              <span className="text-xs sm:text-sm font-mono text-zinc-500 tracking-wider">{section.num}</span>
+              <div className="h-[1px] w-10 sm:w-12 bg-white/20" />
+              <span className="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-semibold text-transparent bg-clip-text bg-gradient-to-r from-zinc-300 to-zinc-600">
                 {section.tag}
               </span>
             </div>
 
-            <h2 className="text-4xl sm:text-5xl md:text-6xl font-light tracking-tighter text-white leading-[1.1] mb-8">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-tighter text-white leading-[1.1] mb-4 sm:mb-8">
               {section.title}
             </h2>
-            
-            <p className="text-lg sm:text-xl text-zinc-400 leading-relaxed font-light max-w-lg">
+
+            <p className="text-sm sm:text-lg md:text-xl text-zinc-400 leading-relaxed font-light max-w-lg">
               {section.desc}
             </p>
           </motion.div>
         </div>
       </div>
-      
     </div>
   );
 }

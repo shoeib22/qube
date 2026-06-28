@@ -259,13 +259,13 @@ const SpatialBackground = ({ globalX, globalY }: { globalX: any, globalY: any })
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.05)_0%,transparent_60%)]" />
       </motion.div>
 
-      {/* Floating Orbs mapping to mouse globally */}
+      {/* Floating Orbs — hidden on mobile */}
       <motion.div
-        className="absolute top-[20%] left-[20%] w-[600px] h-[600px] rounded-full bg-emerald-500/5 blur-[120px]"
+        className="hidden sm:block absolute top-[20%] left-[20%] w-[600px] h-[600px] rounded-full bg-emerald-500/5 blur-[120px]"
         style={{ x: useTransform(globalX, [-0.5, 0.5], [-80, 80]), y: useTransform(globalY, [-0.5, 0.5], [-80, 80]) }}
       />
       <motion.div
-        className="absolute bottom-[10%] right-[10%] w-[500px] h-[500px] rounded-full bg-blue-500/5 blur-[120px]"
+        className="hidden sm:block absolute bottom-[10%] right-[10%] w-[500px] h-[500px] rounded-full bg-blue-500/5 blur-[120px]"
         style={{ x: useTransform(globalX, [-0.5, 0.5], [60, -60]), y: useTransform(globalY, [-0.5, 0.5], [60, -60]) }}
       />
       

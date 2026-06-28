@@ -308,13 +308,13 @@ const SpatialBackground = ({ globalX, globalY }: { globalX: any, globalY: any })
         </div>
       </motion.div>
 
-      {/* Parallax Ambient Orbs */}
+      {/* Parallax Ambient Orbs — hidden on mobile */}
       <motion.div
-        className="absolute top-[10%] left-[10%] w-[800px] h-[800px] rounded-full bg-purple-600/5 blur-[150px]"
+        className="hidden sm:block absolute top-[10%] left-[10%] w-[800px] h-[800px] rounded-full bg-purple-600/5 blur-[150px]"
         style={{ x: useTransform(globalX, [-0.5, 0.5], [-120, 120]), y: useTransform(globalY, [-0.5, 0.5], [-120, 120]) }}
       />
       <motion.div
-        className="absolute bottom-[10%] right-[10%] w-[600px] h-[600px] rounded-full bg-blue-600/5 blur-[150px]"
+        className="hidden sm:block absolute bottom-[10%] right-[10%] w-[600px] h-[600px] rounded-full bg-blue-600/5 blur-[150px]"
         style={{ x: useTransform(globalX, [-0.5, 0.5], [100, -100]), y: useTransform(globalY, [-0.5, 0.5], [100, -100]) }}
       />
       

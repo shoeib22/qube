@@ -43,8 +43,8 @@ const cardVariants: Variants = {
 export default function FeatureGrid() {
   return (
     <section className="py-32 bg-[#030303] relative overflow-hidden">
-      {/* Subtle Background Glow - Static, no repaint cost */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] bg-white/[0.02] blur-[100px] rounded-full pointer-events-none" />
+      {/* Ambient glow — hidden on mobile */}
+      <div className="hidden sm:block absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] bg-white/[0.02] blur-[100px] rounded-full pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         
@@ -60,13 +60,13 @@ export default function FeatureGrid() {
             >
               Why Xerovolt
             </motion.p>
-            <motion.h2 
+            <motion.h2
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
               style={{ willChange: "transform, opacity" }}
-              className="text-4xl md:text-5xl font-light text-white tracking-tight"
+              className="text-3xl sm:text-4xl md:text-5xl font-light text-white tracking-tight"
             >
               Engineering the standard <br className="hidden md:block" />
               <span className="text-zinc-500 font-medium">for modern living.</span>

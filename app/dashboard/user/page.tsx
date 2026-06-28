@@ -531,7 +531,7 @@ function AddressModal({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">City</label>
               <input
@@ -554,7 +554,7 @@ function AddressModal({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Postal Code</label>
               <input

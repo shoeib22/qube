@@ -262,8 +262,9 @@ const SpatialBackground = ({
         }}
       />
 
+      {/* These large blurs are hidden on mobile to prevent GPU stall */}
       <motion.div
-        className="absolute top-[10%] left-[20%] w-[500px] h-[500px] rounded-full bg-emerald-500/5 blur-[120px] transform-gpu"
+        className="hidden sm:block absolute top-[10%] left-[20%] w-[500px] h-[500px] rounded-full bg-emerald-500/5 blur-[120px] transform-gpu"
         style={{
           x: useTransform(globalX, [-0.5, 0.5], [-50, 50]),
           y: useTransform(globalY, [-0.5, 0.5], [-50, 50]),
@@ -271,7 +272,7 @@ const SpatialBackground = ({
         }}
       />
       <motion.div
-        className="absolute bottom-[20%] right-[10%] w-[600px] h-[600px] rounded-full bg-indigo-500/5 blur-[150px] transform-gpu"
+        className="hidden sm:block absolute bottom-[20%] right-[10%] w-[600px] h-[600px] rounded-full bg-indigo-500/5 blur-[150px] transform-gpu"
         style={{
           x: useTransform(globalX, [-0.5, 0.5], [80, -80]),
           y: scrollParallax2,

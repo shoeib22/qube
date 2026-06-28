@@ -61,7 +61,7 @@ export default function RegisterPage() {
         </header>
 
         <form onSubmit={handleSubmit} className="space-y-8">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="group">
               <label className="text-[10px] font-bold uppercase text-gray-500 tracking-widest">First Name</label>
               <input suppressHydrationWarning type="text" onChange={e => setFormData({...formData, firstName: e.target.value})} className="mt-2 w-full border-b border-white/10 bg-transparent py-2 text-sm text-white outline-none focus:border-[#f2994a]" required />

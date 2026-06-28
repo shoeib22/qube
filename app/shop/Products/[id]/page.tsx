@@ -149,8 +149,9 @@ export default function ProductDetailPage() {
       {/* Cinematic Ambient Background */}
       <div className="absolute inset-0 z-0 opacity-[0.03] mix-blend-overlay pointer-events-none" style={{ backgroundImage: NOISE_PATTERN, backgroundRepeat: "repeat" }} />
       
-      <motion.div 
-        className="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-500/10 blur-[150px] rounded-full pointer-events-none transform-gpu z-0"
+      {/* Ambient glow — hidden on mobile to prevent GPU stall */}
+      <motion.div
+        className="hidden sm:block absolute top-0 right-0 w-[800px] h-[800px] bg-blue-500/10 blur-[150px] rounded-full pointer-events-none transform-gpu z-0"
         style={{ y: parallaxY, willChange: "transform" }}
       />
 
@@ -227,7 +228,7 @@ export default function ProductDetailPage() {
             transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
             className="lg:col-span-5 flex flex-col"
           >
-            <div className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8 md:p-10 backdrop-blur-xl shadow-2xl relative overflow-hidden">
+            <div className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-6 sm:p-8 md:p-10 md:backdrop-blur-xl shadow-2xl relative overflow-hidden">
               {/* Inner subtle glow */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
               
@@ -241,7 +242,7 @@ export default function ProductDetailPage() {
                 </span>
               </div>
 
-              <h1 className="text-4xl md:text-5xl font-light tracking-tight text-white mb-6 leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white mb-6 leading-tight">
                 {product.name}
               </h1>
               

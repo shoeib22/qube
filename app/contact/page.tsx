@@ -15,15 +15,15 @@ export default function ContactPage() {
         <div className="max-w-7xl mx-auto px-6">
 
           {/* PAGE HEADER */}
-          <div className="text-center mb-20">
-            <h1 className="text-5xl font-bold mb-4">Contact Us</h1>
-            <p className="text-gray-400 max-w-2xl mx-auto">
+          <div className="text-center mb-12 sm:mb-20">
+            <h1 className="text-3xl sm:text-5xl font-bold mb-4">Contact Us</h1>
+            <p className="text-gray-400 max-w-2xl mx-auto text-sm sm:text-base">
               Have questions about our products or smart home solutions?
               Our team is here to help you.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
 
             {/* LEFT INFO */}
             <div className="space-y-10">
