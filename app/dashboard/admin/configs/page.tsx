@@ -41,7 +41,7 @@ export default function AdminConfigsPage() {
   const getToken = async () => user ? user.getIdToken() : "";
 
   const fetchAll = async () => {
-    if (!user) return;
+    if (!user) { setLoading(false); return; }
     const token = await getToken();
     const [cRes, dRes] = await Promise.all([
       fetch("/api/admin/configs", { headers: { Authorization: `Bearer ${token}` } }),

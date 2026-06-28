@@ -21,7 +21,7 @@ export default function AdminDevicesPage() {
   const [saving, setSaving] = useState(false);
 
   const fetchDevices = async () => {
-    if (!user) return;
+    if (!user) { setLoading(false); return; }
     const token = await user.getIdToken();
     const res = await fetch("/api/admin/devices", { headers: { Authorization: `Bearer ${token}` } });
     const data = await res.json();
