@@ -23,30 +23,30 @@ export default function TechnologyPage() {
       canProceed={!!state.technology}
       onNext={() => router.push("/configurator/cart")}
     >
-      <div className="flex flex-col h-[calc(100vh-220px)] min-h-[480px]">
-        {/* Panel preview — full width */}
-        <div className="flex-1 bg-[#111] flex items-center justify-center p-8">
+      <div className="flex flex-col min-h-0">
+        {/* Panel preview — shorter on mobile */}
+        <div className="bg-[#111] flex items-center justify-center p-6 md:p-8 min-h-[200px] md:min-h-[320px]">
           <PanelPreview
             sizeId={state.size}
             materialColorId={state.materialColor ?? "mc-black"}
             frameColorId={state.frameColor}
             slots={state.slots}
             slotCount={accessory?.slots}
-            className="w-full max-w-[500px]"
+            className="w-full max-w-[420px]"
           />
         </div>
 
-        {/* Technology cards at bottom */}
-        <div className="border-t border-gray-200 bg-white p-5">
-          <div className="flex gap-4 max-w-2xl mx-auto">
+        {/* Technology cards — stack on mobile */}
+        <div className="border-t border-gray-200 bg-white p-4 md:p-5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mx-auto">
             {TECHNOLOGIES.map(tech => {
               const isSelected = state.technology === tech.id;
               return (
                 <button
                   key={tech.id}
                   onClick={() => handleSelect(tech.id)}
-                  className={`flex-1 p-4 rounded-xl border-2 text-left transition-all hover:shadow-sm
-                    ${isSelected ? "border-[#155cfc] bg-blue-50 shadow-sm" : "border-gray-200 bg-white hover:border-gray-300"}`}
+                  className={`p-4 rounded-xl border-2 text-left transition-all active:scale-95
+                    ${isSelected ? "border-[#155cfc] bg-blue-50" : "border-gray-200 bg-white"}`}
                 >
                   <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Technology</p>
                   <p className="font-bold text-gray-900 text-sm">{tech.name}</p>

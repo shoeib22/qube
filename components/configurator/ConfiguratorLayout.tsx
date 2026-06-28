@@ -42,42 +42,41 @@ export default function ConfiguratorLayout({
 
   return (
     <div className="min-h-screen bg-white text-gray-900 flex flex-col">
-      {/* Top announcement strip */}
-      <div className="bg-gray-100 border-b border-gray-200 text-center py-2 px-4 text-xs text-gray-500 font-medium">
-        ✨ We proudly manufacture and sell Make in India products
+      {/* Top announcement strip — hidden on very small screens */}
+      <div className="hidden sm:block bg-gray-100 border-b border-gray-200 text-center py-1.5 px-4 text-xs text-gray-500 font-medium">
+        We proudly manufacture and sell Make in India products
       </div>
 
       {/* Header */}
-      <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between bg-white">
-        <a href="/" className="flex items-center gap-2">
-          <span className="text-xl font-black tracking-tight text-gray-900">Xerovolt</span>
-          <span className="text-xs text-gray-400 font-medium">Smart Panel Studio</span>
+      <div className="border-b border-gray-200 px-4 sm:px-6 py-3 flex items-center justify-between bg-white gap-2">
+        <a href="/" className="flex items-center gap-2 flex-shrink-0">
+          <span className="text-lg font-black tracking-tight text-gray-900">Xerovolt</span>
+          <span className="hidden sm:inline text-xs text-gray-400 font-medium">Smart Panel Studio</span>
         </a>
 
-        <div className="flex items-center gap-4">
-          {/* Auto-select Next toggle */}
-          <label className="flex items-center gap-2 cursor-pointer">
-            <div
-              onClick={() => setAutoNext(v => !v)}
-              className={`w-9 h-5 rounded-full transition-colors relative ${autoNext ? "bg-[#f2994a]" : "bg-gray-200"}`}
-            >
-              <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${autoNext ? "translate-x-4" : "translate-x-0.5"}`} />
-            </div>
-            <span className="text-xs font-medium text-gray-600">Auto-select Next</span>
-          </label>
-        </div>
+        {/* Auto-select toggle — icon-only on mobile */}
+        <button
+          onClick={() => setAutoNext(v => !v)}
+          title="Auto-select Next"
+          className="flex items-center gap-2 flex-shrink-0"
+        >
+          <div className={`w-9 h-5 rounded-full transition-colors relative flex-shrink-0 ${autoNext ? "bg-[#f2994a]" : "bg-gray-200"}`}>
+            <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${autoNext ? "translate-x-4" : "translate-x-0.5"}`} />
+          </div>
+          <span className="hidden md:inline text-xs font-medium text-gray-600 whitespace-nowrap">Auto-select Next</span>
+        </button>
       </div>
 
-      {/* Step progress */}
-      <div className="border-b border-gray-100 py-4 px-6 bg-white overflow-x-auto">
+      {/* Step progress — scrollable */}
+      <div className="border-b border-gray-100 py-3 px-4 bg-white">
         <StepProgress currentStep={currentStep} />
       </div>
 
       {/* Page heading */}
-      <div className="px-6 pt-6 pb-2">
+      <div className="px-4 sm:px-6 pt-4 pb-2">
         <div className="flex items-center gap-2">
           <div className="w-1 h-5 bg-[#f2994a] rounded-full" />
-          <h2 className="text-lg font-bold text-gray-900 capitalize">
+          <h2 className="text-base sm:text-lg font-bold text-gray-900 capitalize">
             {currentStep === "cart" ? "Your Cart" : currentStep === "icons" ? "Icons" : currentStep.charAt(0).toUpperCase() + currentStep.slice(1)}
           </h2>
         </div>
@@ -89,22 +88,22 @@ export default function ConfiguratorLayout({
       </div>
 
       {/* Bottom action bar */}
-      <div className="border-t border-gray-200 bg-white px-6 py-4 flex items-center justify-between sticky bottom-0 z-10">
+      <div className="border-t border-gray-200 bg-white px-3 sm:px-6 py-3 flex items-center justify-between sticky bottom-0 z-10 gap-2">
         <button
           onClick={() => clearAll()}
-          className="flex items-center gap-1.5 text-xs font-bold text-red-500 hover:text-red-600 transition-colors border border-red-200 hover:border-red-400 rounded-lg px-3 py-2"
+          className="flex items-center gap-1 text-xs font-bold text-red-500 border border-red-200 rounded-lg px-2.5 py-2 flex-shrink-0 hover:border-red-400 transition-colors"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5">
             <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
           </svg>
-          Clear Selection
+          <span className="hidden sm:inline">Clear</span>
         </button>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {prevStep && (
             <button
               onClick={handleBack}
-              className="px-5 py-2.5 text-sm font-bold text-gray-600 border border-gray-300 rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-all"
+              className="px-4 py-2.5 text-sm font-bold text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all"
             >
               Back
             </button>
@@ -113,7 +112,7 @@ export default function ConfiguratorLayout({
             <button
               onClick={handleNext}
               disabled={!canProceed}
-              className={`px-6 py-2.5 text-sm font-bold rounded-lg transition-all
+              className={`px-5 py-2.5 text-sm font-bold rounded-lg transition-all
                 ${canProceed
                   ? "bg-[#155cfc] text-white hover:bg-[#1249d4] shadow-md shadow-blue-200"
                   : "bg-gray-100 text-gray-400 cursor-not-allowed"
