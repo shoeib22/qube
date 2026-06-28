@@ -1,6 +1,10 @@
 import { publishCommand } from '@/lib/mqttBridge'
+import { requireAuth } from '@/lib/auth-middleware'
 
 export async function POST(request) {
+  const authResult = await requireAuth(request)
+  if (authResult instanceof Response) return authResult
+
   const { deviceId, state } = await request.json()
 
   if (!deviceId || !state) {

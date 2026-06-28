@@ -12,6 +12,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'Order Management', href: '/dashboard/admin/orders', icon: '📦' },
     { name: 'Product Catalog', href: '/dashboard/admin/products', icon: '🏷️' },
     { name: 'User Directory', href: '/dashboard/admin/users', icon: '👥' },
+    { name: 'Devices', href: '/dashboard/admin/devices', icon: '🔌' },
+    { name: 'Panel Configs', href: '/dashboard/admin/configs', icon: '🎨' },
     { name: 'System Settings', href: '/dashboard/admin/settings', icon: '⚙️' },
   ];
 

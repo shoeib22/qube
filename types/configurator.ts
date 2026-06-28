@@ -1,5 +1,3 @@
-// types/configurator.ts
-
 export type StepId = "panel" | "material" | "size" | "accessories" | "icons" | "color" | "technology" | "cart";
 
 export interface Step {
@@ -13,33 +11,29 @@ export interface PanelOption {
   id: string;
   name: string;
   tagline: string;
-  basePrice: number;
-  imageBg: string; // css color for preview
 }
 
 export interface MaterialOption {
   id: string;
   label: string;
-  number: number;
-  priceModifier: number;
+  number: number; // Material 1, Material 2
 }
 
 export interface SizeOption {
   id: string;
   label: string;
-  sizeNum: number;
+  modules: number;   // 2, 4, 6, 8, 12
   cols: number;
   rows: number;
-  totalModules: number;
-  priceModifier: number;
 }
+
+export type ModularSize = 2 | 4 | 6;
 
 export interface AccessoryOption {
   id: string;
-  modularSize: 2 | 4;
+  modularSize: ModularSize;
   name: string;
   slots: number;
-  priceModifier: number;
 }
 
 export interface IconItem {
@@ -60,14 +54,12 @@ export interface ColorOption {
   name: string;
   hex: string;
   type: "material" | "frame";
-  priceModifier?: number;
 }
 
 export interface TechnologyOption {
   id: string;
   name: string;
   description: string;
-  priceModifier: number;
 }
 
 export interface ConfiguratorState {
@@ -81,10 +73,26 @@ export interface ConfiguratorState {
   technology: string | null;
   qty: number;
   orderNote: string;
+  savedConfigId: string | null;
 }
 
-export interface PriceBreakdown {
-  base: number;
-  gst: number;
-  total: number;
+// Saved config as stored in Firestore
+export interface SavedPanelConfig {
+  id: string;
+  userId: string;
+  name: string;
+  panel: "edge";
+  material: string | null;
+  size: string | null;
+  accessory: string | null;
+  slots: SlotAssignment[];
+  materialColor: string | null;
+  frameColor: string | null;
+  technology: string | null;
+  qty: number;
+  orderNote: string;
+  deviceId: string | null;
+  orderId: string | null;
+  savedAt: any;
+  updatedAt: any;
 }

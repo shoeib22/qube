@@ -22,8 +22,8 @@ const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 // 🔐 Auth
 export const auth = getAuth(app);
 
-// 🗄️ Firestore (DEFAULT DB — safer)
-export const db = getFirestore(app);
+// 🗄️ Firestore — targets 'qube-tech' named database (matches admin SDK)
+export const db = getFirestore(app, 'qube-tech');
 
 // 📦 Storage
 export const storage = getStorage(app);

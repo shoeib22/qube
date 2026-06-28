@@ -1,203 +1,154 @@
 "use client";
-// components/configurator/PanelPreview.tsx
 
 import React from "react";
-import { SIZES, ICONS, getMaterialColorById } from "../../lib/configuratorData";
-import type { SlotAssignment } from "../../types/configurator";
+import { getSizeById, getMaterialColorById, getFrameColorById } from "@/lib/configuratorData";
+import { BUILT_IN_ICONS } from "@/lib/iconLibrary";
+import type { SlotAssignment } from "@/types/configurator";
 
 interface PanelPreviewProps {
   sizeId: string | null;
   materialColorId: string | null;
-  slots: SlotAssignment[];
+  frameColorId?: string | null;
+  slots?: SlotAssignment[];
   selectedSlot?: number | null;
   onSlotClick?: (index: number) => void;
-  width?: number;
-  height?: number;
-  showLabels?: boolean;
-  clickable?: boolean;
+  slotCount?: number; // override from accessory
+  customIconDataUrls?: Record<string, string>;
+  className?: string;
 }
 
 export default function PanelPreview({
   sizeId,
   materialColorId,
-  slots,
-  selectedSlot,
+  frameColorId,
+  slots = [],
+  selectedSlot = null,
   onSlotClick,
-  width = 520,
-  height = 320,
-  showLabels = false,
-  clickable = false,
+  slotCount,
+  customIconDataUrls = {},
+  className = "",
 }: PanelPreviewProps) {
-  const size = SIZES.find(s => s.id === sizeId);
-  const matColor = getMaterialColorById(materialColorId || "");
+  const size = sizeId ? getSizeById(sizeId) : null;
+  const materialColor = materialColorId ? getMaterialColorById(materialColorId) : null;
+  const frameColor = frameColorId ? getFrameColorById(frameColorId) : null;
 
-  // Panel background color from material
-  const panelBg = matColor ? matColor.hex : "#1a1a1a";
-  const isDarkPanel = !matColor || ["#1a1a1a", "#2c4de0"].includes(matColor.hex);
-  const slotBorderColor = isDarkPanel ? "rgba(100,160,255,0.5)" : "rgba(0,0,0,0.2)";
-  const slotBg = isDarkPanel ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.25)";
+  const cols = size?.cols ?? 3;
+  const rows = size?.rows ?? 2;
+  const totalSlots = slotCount ?? (size?.modules ?? 6);
 
-  if (!size) {
-    // No size selected yet — show placeholder
-    return (
-      <div
-        style={{
-          width,
-          height,
-          background: "#141414",
-          border: "1px solid #2a2a2a",
-          borderRadius: 8,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <span style={{ color: "#333", fontSize: 11, letterSpacing: "0.1em" }}>
-          SELECT A SIZE TO PREVIEW
-        </span>
-      </div>
-    );
+  const panelBg = materialColor?.hex ?? "#111111";
+  const frameBorder = frameColor?.hex ?? "#333333";
+  const isLight = materialColor ? isLightColor(materialColor.hex) : false;
+  const slotStroke = isLight ? "#333" : "#555";
+  const iconColor  = isLight ? "#111" : "#60a5fa";
+
+  const slotW = 56;
+  const slotH = 56;
+  const gapX  = 12;
+  const gapY  = 12;
+  const padX  = 24;
+  const padY  = 24;
+
+  const panelW = padX * 2 + cols * slotW + (cols - 1) * gapX;
+  const panelH = padY * 2 + rows * slotH + (rows - 1) * gapY;
+
+  const slotPositions: { x: number; y: number; index: number }[] = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const idx = r * cols + c;
+      if (idx >= totalSlots) break;
+      slotPositions.push({
+        x: padX + c * (slotW + gapX),
+        y: padY + r * (slotH + gapY),
+        index: idx,
+      });
+    }
   }
 
-  const { cols, rows, totalModules } = size;
-  const panelW = width - 32;
-  const panelH = height - 32;
-  const padX = 40;
-  const padY = 36;
-  const gapX = 12;
-  const gapY = 14;
-  const slotW = (panelW - padX * 2 - gapX * (cols - 1)) / cols;
-  const slotH = (panelH - padY * 2 - gapY * (rows - 1)) / rows;
-
-  const slotPositions = Array.from({ length: totalModules }, (_, i) => {
-    const row = Math.floor(i / cols);
-    const col = i % cols;
-    return {
-      x: padX + col * (slotW + gapX),
-      y: padY + row * (slotH + gapY),
-      index: i,
-    };
-  });
-
-  const getSlotIcon = (index: number) => {
-    const assignment = slots.find(s => s.slotIndex === index);
-    if (!assignment?.iconId) return null;
-    return ICONS.find(ic => ic.id === assignment.iconId);
-  };
-
-  // Slot stroke based on light/dark panel
-  const iconColor = isDarkPanel ? "rgba(80,140,255,0.9)" : "rgba(0,0,0,0.7)";
-  const selectedBg = isDarkPanel ? "rgba(212,175,55,0.1)" : "rgba(212,175,55,0.15)";
-  const selectedBorder = "#D4AF37";
-
   return (
-    <div
-      style={{
-        width,
-        height,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "#0a0a0a",
-        borderRadius: 6,
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      {/* Grid dots bg */}
-      <div style={{
-        position: "absolute", inset: 0,
-        backgroundImage: "radial-gradient(circle, #1a1a1a 1px, transparent 1px)",
-        backgroundSize: "24px 24px",
-        pointerEvents: "none",
-      }} />
-
-      {/* Panel body */}
-      <div
-        style={{
-          width: panelW,
-          height: panelH,
-          background: panelBg,
-          borderRadius: 10,
-          position: "relative",
-          boxShadow: "0 4px 32px rgba(0,0,0,0.6)",
-          border: "1px solid rgba(212,175,55,0.2)",
-          overflow: "hidden",
-          transition: "background 0.3s",
-        }}
+    <div className={`flex items-center justify-center ${className}`}>
+      <svg
+        viewBox={`0 0 ${panelW} ${panelH}`}
+        width={panelW}
+        height={panelH}
+        style={{ maxWidth: "100%", maxHeight: "100%" }}
       >
-        {/* Gold top strip */}
-        <div style={{
-          position: "absolute", top: 0, left: 0, right: 0,
-          height: 3, background: "#D4AF37", opacity: 0.7,
-        }} />
+        {/* Panel body */}
+        <rect
+          x={0} y={0}
+          width={panelW} height={panelH}
+          rx={10}
+          fill={panelBg}
+          stroke={frameBorder}
+          strokeWidth={3}
+        />
 
-        {/* Slots */}
         {slotPositions.map(({ x, y, index }) => {
-          const icon = getSlotIcon(index);
+          const assignment = slots.find(s => s.slotIndex === index);
+          const iconId = assignment?.iconId;
           const isSelected = selectedSlot === index;
-          const hasX = slots.some(s => s.slotIndex === index && !s.iconId);
+          const builtIn = iconId ? BUILT_IN_ICONS.find(ic => ic.id === iconId) : null;
+          const customUrl = iconId ? customIconDataUrls[iconId] : null;
 
           return (
-            <div
+            <g
               key={index}
-              onClick={() => clickable && onSlotClick?.(index)}
-              style={{
-                position: "absolute",
-                left: x,
-                top: y,
-                width: slotW,
-                height: slotH,
-                background: isSelected ? selectedBg : slotBg,
-                border: `1px solid ${isSelected ? selectedBorder : slotBorderColor}`,
-                borderRadius: 5,
-                cursor: clickable ? "pointer" : "default",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                transition: "all 0.15s",
-                overflow: "hidden",
-              }}
+              onClick={() => onSlotClick?.(index)}
+              style={{ cursor: onSlotClick ? "pointer" : "default" }}
             >
-              {icon ? (
-                <>
-                  <svg
-                    width={Math.min(slotW * 0.45, 28)}
-                    height={Math.min(slotH * 0.45, 28)}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke={iconColor}
-                    strokeWidth={1.5}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    style={{ flexShrink: 0 }}
-                    dangerouslySetInnerHTML={{ __html: icon.svg }}
+              {/* Slot background */}
+              <rect
+                x={x} y={y}
+                width={slotW} height={slotH}
+                rx={6}
+                fill="transparent"
+                stroke={isSelected ? "#f2994a" : slotStroke}
+                strokeWidth={isSelected ? 2 : 1}
+                strokeDasharray={iconId ? undefined : "4 3"}
+              />
+
+              {/* Icon */}
+              {builtIn && (
+                <foreignObject x={x + 8} y={y + 8} width={slotW - 16} height={slotH - 16}>
+                  <div
+                    style={{ color: iconColor, width: "100%", height: "100%" }}
+                    dangerouslySetInnerHTML={{ __html: builtIn.svg }}
                   />
-                  {showLabels && (
-                    <span style={{
-                      fontSize: 7,
-                      color: isDarkPanel ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)",
-                      marginTop: 3,
-                      textAlign: "center",
-                      lineHeight: 1.2,
-                    }}>
-                      {icon.name}
-                    </span>
-                  )}
-                </>
-              ) : (
-                /* Red X for invalid/empty slot in some views */
-                clickable && (
-                  <span style={{ color: "rgba(255,60,60,0.5)", fontSize: 12, lineHeight: 1 }}>
-                    ×
-                  </span>
-                )
+                </foreignObject>
               )}
-            </div>
+              {customUrl && !builtIn && (
+                <image
+                  href={customUrl}
+                  x={x + 8} y={y + 8}
+                  width={slotW - 16} height={slotH - 16}
+                  style={{ filter: isLight ? "none" : "invert(1)" }}
+                />
+              )}
+
+              {/* Slot number when empty */}
+              {!iconId && (
+                <text
+                  x={x + slotW / 2}
+                  y={y + slotH / 2 + 4}
+                  textAnchor="middle"
+                  fontSize={10}
+                  fill={slotStroke}
+                  fontFamily="sans-serif"
+                >
+                  {index + 1}
+                </text>
+              )}
+            </g>
           );
         })}
-      </div>
+      </svg>
     </div>
   );
+}
+
+function isLightColor(hex: string): boolean {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return (r * 299 + g * 587 + b * 114) / 1000 > 128;
 }

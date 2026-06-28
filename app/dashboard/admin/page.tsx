@@ -1,36 +1,73 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Search, Loader2 } from 'lucide-react';
 import { auth } from '@/lib/firebase';
 
+interface KpiData {
+  revenue: number;
+  activeOrders: number;
+  totalProducts: number;
+  totalCustomers: number;
+}
+
 export default function AdminDashboard() {
-  const [products, setProducts] = useState<any[]>([]);
+  const [kpiData, setKpiData] = useState<KpiData | null>(null);
+  const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = await auth.currentUser?.getIdToken();
-        const res = await fetch('/api/admin/products', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (res.headers.get("content-type")?.includes("application/json")) {
-          const data = await res.json();
-          if (data.success) setProducts(data.products);
+        const headers = { 'Authorization': `Bearer ${token}` };
+
+        const [kpiRes, ordersRes] = await Promise.all([
+          fetch('/api/admin/kpis', { headers }),
+          fetch('/api/admin/orders', { headers }).catch(() => null),
+        ]);
+
+        if (kpiRes.ok) {
+          const data = await kpiRes.json();
+          setKpiData(data);
         }
-      } catch (e) { console.error(e); }
-      finally { setLoading(false); }
+
+        if (ordersRes?.ok) {
+          const data = await ordersRes.json();
+          setOrders((data.orders || []).slice(0, 5));
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchData();
   }, []);
 
+  const formatCurrency = (paise: number) =>
+    `₹${(paise / 100).toLocaleString('en-IN')}`;
+
   const kpis = [
-    { label: 'Total Revenue', value: '₹1,00,8900', trend: '80%', color: 'text-gray-500' },
-    { label: 'Active Orders', value: '78', trend: 'Live Stream', color: 'text-green-500' },
-    { label: 'Total Products', value: products.length.toString(), trend: `${products.filter(p => p.isActive).length} active`, color: 'text-blue-500' },
-    { label: 'Total Customers', value: '250', trend: '60 this month', color: 'text-gray-500' },
+    {
+      label: 'Total Revenue',
+      value: kpiData ? formatCurrency(kpiData.revenue) : '—',
+      color: 'text-gray-500',
+    },
+    {
+      label: 'Active Orders',
+      value: kpiData ? kpiData.activeOrders.toString() : '—',
+      color: 'text-green-500',
+    },
+    {
+      label: 'Total Products',
+      value: kpiData ? kpiData.totalProducts.toString() : '—',
+      color: 'text-blue-500',
+    },
+    {
+      label: 'Total Customers',
+      value: kpiData ? kpiData.totalCustomers.toString() : '—',
+      color: 'text-gray-500',
+    },
   ];
 
   return (
@@ -44,40 +81,76 @@ export default function AdminDashboard() {
         {kpis.map((kpi, i) => (
           <div key={i} className="p-8 bg-[#0c0c0c] border border-white/5 rounded-2xl">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-600 mb-4">{kpi.label}</p>
-            <h2 className="text-3xl font-bold mb-2">{kpi.value}</h2>
-            <p className={`text-xs font-bold ${kpi.color}`}>{kpi.trend}</p>
+            <h2 className="text-3xl font-bold mb-2">
+              {loading ? <span className="text-gray-600">—</span> : kpi.value}
+            </h2>
+            <p className={`text-xs font-bold ${kpi.color}`}>
+              {loading ? 'Loading...' : 'Live data'}
+            </p>
           </div>
         ))}
       </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <a href="/dashboard/admin/devices" className="p-6 bg-[#0c0c0c] border border-white/5 rounded-2xl hover:border-[#f2994a]/30 transition-all group">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-600 mb-3">IoT Devices</p>
+          <p className="text-sm text-gray-400 mb-4">Manage device registry and monitor live states.</p>
+          <span className="text-[#f2994a] text-xs font-black uppercase tracking-widest group-hover:underline">Manage →</span>
+        </a>
+        <a href="/dashboard/admin/configs" className="p-6 bg-[#0c0c0c] border border-white/5 rounded-2xl hover:border-[#f2994a]/30 transition-all group">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-600 mb-3">Panel Configs</p>
+          <p className="text-sm text-gray-400 mb-4">View saved configurations and link them to devices.</p>
+          <span className="text-[#f2994a] text-xs font-black uppercase tracking-widest group-hover:underline">Manage →</span>
+        </a>
+        <a href="/dashboard/admin/users" className="p-6 bg-[#0c0c0c] border border-white/5 rounded-2xl hover:border-[#f2994a]/30 transition-all group">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-600 mb-3">Users</p>
+          <p className="text-sm text-gray-400 mb-4">Manage user accounts and roles.</p>
+          <span className="text-[#f2994a] text-xs font-black uppercase tracking-widest group-hover:underline">Manage →</span>
+        </a>
+      </div>
+
       <div className="bg-[#0c0c0c] border border-white/5 rounded-3xl overflow-hidden shadow-2xl">
         <div className="p-8 border-b border-white/5 flex justify-between items-center">
-          <h3 className="font-bold text-lg">Live Order Stream</h3>
-          <button className="text-xs font-black uppercase tracking-widest text-[#f2994a]">View All Orders</button>
+          <h3 className="font-bold text-lg">Recent Orders</h3>
+          <a href="/dashboard/admin/orders" className="text-xs font-black uppercase tracking-widest text-[#f2994a]">View All →</a>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="text-[10px] font-black uppercase tracking-widest text-gray-600 border-b border-white/5">
-                <th className="p-8">ID</th>
-                <th className="p-8">Customer</th>
-                <th className="p-8">Product</th>
-                <th className="p-8">Status</th>
-              </tr>
-            </thead>
-            <tbody className="text-sm">
-              {[0, 1, 2].map((i) => (
-                <tr key={i} className="border-b border-white/5 hover:bg-white/[0.01]">
-                  <td className="p-8 font-mono text-gray-400">#QB-10{i}</td>
-                  <td className="p-8 font-bold text-white/90"> User</td>
-                  <td className="p-8 text-gray-500">Xerovolt Smart Hub Pro</td>
-                  <td className="p-8">
-                    <span className="px-3 py-1 bg-green-500/10 text-green-500 text-[10px] font-black uppercase rounded-full border border-green-500/20">Paid</span>
-                  </td>
+          {orders.length > 0 ? (
+            <table className="w-full text-left">
+              <thead>
+                <tr className="text-[10px] font-black uppercase tracking-widest text-gray-600 border-b border-white/5">
+                  <th className="p-6">Transaction ID</th>
+                  <th className="p-6">Amount</th>
+                  <th className="p-6">Status</th>
+                  <th className="p-6">Date</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="text-sm">
+                {orders.map((order, i) => (
+                  <tr key={i} className="border-b border-white/5 hover:bg-white/[0.01]">
+                    <td className="p-6 font-mono text-gray-400">{order.transactionId || order.id}</td>
+                    <td className="p-6 font-bold">{formatCurrency(order.amount || 0)}</td>
+                    <td className="p-6">
+                      <span className={`px-3 py-1 text-[10px] font-black uppercase rounded-full border ${
+                        order.status === 'SUCCESS'
+                          ? 'bg-green-500/10 text-green-500 border-green-500/20'
+                          : order.status === 'PENDING'
+                          ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
+                          : 'bg-red-500/10 text-red-500 border-red-500/20'
+                      }`}>{order.status}</span>
+                    </td>
+                    <td className="p-6 text-gray-500">
+                      {order.createdAt?.seconds
+                        ? new Date(order.createdAt.seconds * 1000).toLocaleDateString('en-IN')
+                        : '—'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p className="p-8 text-gray-600 text-sm">No orders yet.</p>
+          )}
         </div>
       </div>
     </div>

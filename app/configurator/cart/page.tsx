@@ -1,316 +1,208 @@
 "use client";
-// app/configurator/cart/page.tsx
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useConfigurator } from "../../../context/ConfiguratorContext";
-import ConfiguratorLayout from "../../../components/configurator/ConfiguratorLayout";
-import PanelPreview from "../../../components/configurator/PanelPreview";
+import { useConfigurator } from "@/context/ConfiguratorContext";
+import { useAuth } from "@/context/AuthContext";
+import ConfiguratorLayout from "@/components/configurator/ConfiguratorLayout";
+import PanelPreview from "@/components/configurator/PanelPreview";
 import {
-  getPanelById, getSizeById, getAccessoryById,
-  getMaterialColorById, getTechById, FRAME_COLORS,
-  calculatePrice
-} from "lib/configuratorData";
+  getMaterialById, getSizeById, getAccessoryById,
+  getMaterialColorById, getFrameColorById, getTechnologyById,
+} from "@/lib/configuratorData";
 
 export default function CartPage() {
-  const { state, setQty, setOrderNote, clearAll } = useConfigurator();
+  const { state, setQty, setOrderNote, setSavedConfigId } = useConfigurator();
+  const { user } = useAuth();
   const router = useRouter();
-  const [noteOpen, setNoteOpen] = useState(false);
-  const [orderPlaced, setOrderPlaced] = useState(false);
 
-  const panel = getPanelById(state.panel || "");
-  const size = getSizeById(state.size || "");
-  const acc = getAccessoryById(state.accessory || "");
-  const matColor = getMaterialColorById(state.materialColor || "");
-  const tech = getTechById(state.technology || "");
-  const frameColor = FRAME_COLORS.find(c => c.id === state.frameColor);
-  const price = calculatePrice(state);
+  const [showNoteInput, setShowNoteInput] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [savedId, setSavedId] = useState<string | null>(state.savedConfigId);
 
-  const handlePlaceOrder = () => {
-    // Integrate with your order system here
-    setOrderPlaced(true);
+  const material   = state.material   ? getMaterialById(state.material)       : null;
+  const size       = state.size       ? getSizeById(state.size)               : null;
+  const accessory  = state.accessory  ? getAccessoryById(state.accessory)     : null;
+  const matColor   = state.materialColor ? getMaterialColorById(state.materialColor) : null;
+  const frameColor = state.frameColor ? getFrameColorById(state.frameColor)   : null;
+  const tech       = state.technology ? getTechnologyById(state.technology)   : null;
+
+  const rows = [
+    { label: "Panel",       value: "Edge" },
+    { label: "Material",    value: material?.label ?? "—" },
+    { label: "Size",        value: size?.label ?? "—" },
+    { label: "Technology",  value: tech?.name ?? "—" },
+    { label: "Accessories", value: accessory ? `${accessory.modularSize} Modular: ${accessory.name}` : "—" },
+    { label: "Color",       value: matColor && frameColor ? `${matColor.name} / ${frameColor.name}` : "—" },
+  ];
+
+  const handleSaveConfig = async () => {
+    if (!user) { router.push("/login"); return; }
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch("/api/configurator/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify({
+          name: `Edge Panel — ${size?.label ?? "Custom"}`,
+          material: state.material,
+          size: state.size,
+          accessory: state.accessory,
+          slots: state.slots,
+          materialColor: state.materialColor,
+          frameColor: state.frameColor,
+          technology: state.technology,
+          qty: state.qty,
+          orderNote: state.orderNote,
+        }),
+      });
+      const data = await res.json();
+      if (data.configId) {
+        setSavedId(data.configId);
+        setSavedConfigId(data.configId);
+      } else {
+        setSaveError("Save failed. Try again.");
+      }
+    } catch {
+      setSaveError("Network error. Try again.");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  if (orderPlaced) {
-    return (
-      <ConfiguratorLayout currentStep="cart" showBottomBar={false}>
-        <div style={{
-          display: "flex", flexDirection: "column", alignItems: "center",
-          justifyContent: "center", minHeight: 400, textAlign: "center",
-        }}>
-          <div style={{
-            width: 72, height: 72, borderRadius: "50%", background: "#D4AF37",
-            display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20,
-          }}>
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" strokeWidth="2.5">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-          </div>
-          <h2 style={{ fontSize: 24, fontWeight: 800, color: "#1a1a1a", marginBottom: 8 }}>
-            Order Placed!
-          </h2>
-          <p style={{ fontSize: 14, color: "#888", marginBottom: 24 }}>
-            Your Xerovolt panel is being processed. You'll receive a confirmation shortly.
-          </p>
-          <div style={{ fontSize: 22, fontWeight: 800, color: "#D4AF37", marginBottom: 24 }}>
-            ₹ {price.total.toLocaleString("en-IN")}
-          </div>
-          <button
-            onClick={() => { clearAll(); router.push("/configurator/panel"); }}
-            style={{
-              padding: "10px 28px", background: "#D4AF37",
-              border: "none", borderRadius: 7, color: "#0a0a0a",
-              fontSize: 13, fontWeight: 700, cursor: "pointer",
-            }}
-          >
-            Configure Another Panel
-          </button>
-        </div>
-      </ConfiguratorLayout>
-    );
-  }
+  const handleAddToCart = () => {
+    // Redirect to checkout; cart integration handled by CartContext
+    router.push("/checkout");
+  };
 
   return (
-    <ConfiguratorLayout currentStep="cart" showBottomBar={false}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24 }}>
-        <div style={{ width: 4, height: 24, background: "#D4AF37", borderRadius: 2 }} />
-        <h2 style={{ fontSize: 18, fontWeight: 700, color: "#1a1a1a" }}>Your Cart</h2>
-      </div>
-
-      <div style={{ display: "flex", gap: 28, alignItems: "flex-start" }}>
-        {/* Left: Panel preview */}
-        <div style={{ flex: 1 }}>
+    <ConfiguratorLayout currentStep="cart" canProceed={false}>
+      <div className="flex flex-col lg:flex-row h-[calc(100vh-160px)] min-h-[500px]">
+        {/* Left — panel preview */}
+        <div className="flex-1 bg-[#111] flex items-center justify-center p-8">
           <PanelPreview
             sizeId={state.size}
-            materialColorId={state.materialColor}
+            materialColorId={state.materialColor ?? "mc-black"}
+            frameColorId={state.frameColor}
             slots={state.slots}
-            width={560}
-            height={360}
-            showLabels={true}
+            slotCount={accessory?.slots}
+            className="w-full max-w-[500px]"
           />
+        </div>
 
-          {/* Bottom action bar (fixed-style inside content) */}
-          <div style={{
-            marginTop: 20,
-            display: "flex", alignItems: "center", gap: 12,
-            flexWrap: "wrap",
-          }}>
-            {/* Quantity */}
-            <div style={{ display: "flex", alignItems: "center", gap: 0, border: "1px solid #e0e0e0", borderRadius: 7, overflow: "hidden" }}>
-              <span style={{ fontSize: 12, color: "#888", padding: "7px 10px" }}>QTY</span>
+        {/* Right — Order Summary */}
+        <div className="w-full lg:w-[380px] bg-white border-l border-gray-200 flex flex-col overflow-y-auto">
+          <div className="p-6 border-b border-gray-100">
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="font-bold text-gray-900 text-base">Order Summary</h3>
+              <span className="text-xs text-gray-400 font-medium">Qty: {state.qty}</span>
+            </div>
+          </div>
+
+          {/* Selections */}
+          <div className="p-6 flex-1 space-y-3">
+            {rows.map(row => (
+              <div key={row.label} className="flex justify-between">
+                <span className="text-xs text-gray-400 font-medium">{row.label}</span>
+                <span className="text-xs font-bold text-gray-900 text-right max-w-[180px]">{row.value}</span>
+              </div>
+            ))}
+
+            {/* Color swatch row */}
+            {(matColor || frameColor) && (
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-gray-400 font-medium">Color Preview</span>
+                <div className="flex gap-1.5">
+                  {matColor && (
+                    <div className="w-5 h-5 rounded-full border border-gray-200" style={{ backgroundColor: matColor.hex }} title={`Material: ${matColor.name}`} />
+                  )}
+                  {frameColor && (
+                    <div className="w-5 h-5 rounded-full border border-gray-200" style={{ backgroundColor: frameColor.hex }} title={`Frame: ${frameColor.name}`} />
+                  )}
+                </div>
+              </div>
+            )}
+
+            <hr className="border-gray-100" />
+
+            {/* Courier note */}
+            <p className="text-[10px] text-orange-600 bg-orange-50 border border-orange-100 rounded-lg p-3 leading-relaxed">
+              Note: Courier charges will be considered extra and this price excludes the courier charges.
+            </p>
+
+            {/* Order note */}
+            {showNoteInput ? (
+              <div>
+                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1 block">Order Note</label>
+                <textarea
+                  value={state.orderNote}
+                  onChange={e => setOrderNote(e.target.value)}
+                  rows={3}
+                  placeholder="Any special instructions..."
+                  className="w-full text-xs p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#155cfc] resize-none"
+                />
+              </div>
+            ) : null}
+
+            {/* Save success */}
+            {savedId && (
+              <p className="text-[10px] text-green-600 font-bold text-center">
+                ✓ Config saved (ID: {savedId.slice(0, 8)}…)
+              </p>
+            )}
+            {saveError && (
+              <p className="text-[10px] text-red-500 text-center">{saveError}</p>
+            )}
+          </div>
+
+          {/* Bottom action buttons */}
+          <div className="p-4 border-t border-gray-100 space-y-2">
+            <div className="flex gap-2">
+              {/* QTY stepper */}
+              <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
+                <button onClick={() => setQty(state.qty - 1)} className="px-3 py-2 text-gray-500 hover:bg-gray-50 text-sm font-bold">−</button>
+                <span className="px-3 py-2 text-sm font-bold text-gray-900 min-w-[32px] text-center">{state.qty}</span>
+                <button onClick={() => setQty(state.qty + 1)} className="px-3 py-2 text-gray-500 hover:bg-gray-50 text-sm font-bold">+</button>
+              </div>
+
               <button
-                onClick={() => setQty(state.qty - 1)}
-                disabled={state.qty <= 1}
-                style={{ padding: "7px 12px", background: "#f9f9f9", border: "none", borderLeft: "1px solid #e0e0e0", cursor: "pointer", fontSize: 16, color: "#555" }}
-              >−</button>
-              <span style={{ padding: "7px 16px", fontSize: 14, fontWeight: 700, borderLeft: "1px solid #e0e0e0", borderRight: "1px solid #e0e0e0" }}>
-                {state.qty}
-              </span>
-              <button
-                onClick={() => setQty(state.qty + 1)}
-                style={{ padding: "7px 12px", background: "#f9f9f9", border: "none", cursor: "pointer", fontSize: 16, color: "#555" }}
-              >+</button>
+                onClick={() => setShowNoteInput(v => !v)}
+                className="flex-1 py-2 text-xs font-bold text-gray-600 border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 transition-colors"
+              >
+                {showNoteInput ? "Hide Note" : "+ Add Order Note"}
+              </button>
             </div>
 
-            {/* Clear */}
-            <button style={{
-              display: "flex", alignItems: "center", gap: 6,
-              padding: "8px 14px", background: "transparent",
-              border: "1px solid #ff4444", borderRadius: 6,
-              color: "#ff4444", fontSize: 12, fontWeight: 600, cursor: "pointer",
-            }}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-              </svg>
-              Clear Selection
-            </button>
-
-            {/* Add note */}
             <button
-              onClick={() => setNoteOpen(v => !v)}
-              style={{
-                display: "flex", alignItems: "center", gap: 6,
-                padding: "8px 14px", background: "transparent",
-                border: "1px solid #e0e0e0", borderRadius: 6,
-                color: "#555", fontSize: 12, fontWeight: 600, cursor: "pointer",
-              }}
+              onClick={handleSaveConfig}
+              disabled={saving || !!savedId}
+              className={`w-full py-2.5 text-xs font-bold rounded-lg border transition-all
+                ${savedId
+                  ? "border-green-300 text-green-600 bg-green-50 cursor-default"
+                  : saving
+                  ? "border-gray-200 text-gray-400 cursor-wait"
+                  : "border-[#155cfc]/40 text-[#155cfc] hover:bg-blue-50"
+                }`}
             >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-              </svg>
-              Add Order Note
+              {savedId ? "✓ Config Saved" : saving ? "Saving…" : "Save Config"}
             </button>
 
-            <div style={{ flex: 1 }} />
-
-            <button style={{
-              padding: "9px 18px", background: "#fff",
-              border: "1px solid #e0e0e0", borderRadius: 6,
-              color: "#555", fontSize: 12, fontWeight: 600, cursor: "pointer",
-            }}>
-              ⬡ Download Preview
-            </button>
-
-            <button style={{
-              padding: "9px 18px", background: "#fff",
-              border: "1px solid #D4AF37", borderRadius: 6,
-              color: "#D4AF37", fontSize: 12, fontWeight: 700, cursor: "pointer",
-            }}>
+            <button
+              onClick={handleAddToCart}
+              className="w-full py-2.5 text-xs font-bold rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+            >
               Add to Cart
             </button>
 
             <button
-              onClick={handlePlaceOrder}
-              style={{
-                padding: "9px 24px", background: "#D4AF37",
-                border: "none", borderRadius: 6,
-                color: "#0a0a0a", fontSize: 13, fontWeight: 700, cursor: "pointer",
-              }}
+              onClick={handleAddToCart}
+              className="w-full py-3 text-sm font-bold rounded-lg bg-[#155cfc] text-white hover:bg-[#1249d4] transition-colors shadow-md shadow-blue-200"
             >
-              Place Order →
+              Place Order
             </button>
-          </div>
-
-          {/* Order note input */}
-          {noteOpen && (
-            <div style={{ marginTop: 12 }}>
-              <textarea
-                placeholder="Add any special instructions for your order..."
-                value={state.orderNote}
-                onChange={e => setOrderNote(e.target.value)}
-                style={{
-                  width: "100%", padding: "10px 14px",
-                  border: "1px solid #e0e0e0", borderRadius: 8,
-                  fontSize: 12, color: "#1a1a1a", resize: "vertical",
-                  outline: "none", minHeight: 80, fontFamily: "inherit",
-                }}
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Right: Order summary card */}
-        <div style={{
-          width: 300,
-          background: "#fff",
-          border: "1px solid #e8e8e8",
-          borderRadius: 12,
-          overflow: "hidden",
-          flexShrink: 0,
-          boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
-        }}>
-          {/* Header */}
-          <div style={{
-            padding: "16px 20px",
-            borderBottom: "1px solid #f0f0f0",
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-          }}>
-            <span style={{ fontSize: 14, fontWeight: 700, color: "#1a1a1a" }}>Order Summary</span>
-            <span style={{ fontSize: 11, color: "#aaa" }}>Qty: {state.qty}</span>
-          </div>
-
-          {/* Line items */}
-          <div style={{ padding: "14px 20px" }}>
-            {[
-              { label: "Panel",       value: panel?.name },
-              { label: "Material",    value: state.material ? (state.material.charAt(0).toUpperCase() + state.material.slice(1)) : null },
-              { label: "Size",        value: size?.label },
-              { label: "Technology",  value: tech?.name },
-            ].map(item => item.value && (
-              <div key={item.label} style={{
-                display: "flex", justifyContent: "space-between",
-                marginBottom: 10, alignItems: "flex-start",
-              }}>
-                <span style={{ fontSize: 11, color: "#aaa" }}>{item.label}</span>
-                <span style={{ fontSize: 12, fontWeight: 600, color: "#1a1a1a", textAlign: "right", maxWidth: 160 }}>
-                  {item.value}
-                </span>
-              </div>
-            ))}
-
-            {/* Accessories */}
-            {acc && (
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-                <span style={{ fontSize: 11, color: "#aaa" }}>Accessories</span>
-                <div style={{ textAlign: "right", maxWidth: 160 }}>
-                  <div style={{ fontSize: 10, color: "#bbb" }}>{acc.modularSize} Modular:</div>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: "#1a1a1a" }}>{acc.name}</div>
-                </div>
-              </div>
-            )}
-
-            {/* Color */}
-            {matColor && (
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-                <span style={{ fontSize: 11, color: "#aaa" }}>Color</span>
-                <div style={{ textAlign: "right", display: "flex", alignItems: "center", gap: 6 }}>
-                  <div style={{
-                    width: 12, height: 12, borderRadius: "50%",
-                    background: matColor.hex, border: "1px solid rgba(0,0,0,0.1)",
-                  }} />
-                  <span style={{ fontSize: 12, fontWeight: 600, color: "#1a1a1a" }}>
-                    Material: {matColor.name}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {/* Icons count */}
-            {state.slots.filter(s => s.iconId).length > 0 && (
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-                <span style={{ fontSize: 11, color: "#aaa" }}>Icons</span>
-                <span style={{ fontSize: 12, fontWeight: 600, color: "#1a1a1a" }}>
-                  {state.slots.filter(s => s.iconId).length} custom icons
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* Price breakdown */}
-          <div style={{ borderTop: "1px solid #f0f0f0", padding: "14px 20px" }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: "#1a1a1a", marginBottom: 12 }}>
-              Price Breakdown:
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-              <span style={{ fontSize: 12, color: "#888" }}>Base Price</span>
-              <span style={{ fontSize: 13, fontWeight: 600, color: "#1a1a1a" }}>
-                ₹ {price.base.toLocaleString("en-IN")}
-              </span>
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
-              <span style={{ fontSize: 12, color: "#D4AF37" }}>GST (18%)</span>
-              <span style={{ fontSize: 13, fontWeight: 600, color: "#D4AF37" }}>
-                ₹ {price.gst.toLocaleString("en-IN")}
-              </span>
-            </div>
-
-            {/* Grand total */}
-            <div style={{
-              background: "#f9f6ed",
-              border: "1px solid #e8d88a",
-              borderRadius: 8,
-              padding: "12px 14px",
-              display: "flex", justifyContent: "space-between", alignItems: "center",
-            }}>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: "#1a1a1a" }}>Grand Total</div>
-                <div style={{ fontSize: 10, color: "#aaa" }}>(incl. GST)</div>
-              </div>
-              <div style={{ fontSize: 20, fontWeight: 800, color: "#D4AF37" }}>
-                ₹ {price.total.toLocaleString("en-IN")}
-              </div>
-            </div>
-
-            {/* Note */}
-            <div style={{
-              marginTop: 10, padding: "8px 10px",
-              background: "#fff8f8", border: "1px solid #fdd",
-              borderRadius: 6, fontSize: 10, color: "#cc6666", lineHeight: 1.4,
-            }}>
-              Note: Courier charges will be considered extra and this price excludes the courier charges.
-            </div>
           </div>
         </div>
       </div>

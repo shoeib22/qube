@@ -1,142 +1,100 @@
 "use client";
-// app/configurator/accessories/page.tsx
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useConfigurator } from "../../../context/ConfiguratorContext";
-import ConfiguratorLayout from "../../../components/configurator/ConfiguratorLayout";
-import PanelPreview from "../../../components/configurator/PanelPreview";
-import { ACCESSORIES_2M, ACCESSORIES_4M } from "../../../lib/configuratorData";
-import type { AccessoryOption } from "types/configurator";
+import { useConfigurator } from "@/context/ConfiguratorContext";
+import ConfiguratorLayout from "@/components/configurator/ConfiguratorLayout";
+import PanelPreview from "@/components/configurator/PanelPreview";
+import { getAccessoriesByModularSize } from "@/lib/configuratorData";
+import type { ModularSize } from "@/types/configurator";
+
+const MODULAR_TABS: { size: ModularSize; label: string }[] = [
+  { size: 2, label: "2 Modular" },
+  { size: 4, label: "4 Modular" },
+  { size: 6, label: "6 Modular" },
+];
 
 export default function AccessoriesPage() {
   const { state, setAccessory } = useConfigurator();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"2" | "4">("2");
-  const [hovered, setHovered] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<ModularSize>(2);
 
-  const accessories = activeTab === "2" ? ACCESSORIES_2M : ACCESSORIES_4M;
+  const accessories = getAccessoriesByModularSize(activeTab);
 
-  const handleSelect = (acc: AccessoryOption) => {
-    setAccessory(acc.id);
+  const handleSelect = (id: string) => {
+    setAccessory(id);
   };
+
+  const selected = accessories.find(a => a.id === state.accessory);
 
   return (
     <ConfiguratorLayout
       currentStep="accessories"
-      canNext={!!state.accessory}
+      canProceed={!!state.accessory}
       onNext={() => router.push("/configurator/icons")}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-        <div style={{ width: 4, height: 24, background: "#D4AF37", borderRadius: 2 }} />
-        <h2 style={{ fontSize: 18, fontWeight: 700, color: "#1a1a1a" }}>Accessories</h2>
-      </div>
+      <div className="flex h-[calc(100vh-220px)] min-h-[400px]">
+        {/* Left — accessory list */}
+        <div className="w-[380px] flex-shrink-0 border-r border-gray-200 flex flex-col">
+          {/* Tabs */}
+          <div className="flex border-b border-gray-200 bg-white">
+            {MODULAR_TABS.map(tab => (
+              <button
+                key={tab.size}
+                onClick={() => setActiveTab(tab.size)}
+                className={`flex-1 py-3 text-xs font-bold transition-colors
+                  ${activeTab === tab.size
+                    ? "text-[#155cfc] border-b-2 border-[#155cfc]"
+                    : "text-gray-500 hover:text-gray-700"
+                  }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
 
-      {/* Modular tabs */}
-      <div style={{ display: "flex", gap: 0, borderBottom: "2px solid #e8e8e8", marginBottom: 20, width: "fit-content" }}>
-        {(["2", "4"] as const).map(tab => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            style={{
-              padding: "8px 20px",
-              background: "none",
-              border: "none",
-              borderBottom: `2px solid ${activeTab === tab ? "#D4AF37" : "transparent"}`,
-              marginBottom: -2,
-              fontSize: 13,
-              fontWeight: activeTab === tab ? 700 : 500,
-              color: activeTab === tab ? "#D4AF37" : "#888",
-              cursor: "pointer",
-              transition: "all 0.15s",
-            }}
-          >
-            {tab} Modular
-          </button>
-        ))}
-      </div>
-
-      <div style={{ display: "flex", gap: 24 }}>
-        {/* Accessory list */}
-        <div style={{
-          width: 420,
-          background: "#fff",
-          borderRadius: 10,
-          border: "1px solid #e8e8e8",
-          overflow: "hidden",
-          flexShrink: 0,
-          maxHeight: 480,
-          overflowY: "auto",
-        }}>
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 0,
-          }}>
-            {accessories.map((acc, idx) => {
-              const isSelected = state.accessory === acc.id;
-              const isHov = hovered === acc.id;
-              const isEvenRow = Math.floor(idx / 2) % 2 === 0;
-
-              return (
-                <button
-                  key={acc.id}
-                  onClick={() => handleSelect(acc)}
-                  onMouseEnter={() => setHovered(acc.id)}
-                  onMouseLeave={() => setHovered(null)}
-                  style={{
-                    padding: "14px 16px",
-                    background: isSelected ? "#fffbeb" : isHov ? "#fafafa" : "#fff",
-                    border: "none",
-                    borderBottom: "1px solid #f0f0f0",
-                    borderRight: idx % 2 === 0 ? "1px solid #f0f0f0" : "none",
-                    cursor: "pointer",
-                    textAlign: "left",
-                    transition: "background 0.12s",
-                    outline: isSelected ? "2px solid #D4AF37" : "none",
-                    outlineOffset: -2,
-                  }}
-                >
-                  <div style={{ fontSize: 9, color: "#bbb", fontWeight: 500, letterSpacing: "0.05em", marginBottom: 3 }}>
-                    {acc.modularSize} Modular
-                  </div>
-                  <div style={{ fontSize: 13, fontWeight: isSelected ? 700 : 500, color: isSelected ? "#D4AF37" : "#1a1a1a" }}>
-                    {acc.name}
-                  </div>
-                  {acc.priceModifier > 0 && (
-                    <div style={{ fontSize: 10, color: "#D4AF37", marginTop: 2 }}>
-                      + ₹{acc.priceModifier}
-                    </div>
-                  )}
-                </button>
-              );
-            })}
+          {/* Accessory cards */}
+          <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+            <div className="grid grid-cols-2 gap-3">
+              {accessories.map(acc => {
+                const isSelected = state.accessory === acc.id;
+                return (
+                  <button
+                    key={acc.id}
+                    onClick={() => handleSelect(acc.id)}
+                    className={`p-3 rounded-xl border-2 bg-white text-left transition-all hover:shadow-sm
+                      ${isSelected ? "border-[#155cfc] shadow-sm shadow-blue-100" : "border-gray-200 hover:border-gray-300"}`}
+                  >
+                    <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">{activeTab} Modular</p>
+                    <p className="text-sm font-bold text-gray-900 leading-tight">{acc.name}</p>
+                    <p className="text-[10px] text-gray-400 mt-1">{acc.slots} slot{acc.slots !== 1 ? "s" : ""}</p>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
-        {/* Live panel preview */}
-        <div style={{ flex: 1 }}>
-          <PanelPreview
-            sizeId={state.size}
-            materialColorId={state.materialColor}
-            slots={state.slots}
-            width={520}
-            height={340}
-            clickable={false}
-          />
-          {state.accessory && (
-            <div style={{
-              marginTop: 10,
-              padding: "8px 14px",
-              background: "#fffbeb",
-              border: "1px solid #e0c860",
-              borderRadius: 6,
-              fontSize: 11,
-              color: "#a07820",
-              fontWeight: 500,
-            }}>
-              Selected: <strong>{accessories.find(a => a.id === state.accessory)?.name}</strong>
-              {" "}— {accessories.find(a => a.id === state.accessory)?.slots} switch slots
+        {/* Right — live preview */}
+        <div className="flex-1 bg-[#111] flex items-center justify-center p-8">
+          {state.accessory ? (
+            <div className="text-center">
+              <PanelPreview
+                sizeId={state.size}
+                materialColorId={state.materialColor ?? "mc-black"}
+                frameColorId={state.frameColor}
+                slots={state.slots}
+                slotCount={selected?.slots}
+                className="w-full max-w-[500px]"
+              />
+              <p className="text-gray-400 text-xs mt-4 font-medium">
+                {selected?.name} — {selected?.slots} slot{selected?.slots !== 1 ? "s" : ""}
+              </p>
+            </div>
+          ) : (
+            <div className="text-center text-gray-500">
+              <div className="w-16 h-16 border-2 border-dashed border-gray-600 rounded-xl mx-auto mb-3" />
+              <p className="text-sm font-medium">Select an accessory to preview</p>
             </div>
           )}
         </div>

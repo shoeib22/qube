@@ -1,159 +1,79 @@
 "use client";
-// components/configurator/StepProgress.tsx
 
-import React from "react";
 import { useRouter } from "next/navigation";
-import { STEPS } from "../../lib/configuratorData";
-import type { StepId } from "../../types/configurator";
+import { STEPS, getMaterialById, getSizeById, getAccessoryById, getMaterialColorById, getTechnologyById } from "@/lib/configuratorData";
+import { useConfigurator } from "@/context/ConfiguratorContext";
+import type { ConfiguratorState } from "@/types/configurator";
 
-interface StepProgressProps {
-  currentStep: StepId;
-  completedChoices: Record<string, string>; // stepId -> chosen label
+function getSelectionLabel(stepId: string, state: ConfiguratorState): string | null {
+  switch (stepId) {
+    case "panel":       return "Edge";
+    case "material":    return state.material ? getMaterialById(state.material)?.label ?? null : null;
+    case "size":        return state.size ? getSizeById(state.size)?.label ?? null : null;
+    case "accessories": return state.accessory ? getAccessoryById(state.accessory)?.name ?? null : null;
+    case "icons":       return state.slots.length > 0 ? `${state.slots.length} icon${state.slots.length !== 1 ? "s" : ""}` : null;
+    case "color":       return state.materialColor ? getMaterialColorById(state.materialColor)?.name ?? null : null;
+    case "technology":  return state.technology ? getTechnologyById(state.technology)?.name ?? null : null;
+    default:            return null;
+  }
 }
 
-export default function StepProgress({ currentStep, completedChoices }: StepProgressProps) {
-  const router = useRouter();
-  const currentIndex = STEPS.findIndex(s => s.id === currentStep);
+interface StepProgressProps {
+  currentStep: string;
+}
 
-  const handleStepClick = (step: typeof STEPS[0], idx: number) => {
-    if (idx < currentIndex) {
-      router.push(step.path);
-    }
-  };
+export default function StepProgress({ currentStep }: StepProgressProps) {
+  const router = useRouter();
+  const { state } = useConfigurator();
+  const currentIndex = STEPS.find(s => s.id === currentStep)?.index ?? 1;
 
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "flex-start",
-        justifyContent: "flex-end",
-        padding: "0 0 0 0",
-        userSelect: "none",
-      }}
-    >
-      {/* Choices row (labels above dots) */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
-        {/* Choice labels */}
-        <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
-          {STEPS.map((step, idx) => {
-            const choice = completedChoices[step.id] || "";
-            return (
-              <div
-                key={step.id}
-                style={{
-                  minWidth: 70,
-                  textAlign: "center",
-                  fontSize: 10,
-                  color: idx <= currentIndex ? "#D4AF37" : "#444",
-                  fontWeight: 600,
-                  letterSpacing: "0.03em",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  padding: "0 2px",
-                }}
-                title={choice}
+    <div className="flex items-center justify-center">
+      {STEPS.map((step, i) => {
+        const isCompleted = step.index < currentIndex;
+        const isCurrent   = step.id === currentStep;
+        const selLabel    = getSelectionLabel(step.id, state);
+
+        return (
+          <div key={step.id} className="flex items-center">
+            <div className="flex flex-col items-center">
+              {/* Selection label above dot */}
+              <span className="text-[9px] font-bold text-gray-400 mb-0.5 h-3 leading-none truncate max-w-[64px] text-center">
+                {selLabel ?? ""}
+              </span>
+
+              {/* Dot */}
+              <button
+                onClick={() => isCompleted && router.push(step.path)}
+                disabled={!isCompleted}
+                title={step.label}
+                className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black transition-all
+                  ${isCompleted
+                    ? "bg-[#f2994a] text-black cursor-pointer hover:scale-110"
+                    : isCurrent
+                    ? "bg-[#f2994a] text-black ring-2 ring-[#f2994a]/40"
+                    : "bg-[#1a1a1a] text-gray-600 border border-white/10 cursor-default"
+                  }`}
               >
-                {choice}
-              </div>
-            );
-          })}
-        </div>
+                {isCompleted
+                  ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="w-3 h-3"><polyline points="20 6 9 17 4 12" /></svg>
+                  : step.index
+                }
+              </button>
 
-        {/* Dots + connectors */}
-        <div style={{ display: "flex", alignItems: "center" }}>
-          {STEPS.map((step, idx) => {
-            const isCompleted = idx < currentIndex;
-            const isCurrent = idx === currentIndex;
-            const isFuture = idx > currentIndex;
-            const isClickable = idx < currentIndex;
-
-            return (
-              <React.Fragment key={step.id}>
-                {/* Connector line */}
-                {idx > 0 && (
-                  <div
-                    style={{
-                      height: 2,
-                      width: 40,
-                      background: isCompleted
-                        ? "linear-gradient(90deg, #D4AF37, #D4AF37)"
-                        : isCurrent
-                        ? "linear-gradient(90deg, #D4AF37, #333)"
-                        : "#2a2a2a",
-                      flexShrink: 0,
-                    }}
-                  />
-                )}
-
-                {/* Step dot */}
-                <div
-                  onClick={() => isClickable && handleStepClick(step, idx)}
-                  style={{
-                    width: 28,
-                    height: 28,
-                    borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                    cursor: isClickable ? "pointer" : "default",
-                    background: isCompleted
-                      ? "#D4AF37"
-                      : isCurrent
-                      ? "#D4AF37"
-                      : "#1a1a1a",
-                    border: `2px solid ${isCompleted || isCurrent ? "#D4AF37" : "#333"}`,
-                    transition: "all 0.2s",
-                    boxShadow: isCurrent ? "0 0 0 3px rgba(212,175,55,0.25)" : "none",
-                  }}
-                >
-                  {isCompleted ? (
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" strokeWidth="3">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  ) : (
-                    <span
-                      style={{
-                        fontSize: 10,
-                        fontWeight: 800,
-                        color: isCurrent ? "#0a0a0a" : "#555",
-                        lineHeight: 1,
-                      }}
-                    >
-                      {step.index}
-                    </span>
-                  )}
-                </div>
-              </React.Fragment>
-            );
-          })}
-        </div>
-
-        {/* Step labels below */}
-        <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
-          {STEPS.map((step, idx) => {
-            const isCompleted = idx < currentIndex;
-            const isCurrent = idx === currentIndex;
-            return (
-              <div
-                key={step.id}
-                style={{
-                  minWidth: 70,
-                  textAlign: "center",
-                  fontSize: 9,
-                  color: isCompleted ? "#888" : isCurrent ? "#D4AF37" : "#333",
-                  fontWeight: isCurrent ? 700 : 400,
-                  letterSpacing: "0.05em",
-                  textTransform: "uppercase",
-                }}
-              >
+              {/* Step label below dot */}
+              <span className={`text-[9px] mt-1 font-bold uppercase tracking-wider ${isCurrent ? "text-[#f2994a]" : "text-gray-600"}`}>
                 {step.label}
-              </div>
-            );
-          })}
-        </div>
-      </div>
+              </span>
+            </div>
+
+            {/* Connector */}
+            {i < STEPS.length - 1 && (
+              <div className={`w-8 h-[2px] mb-5 mx-0.5 transition-colors ${step.index < currentIndex ? "bg-[#f2994a]" : "bg-white/10"}`} />
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
