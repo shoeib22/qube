@@ -8,6 +8,12 @@ service cloud.firestore {
       allow write: if request.auth != null && request.auth.token.role == 'admin';
     }
 
+    // Product documents (manuals/guides/specs/software): public read, admin write
+    match /productDocuments/{docId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.role == 'admin';
+    }
+
     // Panel configs: owner read/write, admin read/write
     match /panelConfigs/{configId} {
       allow read: if request.auth != null &&
