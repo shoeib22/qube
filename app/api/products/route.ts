@@ -1,51 +1,32 @@
 import { NextResponse } from 'next/server';
-import { db, storage } from '@/lib/firebaseAdmin';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
 
 export async function GET() {
     try {
-        if (!db || !storage) {
-            return NextResponse.json({ success: false, error: "Firebase not initialized." }, { status: 500 });
-        }
+        const { data: products, error } = await supabaseAdmin
+            .from('products')
+            .select('*')
+            .eq('is_active', true);
 
-        const snapshot = await db.collection('products')
-            .where('isActive', '==', true)
-            .get();
+        if (error) throw error;
 
-        if (snapshot.empty) {
-            return NextResponse.json({ success: true, products: [] });
-        }
-
-        const products = await Promise.all(snapshot.docs.map(async (doc) => {
-            const data = doc.data();
-            let imageUrl = data.imageUrl || null;
-
-            if (data.image && !imageUrl) {
-                try {
-                    const bucket = storage.bucket(); 
-                    const file = bucket.file(data.image);
-                    const [url] = await file.getSignedUrl({
-                        version: 'v4',
-                        action: 'read',
-                        expires: Date.now() + 60 * 60 * 1000, 
-                    });
-                    imageUrl = url;
-                } catch (err) {
-                    console.error(`⚠️ Signed URL failed for ${doc.id}:`, err);
-                }
-            }
+        const mapped = (products ?? []).map((p) => {
+            const imageUrl = p.image_path
+                ? supabaseAdmin.storage.from('product-images').getPublicUrl(p.image_path).data.publicUrl
+                : `/products/${p.id}.jpg`;
 
             return {
-                id: doc.id,
-                name: data.name || "Unnamed Product",
-                category: data.category || "General",
-                price: Number(data.price) || 0,
+                id: p.id,
+                name: p.name || 'Unnamed Product',
+                category: p.category || 'General',
+                price: Number(p.price) || 0,
                 isActive: true,
-                image: data.image || "",
-                imageUrl: imageUrl || `/products/${doc.id}.jpg`,
+                image: p.image_path || '',
+                imageUrl,
             };
-        }));
+        });
 
-        return NextResponse.json({ success: true, products });
+        return NextResponse.json({ success: true, products: mapped });
 
     } catch (error) {
         console.error('❌ API Error:', error);

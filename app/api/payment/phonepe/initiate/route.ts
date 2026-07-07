@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 import { getPhonePeConfig, encodePayload, generateChecksum } from "@/lib/phonepe";
-import admin from "@/lib/firebaseAdmin";
-// 1. Import modular Firestore services
-import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function POST(req: NextRequest) {
     try {
@@ -21,8 +21,12 @@ export async function POST(req: NextRequest) {
         // 1. Create Unique Transaction ID
         const merchantTransactionId = `TXN_${Date.now()}_${uuidv4().substring(0, 8)}`;
         const merchantUserId = userId || `USER_${uuidv4().substring(0, 8)}`;
+        // orders.user_id is a FK to auth.users — only store it when it's really
+        // a logged-in user's uuid; guest checkouts keep the generated id in
+        // customer_info instead of forcing it through the FK.
+        const authUserId = typeof userId === 'string' && UUID_RE.test(userId) ? userId : null;
 
-        // 2. Prepare Payload (PhonePe expects PAISES)
+        // 2. Prepare Payload (PhonePe expects PAISE)
         const amountInPaisa = Math.round(amount * 100);
         const origin = req.headers.get("origin") || "https://xerovolt.tech";
         const redirectUrl = `${origin}/payment/success?id=${merchantTransactionId}`;
@@ -43,30 +47,22 @@ export async function POST(req: NextRequest) {
         const apiEndpoint = "/pg/v1/pay";
         const checksum = generateChecksum(base64Payload, apiEndpoint, saltKey, saltIndex);
 
-        // 3. Create Order in 'qube-tech' DB BEFORE initiating payment
-        try {
-            // Use modular getFirestore and target your specific DB
-            const db = getFirestore(admin, 'qube-tech');
-            const orderRef = db.collection('orders').doc(); 
-            
-            await orderRef.set({
-                orderId: merchantTransactionId,
-                transactionId: merchantTransactionId,
-                userId: merchantUserId,
-                amount: amount,
-                items: items,
-                customerInfo: customerInfo,
-                status: 'PENDING',
-                paymentMethod: 'phonepe',
-                // Use modular FieldValue syntax
-                createdAt: FieldValue.serverTimestamp(),
-                updatedAt: FieldValue.serverTimestamp()
-            });
-            console.log(`📝 Created pending order in qube-tech: ${orderRef.id}`);
-        } catch (error) {
-            console.error("❌ Firestore order creation failed:", error);
+        // 3. Create Order BEFORE initiating payment
+        const { error: insertError } = await supabaseAdmin.from('orders').insert({
+            transaction_id: merchantTransactionId,
+            user_id: authUserId,
+            amount,
+            items,
+            customer_info: { ...customerInfo, merchantUserId },
+            status: 'PENDING',
+            payment_method: 'phonepe',
+        });
+
+        if (insertError) {
+            console.error("❌ Order creation failed:", insertError);
             return NextResponse.json({ error: "Failed to create order" }, { status: 500 });
         }
+        console.log(`📝 Created pending order: ${merchantTransactionId}`);
 
         // 4. Call PhonePe API
         const response = await fetch(`${hostUrl}${apiEndpoint}`, {

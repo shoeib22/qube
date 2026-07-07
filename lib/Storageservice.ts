@@ -1,7 +1,8 @@
 // lib/storageService.ts — Xerovolt Custom Icon Upload & BW Processing
 
-import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
-import { getFirebaseStorage, ICONS_STORAGE_PATH, XEROVOLT_APP_ID } from "./firebase";
+import { supabase } from "./supabase";
+
+const ICONS_BUCKET = "user-icons";
 
 /**
  * Apply strict black-and-white threshold to an image canvas.
@@ -105,7 +106,7 @@ export function processUploadedFile(file: File): Promise<string> {
 }
 
 /**
- * Upload processed icon to Firebase Storage
+ * Upload processed icon to Supabase Storage (user-icons bucket, owner-only per RLS)
  */
 export async function uploadCustomIcon(
   userId: string,
@@ -114,10 +115,9 @@ export async function uploadCustomIcon(
   processedDataUrl: string
 ): Promise<string> {
   try {
-    const storage = getFirebaseStorage();
-
-    const path = `${ICONS_STORAGE_PATH(XEROVOLT_APP_ID)}/${userId}/${iconId}`;
-    const storageRef = ref(storage, path);
+    const path = `${userId}/${iconId}`;
+    const contentType =
+      file.type === "image/svg+xml" ? "image/svg+xml" : "image/png";
 
     // ✅ Convert data URL → blob safely
     const response = await fetch(processedDataUrl);
@@ -127,12 +127,17 @@ export async function uploadCustomIcon(
 
     const blob = await response.blob();
 
-    await uploadBytes(storageRef, blob, {
-      contentType:
-        file.type === "image/svg+xml" ? "image/svg+xml" : "image/png",
-    });
+    const { error } = await supabase.storage
+      .from(ICONS_BUCKET)
+      .upload(path, blob, { contentType, upsert: true });
+    if (error) throw error;
 
-    return await getDownloadURL(storageRef);
+    const { data, error: signedError } = await supabase.storage
+      .from(ICONS_BUCKET)
+      .createSignedUrl(path, 60 * 60);
+    if (signedError) throw signedError;
+
+    return data.signedUrl;
   } catch (error) {
     console.error("Upload failed:", error);
     throw error;
@@ -140,19 +145,16 @@ export async function uploadCustomIcon(
 }
 
 /**
- * Delete icon from Firebase Storage
+ * Delete icon from Supabase Storage
  */
 export async function deleteCustomIcon(
   userId: string,
   iconId: string
 ): Promise<void> {
   try {
-    const storage = getFirebaseStorage();
-
-    const path = `${ICONS_STORAGE_PATH(XEROVOLT_APP_ID)}/${userId}/${iconId}`;
-    const storageRef = ref(storage, path);
-
-    await deleteObject(storageRef);
+    const path = `${userId}/${iconId}`;
+    const { error } = await supabase.storage.from(ICONS_BUCKET).remove([path]);
+    if (error) throw error;
   } catch (error) {
     console.error("Delete failed:", error);
     throw error;

@@ -19,7 +19,7 @@ interface Config {
   technology: string;
   qty: number;
   deviceId: string | null;
-  savedAt: { _seconds: number } | null;
+  savedAt: string | null;
 }
 
 interface Device {
@@ -71,7 +71,7 @@ export default function AdminConfigsPage() {
   };
 
   const formatDate = (ts: Config["savedAt"]) =>
-    ts?._seconds ? new Date(ts._seconds * 1000).toLocaleDateString() : "—";
+    ts ? new Date(ts).toLocaleDateString() : "—";
 
   return (
     <div className="flex gap-6">

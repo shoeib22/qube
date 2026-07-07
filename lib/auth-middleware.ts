@@ -1,8 +1,5 @@
 import { NextRequest } from 'next/server';
-import admin from '@/lib/firebaseAdmin';
-// 1. Import modular service getters
-import { getAuth } from 'firebase-admin/auth';
-import { getFirestore } from 'firebase-admin/firestore';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
 
 export interface AuthUser {
     uid: string;
@@ -11,7 +8,8 @@ export interface AuthUser {
 }
 
 /**
- * Verifies the authentication token from the request
+ * Verifies the Supabase access token from the request and resolves the
+ * caller's role from `profiles` — the single source of truth for role.
  */
 export async function verifyAuth(request: NextRequest): Promise<AuthUser | null> {
     try {
@@ -22,26 +20,19 @@ export async function verifyAuth(request: NextRequest): Promise<AuthUser | null>
 
         const token = authHeader.split('Bearer ')[1];
 
-        // 2. Use modular getAuth(admin) instead of admin.auth()
-        const auth = getAuth(admin);
-        const decodedToken = await auth.verifyIdToken(token);
+        const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+        if (error || !user) return null;
 
-        let role = decodedToken.role as string;
-
-        // 3. Use modular getFirestore(admin) targeting 'qube-tech'
-        if (!role) {
-            const db = getFirestore(admin, 'qube-tech');
-            const userDoc = await db.collection('users')
-                .doc(decodedToken.uid)
-                .get();
-
-            role = userDoc.exists ? userDoc.data()?.role : 'customer';
-        }
+        const { data: profile } = await supabaseAdmin
+            .from('customer_profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single();
 
         return {
-            uid: decodedToken.uid,
-            email: decodedToken.email || '',
-            role: role || 'customer'
+            uid: user.id,
+            email: user.email || '',
+            role: profile?.role || 'customer'
         };
     } catch (error) {
         console.error('Auth verification error:', error);

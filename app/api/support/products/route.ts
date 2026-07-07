@@ -1,39 +1,24 @@
-import { db, storage } from '@/lib/firebaseAdmin';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
 
 export async function GET() {
-  if (!db) {
-    return Response.json({ success: false, error: 'Firebase not initialized.' }, { status: 500 });
+  const { data: products, error } = await supabaseAdmin
+    .from('products')
+    .select('*')
+    .eq('is_active', true);
+
+  if (error) {
+    return Response.json({ success: false, error: error.message }, { status: 500 });
   }
 
-  const snapshot = await db.collection('products').where('isActive', '==', true).get();
-
-  const products = await Promise.all(snapshot.docs.map(async (doc) => {
-    const data = doc.data();
-    let imageUrl: string | null = data.imageUrl || null;
-
-    if (data.image && !imageUrl && storage) {
-      try {
-        const bucket = storage.bucket();
-        const file = bucket.file(data.image);
-        const [url] = await file.getSignedUrl({
-          version: 'v4',
-          action: 'read',
-          expires: Date.now() + 60 * 60 * 1000,
-        });
-        imageUrl = url;
-      } catch {
-        imageUrl = null;
-      }
-    }
-
-    return {
-      id: doc.id,
-      name: (data.name as string) || 'Unnamed Product',
-      category: (data.category as string) || 'General',
-      serialPrefix: (data.serialPrefix as string) || null,
-      imageUrl,
-    };
+  const mapped = (products ?? []).map((p) => ({
+    id: p.id,
+    name: p.name || 'Unnamed Product',
+    category: p.category || 'General',
+    serialPrefix: p.serial_prefix || null,
+    imageUrl: p.image_path
+      ? supabaseAdmin.storage.from('product-images').getPublicUrl(p.image_path).data.publicUrl
+      : null,
   }));
 
-  return Response.json({ success: true, products });
+  return Response.json({ success: true, products: mapped });
 }

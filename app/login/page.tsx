@@ -4,8 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../lib/firebase';
+import { supabase } from '../../lib/supabase';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -20,21 +19,17 @@ export default function LoginPage() {
     setError('');
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      if (signInError) throw signInError;
       console.log("Authentication successful:", { email });
       router.push('/');
     } catch (err) {
       console.error("Login failed", err);
-      // Map firebase error codes to user friendly messages
-      const code = (err as { code?: string }).code;
-      if (code === 'auth/invalid-credential') {
+      const message = err instanceof Error ? err.message : '';
+      if (message.toLowerCase().includes('invalid login credentials')) {
         setError("Invalid email or password.");
-      } else if (code === 'auth/user-not-found') {
-        setError("No account found with this email.");
-      } else if (code === 'auth/wrong-password') {
-        setError("Incorrect password.");
       } else {
-        setError("Failed to login. Please try again.");
+        setError(message || "Failed to login. Please try again.");
       }
     } finally {
       setIsLoading(false);

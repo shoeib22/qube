@@ -1,45 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/auth-middleware';
-import { db, storage } from '@/lib/firebaseAdmin';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
 
 export async function GET(request: NextRequest) {
   const authResult = await requireAdmin(request);
   if (authResult instanceof Response) return authResult;
 
-  if (!db || !storage) {
-    return NextResponse.json({ success: false, error: 'Firebase not initialized' }, { status: 503 });
+  const { data: products, error } = await supabaseAdmin.from('products').select('*');
+
+  if (error) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 
-  const snapshot = await db.collection('products').get();
-
-  const products = await Promise.all(snapshot.docs.map(async (doc) => {
-    const data = doc.data();
-    let imageUrl = data.imageUrl || null;
-
-    if (data.image && !imageUrl) {
-      try {
-        const file = storage.bucket().file(data.image);
-        const [url] = await file.getSignedUrl({
-          version: 'v4',
-          action: 'read',
-          expires: Date.now() + 60 * 60 * 1000,
-        });
-        imageUrl = url;
-      } catch {
-        // fall through — imageUrl stays null
-      }
-    }
-
-    return {
-      id: doc.id,
-      name: data.name || 'Unnamed Product',
-      category: data.category || 'General',
-      price: Number(data.price) || 0,
-      isActive: data.isActive ?? true,
-      image: data.image || '',
-      imageUrl: imageUrl || '',
-    };
+  const mapped = (products ?? []).map((p) => ({
+    id: p.id,
+    name: p.name || 'Unnamed Product',
+    category: p.category || 'General',
+    price: Number(p.price) || 0,
+    isActive: p.is_active ?? true,
+    image: p.image_path || '',
+    imageUrl: p.image_path
+      ? supabaseAdmin.storage.from('product-images').getPublicUrl(p.image_path).data.publicUrl
+      : '',
   }));
 
-  return NextResponse.json({ success: true, products });
+  return NextResponse.json({ success: true, products: mapped });
 }

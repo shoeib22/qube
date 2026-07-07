@@ -1,8 +1,6 @@
 import { NextRequest } from 'next/server';
 import { requireAdmin } from '@/lib/auth-middleware';
-import { db } from '@/lib/firebaseAdmin';
-import adminApp from '@/lib/firebaseAdmin';
-import { getStorage } from 'firebase-admin/storage';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
 
 export async function DELETE(
   request: NextRequest,
@@ -11,24 +9,26 @@ export async function DELETE(
   const authResult = await requireAdmin(request);
   if (authResult instanceof Response) return authResult;
 
-  if (!db) return Response.json({ error: 'Database unavailable' }, { status: 503 });
-
   const { docId } = await params;
-  const docRef = db.collection('productDocuments').doc(docId);
-  const doc = await docRef.get();
 
-  if (!doc.exists) return Response.json({ error: 'Document not found' }, { status: 404 });
+  const { data: doc, error: fetchError } = await supabaseAdmin
+    .from('product_documents')
+    .select('storage_path')
+    .eq('id', docId)
+    .single();
 
-  const { storagePath } = doc.data() as { storagePath: string };
-  const bucket = getStorage(adminApp).bucket('cube-8c773.firebasestorage.app');
+  if (fetchError || !doc) return Response.json({ error: 'Document not found' }, { status: 404 });
 
-  try {
-    await bucket.file(storagePath).delete();
-  } catch (err) {
-    console.error('Failed to delete storage file, continuing to remove Firestore doc:', err);
+  const { error: storageError } = await supabaseAdmin.storage
+    .from('product-documents')
+    .remove([doc.storage_path]);
+
+  if (storageError) {
+    console.error('Failed to delete storage file, continuing to remove document row:', storageError);
   }
 
-  await docRef.delete();
+  const { error } = await supabaseAdmin.from('product_documents').delete().eq('id', docId);
+  if (error) return Response.json({ error: error.message }, { status: 500 });
 
   return Response.json({ ok: true });
 }

@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPhonePeConfig, generateStatusChecksum } from "@/lib/phonepe";
-import admin from "@/lib/firebaseAdmin";
-// 1. Import modular Firestore services
-import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
 
 /**
- * POST /api/payments/status
- * VERIFY: Checks transaction status with PhonePe and updates 'qube-tech' DB.
+ * POST /api/payment/phonepe/verify
+ * VERIFY: Checks transaction status with PhonePe and updates the order.
  */
 export async function POST(req: NextRequest) {
     try {
@@ -42,35 +40,35 @@ export async function POST(req: NextRequest) {
             finalStatus = 'FAILED';
         }
 
-        // 3. Update Order in 'qube-tech' DB
+        // 3. Update Order
         try {
-            // Use modular syntax and target qube-tech
-            const db = getFirestore(admin, 'qube-tech');
-            const ordersRef = db.collection('orders');
-            const snapshot = await ordersRef.where('transactionId', '==', transactionId).get();
+            const { data: order, error: fetchError } = await supabaseAdmin
+                .from('orders')
+                .select('id, status')
+                .eq('transaction_id', transactionId)
+                .single();
 
-            if (!snapshot.empty) {
-                const orderDoc = snapshot.docs[0];
-                const currentData = orderDoc.data();
-
-                // 🛡️ Safeguard: Don't overwrite SUCCESS status with a PENDING check
-                if (currentData.status !== 'SUCCESS') {
-                    await orderDoc.ref.update({
-                        status: finalStatus,
-                        paymentDetails: data.data || {},
-                        // Use modular FieldValue syntax
-                        updatedAt: FieldValue.serverTimestamp()
-                    });
-                }
-
-                return NextResponse.json({
-                    success: finalStatus === 'SUCCESS',
-                    status: finalStatus,
-                    orderId: orderDoc.id
-                });
-            } else {
+            if (fetchError || !order) {
                 return NextResponse.json({ error: "Order not found" }, { status: 404 });
             }
+
+            // 🛡️ Safeguard: Don't overwrite SUCCESS status with a PENDING check
+            if (order.status !== 'SUCCESS') {
+                await supabaseAdmin
+                    .from('orders')
+                    .update({
+                        status: finalStatus,
+                        payment_details: data.data || {},
+                        updated_at: new Date().toISOString(),
+                    })
+                    .eq('id', order.id);
+            }
+
+            return NextResponse.json({
+                success: finalStatus === 'SUCCESS',
+                status: finalStatus,
+                orderId: order.id
+            });
         } catch (dbError) {
             console.error("❌ Database update failed:", dbError);
             return NextResponse.json({

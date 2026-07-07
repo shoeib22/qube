@@ -1,35 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
-import admin from '@/lib/firebaseAdmin';
-import { getAuth } from 'firebase-admin/auth';
-import { getFirestore } from 'firebase-admin/firestore';
-
-async function isAdmin(request: Request) {
-    try {
-        const authHeader = request.headers.get('Authorization');
-        if (!authHeader?.startsWith('Bearer ')) return false;
-        const token = authHeader.split('Bearer ')[1];
-        
-        // Use modular getAuth
-        const decodedToken = await getAuth(admin).verifyIdToken(token);
-        return decodedToken.role === 'admin';
-    } catch {
-        return false;
-    }
-}
+import { requireAdmin } from '@/lib/auth-middleware';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
 
 export async function GET(request: NextRequest) {
+    const authResult = await requireAdmin(request);
+    if (authResult instanceof Response) return authResult;
+
     try {
-        if (!await isAdmin(request)) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-        }
+        const { data, error } = await supabaseAdmin
+            .from('customer_profiles')
+            .select('id, email, first_name, last_name, role');
 
-        // Target 'qube-tech' specifically
-        const db = getFirestore(admin, 'qube-tech');
-        const snapshot = await db.collection('users').get();
+        if (error) throw error;
 
-        const users = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
+        const users = (data ?? []).map((u) => ({
+            id: u.id,
+            email: u.email,
+            firstName: u.first_name,
+            lastName: u.last_name,
+            role: u.role,
         }));
 
         return NextResponse.json({ users });
@@ -39,22 +28,22 @@ export async function GET(request: NextRequest) {
     }
 }
 
-export async function PUT(request: Request) {
-    try {
-        if (!await isAdmin(request)) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-        }
+export async function PUT(request: NextRequest) {
+    const authResult = await requireAdmin(request);
+    if (authResult instanceof Response) return authResult;
 
+    try {
         const { userId, role } = await request.json();
         if (!userId || !role) {
             return NextResponse.json({ error: 'Missing userId or role' }, { status: 400 });
         }
 
-        const auth = getAuth(admin);
-        const db = getFirestore(admin, 'qube-tech');
+        const { error } = await supabaseAdmin
+            .from('customer_profiles')
+            .update({ role })
+            .eq('id', userId);
 
-        await auth.setCustomUserClaims(userId, { role });
-        await db.collection('users').doc(userId).update({ role });
+        if (error) throw error;
 
         return NextResponse.json({ success: true, message: `User role updated to ${role}` });
     } catch (error) {

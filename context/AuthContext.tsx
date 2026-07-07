@@ -1,13 +1,21 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { User, onIdTokenChanged, signOut } from "firebase/auth"; // Changed to onIdTokenChanged
-import { auth } from "../lib/firebase"; 
-import { getUserRole } from "../lib/getUserRole"; 
+import type { Session } from "@supabase/supabase-js";
+import { supabase } from "../lib/supabase";
 import Cookies from "js-cookie"; // Import js-cookie
 
+// Firebase-compatible shape so existing consumers (user.uid, user.getIdToken(),
+// user.displayName) keep working unchanged after the Supabase migration.
+export interface AppUser {
+    uid: string;
+    email: string;
+    displayName: string | null;
+    getIdToken: () => Promise<string>;
+}
+
 interface AuthContextType {
-    user: User | null;
+    user: AppUser | null;
     role: string | null;
     loading: boolean;
     logout: () => Promise<void>;
@@ -20,61 +28,71 @@ const AuthContext = createContext<AuthContextType>({
     logout: async () => { },
 });
 
+const getIdToken = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    return session?.access_token ?? "";
+};
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<AppUser | null>(null);
     const [role, setRole] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // onIdTokenChanged triggers on login, logout, AND automatic token refreshes
-        const unsubscribe = onIdTokenChanged(auth, async (currentUser) => {
-            setLoading(true);
+        let active = true;
 
-            if (currentUser) {
-                try {
-                    setUser(currentUser);
-
-                    // --- NEW: Store the token in a cookie for Server Components ---
-                    // The token lasts 1 hour, so we set the cookie to expire in 1/24 of a day
-                    const token = await currentUser.getIdToken();
-                    Cookies.set('token', token, { expires: 1/24, path: '/' });
-
-                    // 1. Try to get role from Custom Claims
-                    const tokenResult = await currentUser.getIdTokenResult();
-                    let userRole = tokenResult.claims.role as string;
-
-                    // 2. If no custom claim, fallback to Firestore
-                    if (!userRole) {
-                        console.warn("No role in custom claims, fetching from Firestore...");
-                        const firestoreRole = await getUserRole(currentUser.uid);
-                        userRole = firestoreRole || "customer"; 
-                    }
-
-                    setRole(userRole);
-                } catch (error) {
-                    console.error("Failed to fetch user role or token:", error);
-                    setRole(null);
-                }
-            } else {
-                // User is logged out
+        const applySession = async (session: Session | null) => {
+            if (!session?.user) {
+                if (!active) return;
                 setUser(null);
                 setRole(null);
-                
-                // --- NEW: Clear the cookie when logged out ---
                 Cookies.remove('token', { path: '/' });
+                setLoading(false);
+                return;
             }
 
+            // Store the access token in a cookie for Server Components
+            Cookies.set('token', session.access_token, { expires: 1 / 24, path: '/' });
+
+            const { data: profile } = await supabase
+                .from("customer_profiles")
+                .select("role, first_name, last_name")
+                .eq("id", session.user.id)
+                .single();
+
+            if (!active) return;
+
+            const displayName = profile
+                ? [profile.first_name, profile.last_name].filter(Boolean).join(" ") || null
+                : null;
+
+            setUser({
+                uid: session.user.id,
+                email: session.user.email ?? "",
+                displayName,
+                getIdToken,
+            });
+            setRole(profile?.role ?? "customer");
             setLoading(false);
+        };
+
+        // onAuthStateChange fires immediately with the current session on
+        // subscribe, then again on every login/logout/token refresh.
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setLoading(true);
+            applySession(session);
         });
 
-        return () => unsubscribe();
+        return () => {
+            active = false;
+            subscription.unsubscribe();
+        };
     }, []);
 
     const logout = async () => {
         try {
-            await signOut(auth);
-            // Explicitly remove the cookie here as a fallback
-            Cookies.remove('token', { path: '/' }); 
+            await supabase.auth.signOut();
+            Cookies.remove('token', { path: '/' });
         } catch (error) {
             console.error("Logout failed", error);
         }

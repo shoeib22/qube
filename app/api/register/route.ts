@@ -1,57 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
-import admin from '@/lib/firebaseAdmin';
-// 1. Import modular service getters
-import { getAuth } from 'firebase-admin/auth';
-import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
 
 /**
- * POST /api/auth/register
- * PUBLIC: Creates a new user record and Firestore profile.
+ * POST /api/register
+ * PUBLIC: Creates a new Supabase Auth user. The on_auth_user_created trigger
+ * creates the matching `profiles` row (role defaults to 'customer').
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { email, password, firstName, lastName } = body;
 
-    // 2. Initialize modular services
-    const auth = getAuth(admin);
-    const db = getFirestore(admin, 'qube-tech'); // Specifically target your DB instance
-
-    // 3. Create user in Firebase Authentication
-    const userRecord = await auth.createUser({
+    const { data, error } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
-      displayName: `${firstName} ${lastName}`,
+      email_confirm: true,
+      user_metadata: { first_name: firstName, last_name: lastName },
     });
 
-    // 4. Assign default 'customer' role via Custom Claims
-    await auth.setCustomUserClaims(userRecord.uid, { role: 'customer' });
+    if (error) throw error;
 
-    // 5. Create user document in 'qube-tech' Firestore
-    await db.collection('users').doc(userRecord.uid).set({
-      firstName,
-      lastName,
-      email,
-      role: 'customer',
-      // Use modular FieldValue syntax
-      createdAt: FieldValue.serverTimestamp(),
-      updatedAt: FieldValue.serverTimestamp()
-    });
-
-    console.log(`✅ Successfully created Xerovolt account: ${userRecord.uid}`);
+    console.log(`✅ Successfully created Xerovolt account: ${data.user.id}`);
 
     return NextResponse.json({
       success: true,
-      uid: userRecord.uid
+      uid: data.user.id
     }, { status: 201 });
 
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Internal Server Error';
-    const code = (error as { code?: string }).code;
     console.error("Registration Error:", message);
 
-    // Handle specific Firebase errors (e.g., email already in use)
-    const status = code === 'auth/email-already-exists' ? 400 : 500;
+    const status = message.toLowerCase().includes('already') ? 400 : 500;
     return NextResponse.json({
       error: message
     }, { status });

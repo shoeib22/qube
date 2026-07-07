@@ -21,6 +21,18 @@ const nextConfig = {
         hostname: 'firebasestorage.googleapis.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'xdpjcjphexpqojqudrqc.supabase.co',
+        pathname: '/storage/v1/object/**',
+      },
+      {
+        // Local Supabase Docker stack (supabase start) — dev only.
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '54321',
+        pathname: '/storage/v1/object/**',
+      },
     ],
   },
 }

@@ -2,36 +2,39 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { supabase } from '../../lib/supabase';
 
-export default function ForgotPasswordPage() {
-    const [email, setEmail] = useState('');
+export default function ResetPasswordPage() {
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [status, setStatus] = useState<{ type: 'success' | 'error' | null, message: string }>({ type: null, message: '' });
+    const router = useRouter();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsLoading(true);
         setStatus({ type: null, message: '' });
 
+        if (password !== confirmPassword) {
+            setStatus({ type: 'error', message: "Passwords don't match." });
+            return;
+        }
+
+        setIsLoading(true);
         try {
-            const { error } = await supabase.auth.resetPasswordForEmail(email, {
-                redirectTo: `${window.location.origin}/reset-password`,
-            });
+            // Supabase establishes a recovery session client-side from the
+            // reset-link URL fragment before this page mounts.
+            const { error } = await supabase.auth.updateUser({ password });
             if (error) throw error;
-            setStatus({
-                type: 'success',
-                message: 'Password reset email sent! Check your inbox.'
-            });
-            setEmail(''); // Clear input on success
+
+            setStatus({ type: 'success', message: 'Password updated! Redirecting to login…' });
+            setTimeout(() => router.push('/login'), 1500);
         } catch (err) {
-            console.error("Reset password error", err);
+            console.error("Password update error", err);
             const message = err instanceof Error ? err.message : '';
-            setStatus({
-                type: 'error',
-                message: message || "Failed to send reset email. Please try again."
-            });
+            setStatus({ type: 'error', message: message || 'Failed to update password. Please request a new reset link.' });
         } finally {
             setIsLoading(false);
         }
@@ -39,13 +42,10 @@ export default function ForgotPasswordPage() {
 
     return (
         <div className="relative flex min-h-screen items-center justify-center bg-black font-sans selection:bg-[#f2994a]/30">
-
-            {/* Background depth */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute -left-[5%] -top-[5%] h-[30%] w-[30%] rounded-full bg-[#f2994a] opacity-[0.03] blur-[100px]" />
             </div>
 
-            {/* Navigation */}
             <nav className="absolute right-6 top-6 z-20 sm:right-12 sm:top-12">
                 <Link
                     href="/login"
@@ -55,7 +55,6 @@ export default function ForgotPasswordPage() {
                 </Link>
             </nav>
 
-            {/* Card */}
             <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -64,7 +63,7 @@ export default function ForgotPasswordPage() {
             >
                 <header className="mb-10">
                     <h1 className="text-sm font-light uppercase tracking-[0.5em] text-white/90">
-                        Reset Password
+                        Set New Password
                     </h1>
                     <div className="mt-4 h-[1px] w-8 bg-[#f2994a]" />
 
@@ -78,15 +77,31 @@ export default function ForgotPasswordPage() {
                 <form onSubmit={handleSubmit} className="space-y-10">
                     <div className="group relative">
                         <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-gray-500 transition-colors group-focus-within:text-[#f2994a]">
-                            Email Address
+                            New Password
                         </label>
                         <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="email@example.com"
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="••••••••"
                             className="mt-2 w-full border-b border-white/10 bg-transparent py-2 text-sm text-white outline-none transition-all focus:border-[#f2994a] placeholder:text-gray-800"
                             required
+                            minLength={6}
+                        />
+                    </div>
+
+                    <div className="group relative">
+                        <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-gray-500 transition-colors group-focus-within:text-[#f2994a]">
+                            Confirm Password
+                        </label>
+                        <input
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="••••••••"
+                            className="mt-2 w-full border-b border-white/10 bg-transparent py-2 text-sm text-white outline-none transition-all focus:border-[#f2994a] placeholder:text-gray-800"
+                            required
+                            minLength={6}
                         />
                     </div>
 
@@ -96,7 +111,7 @@ export default function ForgotPasswordPage() {
                             disabled={isLoading}
                             className="w-full bg-[#f2994a] py-4 text-[10px] font-black uppercase tracking-[0.3em] text-black transition-all hover:bg-white active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {isLoading ? "Sending..." : "Send Reset Link"}
+                            {isLoading ? "Updating…" : "Update Password"}
                         </button>
                     </div>
                 </form>

@@ -1,22 +1,20 @@
 "use client";
 
-import { signOut } from "firebase/auth";
-import { auth } from "../../lib/firebase";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LogOut, User } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 
 export default function UserMenu() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const user = auth.currentUser;
+  const { user, logout } = useAuth();
 
   if (!user) return null;
 
   async function handleLogout() {
     try {
-      console.log("Logging out user:", user.uid);
-      await signOut(auth);
+      await logout();
       router.push("/login");
     } catch (err) {
       console.error("Logout failed", err);

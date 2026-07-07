@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPhonePeConfig } from "@/lib/phonepe";
-import admin from "@/lib/firebaseAdmin";
-// 1. Import modular Firestore services
-import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import crypto from 'crypto';
 
 export async function POST(req: NextRequest) {
@@ -33,34 +31,37 @@ export async function POST(req: NextRequest) {
         const decodedResponse = JSON.parse(Buffer.from(response, "base64").toString("utf-8"));
         console.log("🔔 Verified PhonePe Callback:", JSON.stringify(decodedResponse, null, 2));
 
-        // 5. Update Order Status in 'qube-tech' DB
+        // 5. Update Order Status
         if (decodedResponse.success && decodedResponse.code === 'PAYMENT_SUCCESS') {
             const merchantTransactionId = decodedResponse.data.merchantTransactionId;
 
             try {
-                // Use modular syntax and target qube-tech
-                const db = getFirestore(admin, 'qube-tech');
-                const ordersRef = db.collection('orders');
-                const snapshot = await ordersRef.where('transactionId', '==', merchantTransactionId).get();
+                const { data: order, error: fetchError } = await supabaseAdmin
+                    .from('orders')
+                    .select('id')
+                    .eq('transaction_id', merchantTransactionId)
+                    .single();
 
-                if (!snapshot.empty) {
-                    const orderDoc = snapshot.docs[0];
-                    await orderDoc.ref.update({
-                        status: 'SUCCESS',
-                        paymentDetails: {
-                            provider: 'PhonePe',
-                            transactionId: decodedResponse.data.transactionId,
-                            amount: decodedResponse.data.amount / 100, // PhonePe works in paise
-                            state: decodedResponse.data.state
-                        },
-                        updatedAt: FieldValue.serverTimestamp()
-                    });
-                    console.log(`✅ Order ${orderDoc.id} processed successfully`);
+                if (!fetchError && order) {
+                    await supabaseAdmin
+                        .from('orders')
+                        .update({
+                            status: 'SUCCESS',
+                            payment_details: {
+                                provider: 'PhonePe',
+                                transactionId: decodedResponse.data.transactionId,
+                                amount: decodedResponse.data.amount / 100, // PhonePe works in paise
+                                state: decodedResponse.data.state
+                            },
+                            updated_at: new Date().toISOString(),
+                        })
+                        .eq('id', order.id);
+                    console.log(`✅ Order ${order.id} processed successfully`);
                 } else {
                     console.warn(`⚠️ Order not found for ID: ${merchantTransactionId}`);
                 }
             } catch (dbError) {
-                console.error("❌ Firestore update failed:", dbError);
+                console.error("❌ Order update failed:", dbError);
             }
         }
 

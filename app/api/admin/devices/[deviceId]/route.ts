@@ -1,24 +1,23 @@
 import { NextRequest } from "next/server";
 import { requireAdmin } from "@/lib/auth-middleware";
-import { db } from "@/lib/firebaseAdmin";
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { deviceId: string } }
+  { params }: { params: Promise<{ deviceId: string }> }
 ) {
   const authResult = await requireAdmin(request);
   if (authResult instanceof Response) return authResult;
 
-  if (!db) return Response.json({ error: "Database unavailable" }, { status: 503 });
-
-  const { deviceId } = params;
+  const { deviceId } = await params;
   const body = await request.json();
   const { friendlyName, room } = body;
 
-  await db.collection("deviceRegistry").doc(deviceId).set(
-    { friendlyName, room },
-    { merge: true }
-  );
+  const { error } = await supabaseAdmin
+    .from("device_registry")
+    .upsert({ id: deviceId, friendly_name: friendlyName, room }, { onConflict: "id" });
+
+  if (error) return Response.json({ error: error.message }, { status: 500 });
 
   return Response.json({ ok: true });
 }

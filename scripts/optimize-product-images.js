@@ -1,10 +1,10 @@
 /**
- * Optimize product images in Firebase Storage:
+ * Optimize product images in Supabase Storage:
  *  - trims empty/uniform padding around the product
  *  - sharpens + upscales (capped, so it doesn't invent fake detail)
  *  - composites the product centered onto a uniform square canvas
  *    (so every product renders at a consistent size/position in its container)
- *  - re-uploads to the same Storage path (same format/extension, no Firestore changes)
+ *  - re-uploads to the same Storage path (same format/extension, no DB changes)
  *
  * Safety:
  *  - Defaults to DRY RUN (reports what it would do, writes nothing).
@@ -22,9 +22,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const admin = require('firebase-admin');
-const { getFirestore } = require('firebase-admin/firestore');
-const { getStorage } = require('firebase-admin/storage');
+const { createClient } = require('@supabase/supabase-js');
 const sharp = require('sharp');
 
 // ---------------------------------------------------------------------------
@@ -81,31 +79,21 @@ function loadEnvLocal() {
 loadEnvLocal();
 
 // ---------------------------------------------------------------------------
-// Firebase Admin init (mirrors lib/firebaseAdmin.ts)
+// Supabase Admin init (mirrors lib/supabaseAdmin.ts)
 // ---------------------------------------------------------------------------
 
-const projectId = process.env.FIREBASE_PROJECT_ID;
-const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-if (!projectId || !clientEmail || !privateKey) {
-  console.error('❌ Missing FIREBASE_PROJECT_ID / FIREBASE_CLIENT_EMAIL / FIREBASE_PRIVATE_KEY in .env.local');
+if (!supabaseUrl || !serviceRoleKey) {
+  console.error('❌ Missing NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY in .env.local');
   process.exit(1);
 }
 
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId,
-      clientEmail,
-      privateKey: privateKey.replace(/\\n/g, '\n'),
-    }),
-    storageBucket: 'cube-8c773.firebasestorage.app',
-  });
-}
-
-const db = getFirestore(admin.app(), 'qube-tech');
-const bucket = getStorage(admin.app()).bucket('cube-8c773.firebasestorage.app');
+const supabase = createClient(supabaseUrl, serviceRoleKey, {
+  auth: { autoRefreshToken: false, persistSession: false },
+});
+const IMAGE_BUCKET = 'product-images';
 
 // ---------------------------------------------------------------------------
 // Image pipeline
@@ -240,28 +228,31 @@ async function main() {
   console.log(`   canvas=adaptive (min-quality=${MIN_QUALITY_PX}px, max=${MAX_CANVAS}px)  padding=${Math.round(PADDING_RATIO * 100)}%  maxUpscale=${MAX_UPSCALE}x  concurrency=${CONCURRENCY}`);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-  const snapshot = await db.collection('products').get();
-  if (snapshot.empty) {
+  const { data: products, error: fetchError } = await supabase.from('products').select('id, image_path');
+  if (fetchError) {
+    console.error(`❌ Failed to fetch products: ${fetchError.message}`);
+    process.exit(1);
+  }
+  if (!products || products.length === 0) {
     console.log('No products found.');
     return;
   }
 
-  let docs = snapshot.docs;
+  let docs = products;
   if (ONLY_IDS) docs = docs.filter((d) => ONLY_IDS.includes(d.id));
   if (LIMIT) docs = docs.slice(0, LIMIT);
 
-  console.log(`Found ${snapshot.size} products in Firestore; processing ${docs.length}.\n`);
+  console.log(`Found ${products.length} products; processing ${docs.length}.\n`);
 
   const summary = { processed: 0, skipped: 0, failed: 0, bytesBefore: 0, bytesAfter: 0 };
 
   await runPool(
     docs,
     async (doc) => {
-      const data = doc.data();
-      const storagePath = typeof data.image === 'string' ? data.image.replace(/^\/+/, '') : '';
+      const storagePath = typeof doc.image_path === 'string' ? doc.image_path.replace(/^\/+/, '') : '';
 
       if (!storagePath) {
-        console.log(`⏭️  [${doc.id}] no "image" path set — skipping`);
+        console.log(`⏭️  [${doc.id}] no image_path set — skipping`);
         summary.skipped++;
         return;
       }
@@ -273,16 +264,15 @@ async function main() {
         return;
       }
 
-      const file = bucket.file(storagePath);
-      const [exists] = await file.exists();
-      if (!exists) {
+      const { data: blob, error: downloadError } = await supabase.storage.from(IMAGE_BUCKET).download(storagePath);
+      if (downloadError || !blob) {
         console.log(`⚠️  [${doc.id}] "${storagePath}" not found in Storage — skipping`);
         summary.skipped++;
         return;
       }
 
       try {
-        const [liveBuffer] = await file.download();
+        const liveBuffer = Buffer.from(await blob.arrayBuffer());
 
         const earliestBackup = findEarliestBackup(storagePath);
         const reprocessing = Boolean(earliestBackup);
@@ -307,10 +297,12 @@ async function main() {
           // Back up whatever is currently live (pre-this-run) before overwriting,
           // so there's always a restore path back to the immediately-prior state.
           const backupPath = backupOriginal(storagePath, liveBuffer);
-          await file.save(processed, {
+          const { error: uploadError } = await supabase.storage.from(IMAGE_BUCKET).upload(storagePath, processed, {
             contentType: `image/${formatFromExt(ext)}`,
-            metadata: { cacheControl: 'public, max-age=31536000, immutable' },
+            cacheControl: '31536000',
+            upsert: true,
           });
+          if (uploadError) throw new Error(uploadError.message);
           console.log(`   💾 backed up pre-run state → ${path.relative(process.cwd(), backupPath)}`);
         }
 

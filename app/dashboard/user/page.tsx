@@ -23,7 +23,7 @@ import RequireAuth from "../../../components/auth/RequireAuth";
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
 import { useAuth } from "../../../context/AuthContext";
-import { auth } from "../../../lib/firebase";
+import { supabase } from "../../../lib/supabase";
 
 interface Address {
   id: string;
@@ -49,7 +49,7 @@ export default function UserAccountPage() {
   const fetchAddresses = useCallback(async () => {
     setLoadingAddresses(true);
     try {
-      const token = await auth.currentUser?.getIdToken();
+      const token = await user?.getIdToken();
       const response = await fetch('/api/addresses', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -77,7 +77,7 @@ export default function UserAccountPage() {
     if (!confirm('Are you sure you want to delete this address?')) return;
 
     try {
-      const token = await auth.currentUser?.getIdToken();
+      const token = await user?.getIdToken();
       const response = await fetch(`/api/addresses/${id}`, {
         method: 'DELETE',
         headers: {
@@ -98,7 +98,7 @@ export default function UserAccountPage() {
 
   const handleSetDefault = async (id: string) => {
     try {
-      const token = await auth.currentUser?.getIdToken();
+      const token = await user?.getIdToken();
       const response = await fetch(`/api/addresses/${id}/set-default`, {
         method: 'PUT',
         headers: {
@@ -289,6 +289,9 @@ export default function UserAccountPage() {
                 </div>
               )}
 
+              {/* TAB: SETTINGS */}
+              {activeTab === "settings" && <AccountSettingsPanel />}
+
             </div>
           </div>
         </main>
@@ -442,6 +445,7 @@ function AddressModal({
   onClose: () => void,
   onSave: () => void
 }) {
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     label: address?.label || '',
     addressLine1: address?.addressLine1 || '',
@@ -460,7 +464,7 @@ function AddressModal({
     setLoading(true);
 
     try {
-      const token = await auth.currentUser?.getIdToken();
+      const token = await user?.getIdToken();
       const url = address ? `/api/addresses/${address.id}` : '/api/addresses';
       const method = address ? 'PUT' : 'POST';
 
@@ -613,6 +617,199 @@ function AddressModal({
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  );
+}
+
+function AccountSettingsPanel() {
+  const { user } = useAuth();
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [loadingProfile, setLoadingProfile] = useState(true);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [profileMessage, setProfileMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
+  const [newEmail, setNewEmail] = useState('');
+  const [savingEmail, setSavingEmail] = useState(false);
+  const [emailMessage, setEmailMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [savingPassword, setSavingPassword] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from('customer_profiles')
+      .select('first_name, last_name')
+      .eq('id', user.uid)
+      .single()
+      .then(({ data }) => {
+        setFirstName(data?.first_name ?? '');
+        setLastName(data?.last_name ?? '');
+        setLoadingProfile(false);
+      });
+  }, [user]);
+
+  const saveProfile = async () => {
+    if (!user) return;
+    setSavingProfile(true);
+    setProfileMessage(null);
+    const { error } = await supabase
+      .from('customer_profiles')
+      .update({ first_name: firstName, last_name: lastName })
+      .eq('id', user.uid);
+    setProfileMessage(
+      error ? { type: 'error', text: error.message } : { type: 'success', text: 'Profile updated.' }
+    );
+    setSavingProfile(false);
+  };
+
+  const saveEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingEmail(true);
+    setEmailMessage(null);
+    const { error } = await supabase.auth.updateUser({ email: newEmail });
+    setEmailMessage(
+      error
+        ? { type: 'error', text: error.message }
+        : { type: 'success', text: 'Check your new inbox to confirm the email change.' }
+    );
+    setSavingEmail(false);
+  };
+
+  const savePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordMessage(null);
+
+    if (newPassword.length < 6) {
+      setPasswordMessage({ type: 'error', text: 'Password must be at least 6 characters.' });
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordMessage({ type: 'error', text: "Passwords don't match." });
+      return;
+    }
+
+    setSavingPassword(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) {
+      setPasswordMessage({ type: 'error', text: error.message });
+    } else {
+      setPasswordMessage({ type: 'success', text: 'Password updated.' });
+      setNewPassword('');
+      setConfirmPassword('');
+    }
+    setSavingPassword(false);
+  };
+
+  return (
+    <div className="space-y-6 animate-fade-in">
+      <div className="bg-[#121212] border border-gray-800 rounded-3xl p-8">
+        <h2 className="text-xl font-bold mb-6">Profile Details</h2>
+        {loadingProfile ? (
+          <p className="text-gray-500 text-sm">Loading…</p>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">First Name</label>
+                <input
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Last Name</label>
+                <input
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+                />
+              </div>
+            </div>
+            {profileMessage && (
+              <p className={`mt-4 text-sm ${profileMessage.type === 'success' ? 'text-green-500' : 'text-red-500'}`}>
+                {profileMessage.text}
+              </p>
+            )}
+            <button
+              onClick={saveProfile}
+              disabled={savingProfile}
+              className="mt-6 px-6 py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors disabled:opacity-50"
+            >
+              {savingProfile ? 'Saving...' : 'Save Changes'}
+            </button>
+          </>
+        )}
+      </div>
+
+      <div className="bg-[#121212] border border-gray-800 rounded-3xl p-8">
+        <h2 className="text-xl font-bold mb-2">Email Address</h2>
+        <p className="text-gray-500 text-sm mb-6">Current: {user?.email}</p>
+        <form onSubmit={saveEmail} className="flex flex-col sm:flex-row gap-4">
+          <input
+            type="email"
+            required
+            value={newEmail}
+            onChange={(e) => setNewEmail(e.target.value)}
+            placeholder="new@email.com"
+            className="flex-1 bg-black border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+          />
+          <button
+            type="submit"
+            disabled={savingEmail}
+            className="px-6 py-3 border border-gray-700 rounded-xl font-bold hover:bg-white/5 transition-colors disabled:opacity-50"
+          >
+            {savingEmail ? 'Sending...' : 'Update Email'}
+          </button>
+        </form>
+        {emailMessage && (
+          <p className={`mt-4 text-sm ${emailMessage.type === 'success' ? 'text-green-500' : 'text-red-500'}`}>
+            {emailMessage.text}
+          </p>
+        )}
+      </div>
+
+      <div className="bg-[#121212] border border-gray-800 rounded-3xl p-8">
+        <h2 className="text-xl font-bold mb-6">Change Password</h2>
+        <form onSubmit={savePassword} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input
+            type="password"
+            required
+            minLength={6}
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            placeholder="New password"
+            className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+          />
+          <input
+            type="password"
+            required
+            minLength={6}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Confirm new password"
+            className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+          />
+          <button
+            type="submit"
+            disabled={savingPassword}
+            className="md:col-span-2 mt-2 w-fit px-6 py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors disabled:opacity-50"
+          >
+            {savingPassword ? 'Updating...' : 'Update Password'}
+          </button>
+        </form>
+        {passwordMessage && (
+          <p className={`mt-4 text-sm ${passwordMessage.type === 'success' ? 'text-green-500' : 'text-red-500'}`}>
+            {passwordMessage.text}
+          </p>
+        )}
       </div>
     </div>
   );

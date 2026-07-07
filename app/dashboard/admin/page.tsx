@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { auth } from '@/lib/firebase';
+import { useAuth } from '@/context/AuthContext';
 
 interface KpiData {
   revenue: number;
@@ -15,10 +15,11 @@ interface Order {
   transactionId?: string;
   amount?: number;
   status?: string;
-  createdAt?: { seconds: number };
+  createdAt?: string;
 }
 
 export default function AdminDashboard() {
+  const { user } = useAuth();
   const [kpiData, setKpiData] = useState<KpiData | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,7 +27,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = await auth.currentUser?.getIdToken();
+        const token = await user?.getIdToken();
         const headers = { 'Authorization': `Bearer ${token}` };
 
         const [kpiRes, ordersRes] = await Promise.all([
@@ -148,8 +149,8 @@ export default function AdminDashboard() {
                       }`}>{order.status}</span>
                     </td>
                     <td className="p-6 text-gray-500">
-                      {order.createdAt?.seconds
-                        ? new Date(order.createdAt.seconds * 1000).toLocaleDateString('en-IN')
+                      {order.createdAt
+                        ? new Date(order.createdAt).toLocaleDateString('en-IN')
                         : '—'}
                     </td>
                   </tr>

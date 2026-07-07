@@ -1,21 +1,17 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/firebaseAdmin";
-import { FieldValue } from "firebase-admin/firestore";
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
 
 export async function POST(req: Request) {
   try {
-    if (!db) {
-      return NextResponse.json({ error: "Database not initialized" }, { status: 500 });
-    }
-
     const body = await req.json();
-    await db.collection("erv_download_leads").add({
+    const { error } = await supabaseAdmin.from("erv_download_leads").insert({
       name: body.name,
       email: body.email,
       contact: body.contact,
       product: "ERV",
-      createdAt: FieldValue.serverTimestamp(),
     });
+
+    if (error) throw error;
 
     return NextResponse.json({ success: true });
   } catch (error) {

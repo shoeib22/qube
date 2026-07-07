@@ -1,42 +1,50 @@
 import { NextRequest, NextResponse } from 'next/server';
-import adminApp from '@/lib/firebaseAdmin'; 
 import { requireAdmin } from '@/lib/auth-middleware';
-import { getFirestore, FieldValue } from 'firebase-admin/firestore';
-import { getStorage } from 'firebase-admin/storage';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
+
+// API body uses the same camelCase field names the old Firestore contract
+// used; translate to the Postgres column names here.
+const FIELD_TO_COLUMN: Record<string, string> = {
+    name: 'name',
+    category: 'category',
+    price: 'price',
+    isActive: 'is_active',
+    image: 'image_path',
+    serialPrefix: 'serial_prefix',
+};
+
+function mapBodyToColumns(body: Record<string, unknown>) {
+    const mapped: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(body)) {
+        const column = FIELD_TO_COLUMN[key];
+        if (column) mapped[column] = value;
+    }
+    return mapped;
+}
 
 export async function GET(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const { id } = await params; 
-        const db = getFirestore(adminApp, 'qube-tech');
-        const doc = await db.collection('products').doc(id).get();
+        const { id } = await params;
+        const { data: product, error } = await supabaseAdmin
+            .from('products')
+            .select('*')
+            .eq('id', id)
+            .single();
 
-        if (!doc.exists) {
+        if (error || !product) {
             return NextResponse.json({ success: false, error: 'Product not found' }, { status: 404 });
         }
 
-        const data = doc.data();
-        const isImageRequest = request.nextUrl.searchParams.get('image') === 'true';
-
-        if (isImageRequest && data?.image) {
-            const bucket = getStorage(adminApp).bucket('cube-8c773.firebasestorage.app');
-            const file = bucket.file(data.image);
-            const [fileBuffer] = await file.download();
-            const [metadata] = await file.getMetadata();
-
-            return new NextResponse(new Uint8Array(fileBuffer), {
-                headers: {
-                    'Content-Type': metadata.contentType || 'image/jpeg',
-                    'Cache-Control': 'public, max-age=31536000, immutable',
-                },
-            });
-        }
+        const imageUrl = product.image_path
+            ? supabaseAdmin.storage.from('product-images').getPublicUrl(product.image_path).data.publicUrl
+            : null;
 
         return NextResponse.json({
             success: true,
-            product: { id: doc.id, ...data, imageUrl: `/api/products/${doc.id}?image=true` },
+            product: { id: product.id, ...product, imageUrl },
         });
     } catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown error';
@@ -54,14 +62,13 @@ export async function PUT(
     try {
         const { id } = await params;
         const body = await request.json();
-        const db = getFirestore(adminApp, 'qube-tech');
-        
-        const updateData: Record<string, unknown> = {
-            ...body,
-            updatedAt: FieldValue.serverTimestamp()
-        };
 
-        await db.collection('products').doc(id).update(updateData);
+        const { error } = await supabaseAdmin
+            .from('products')
+            .update({ ...mapBodyToColumns(body), updated_at: new Date().toISOString() })
+            .eq('id', id);
+
+        if (error) throw error;
         return NextResponse.json({ success: true, message: 'Updated' });
     } catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown error';
@@ -78,11 +85,12 @@ export async function DELETE(
 
     try {
         const { id } = await params;
-        const db = getFirestore(adminApp, 'qube-tech');
-        await db.collection('products').doc(id).update({
-            isActive: false,
-            updatedAt: FieldValue.serverTimestamp()
-        });
+        const { error } = await supabaseAdmin
+            .from('products')
+            .update({ is_active: false, updated_at: new Date().toISOString() })
+            .eq('id', id);
+
+        if (error) throw error;
         return NextResponse.json({ success: true, message: 'Deleted' });
     } catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown error';

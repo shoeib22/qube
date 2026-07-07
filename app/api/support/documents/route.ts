@@ -1,41 +1,31 @@
 import { NextRequest } from 'next/server';
-import { db } from '@/lib/firebaseAdmin';
-import adminApp from '@/lib/firebaseAdmin';
-import { getStorage } from 'firebase-admin/storage';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
 
 export async function GET(request: NextRequest) {
-  if (!db) return Response.json({ error: 'Database unavailable' }, { status: 503 });
-
   const productId = request.nextUrl.searchParams.get('productId');
   if (!productId) return Response.json({ error: 'productId required' }, { status: 400 });
 
-  const snapshot = await db.collection('productDocuments')
-    .where('productId', '==', productId)
-    .get();
+  const { data, error } = await supabaseAdmin
+    .from('product_documents')
+    .select('id, category, title, file_type, file_size, storage_path')
+    .eq('product_id', productId);
 
-  const bucket = getStorage(adminApp).bucket('cube-8c773.firebasestorage.app');
+  if (error) return Response.json({ error: error.message }, { status: 500 });
 
-  const documents = await Promise.all(snapshot.docs.map(async (doc) => {
-    const data = doc.data();
-    let downloadUrl: string | null = null;
-    try {
-      const [url] = await bucket.file(data.storagePath).getSignedUrl({
-        version: 'v4',
-        action: 'read',
-        expires: Date.now() + 60 * 60 * 1000,
-      });
-      downloadUrl = url;
-    } catch (err) {
-      console.error(`Signed URL failed for document ${doc.id}:`, err);
-    }
+  const documents = await Promise.all((data ?? []).map(async (d) => {
+    const { data: signed, error: signError } = await supabaseAdmin.storage
+      .from('product-documents')
+      .createSignedUrl(d.storage_path, 60 * 60);
+
+    if (signError) console.error(`Signed URL failed for document ${d.id}:`, signError);
 
     return {
-      id: doc.id,
-      category: data.category,
-      title: data.title,
-      fileType: data.fileType,
-      fileSize: data.fileSize,
-      downloadUrl,
+      id: d.id,
+      category: d.category,
+      title: d.title,
+      fileType: d.file_type,
+      fileSize: d.file_size,
+      downloadUrl: signed?.signedUrl ?? null,
     };
   }));
 
