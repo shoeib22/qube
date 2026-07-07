@@ -61,7 +61,32 @@ export async function PUT(
 
     try {
         const { id } = await params;
-        const body = await request.json();
+        const contentType = request.headers.get('content-type') || '';
+        let body: Record<string, unknown> = {};
+
+        if (contentType.includes('multipart/form-data')) {
+            const formData = await request.formData();
+            for (const key of ['name', 'category', 'serialPrefix'] as const) {
+                const value = formData.get(key);
+                if (value !== null) body[key] = value;
+            }
+            if (formData.has('price')) body.price = Number(formData.get('price'));
+            if (formData.has('isActive')) body.isActive = formData.get('isActive') === 'true';
+
+            const imageFile = formData.get('image');
+            if (imageFile instanceof File && imageFile.size > 0) {
+                const ext = (imageFile.name.split('.').pop() || 'png').toLowerCase();
+                const path = `products/${id}.${ext}`;
+                const buffer = Buffer.from(await imageFile.arrayBuffer());
+                const { error: uploadError } = await supabaseAdmin.storage
+                    .from('product-images')
+                    .upload(path, buffer, { contentType: imageFile.type || 'image/png', upsert: true });
+                if (uploadError) return NextResponse.json({ error: uploadError.message }, { status: 500 });
+                body.image = path;
+            }
+        } else {
+            body = await request.json();
+        }
 
         const { error } = await supabaseAdmin
             .from('products')
