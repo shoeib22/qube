@@ -10,11 +10,17 @@ runConfig:
 
 # Environment variables and secrets.
 env:
-  - variable: FIREBASE_PROJECT_ID
-    value: "cube-8c773"
-  - variable: FIREBASE_CLIENT_EMAIL
-    value: "firebase-adminsdk-fbsvc@cube-8c773.iam.gserviceaccount.com"
-  
-  # Point this to your new B64 secret
-  - variable: FIREBASE_PRIVATE_KEY_B64
-    secret: FIREBASE_PRIVATE_KEY_B64
+  - variable: NEXT_PUBLIC_SUPABASE_URL
+    value: "https://xdpjcjphexpqojqudrqc.supabase.co"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_SUPABASE_ANON_KEY
+    value: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhkcGpjanBoZXhwcW9qcXVkcnFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTgwNjMsImV4cCI6MjA5NzE5NDA2M30.Hv6dqkNHw4fNoYLyJ2MkZ9zo2jIwzDXGuE320P_z0ps"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: SUPABASE_SERVICE_ROLE_KEY
+    secret: SUPABASE_SERVICE_ROLE_KEY
+    availability:
+      - RUNTIME
