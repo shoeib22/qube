@@ -14,6 +14,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'User Directory', href: '/dashboard/admin/users', icon: '👥' },
     { name: 'Devices', href: '/dashboard/admin/devices', icon: '🔌' },
     { name: 'Panel Configs', href: '/dashboard/admin/configs', icon: '🎨' },
+    { name: 'Support Documents', href: '/dashboard/admin/documents', icon: '📄' },
     { name: 'System Settings', href: '/dashboard/admin/settings', icon: '⚙️' },
   ];
 
