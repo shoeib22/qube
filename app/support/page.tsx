@@ -1,126 +1,98 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
-const PRODUCTS = [
-  {
-    id: "edge",
-    label: "Edge Series",
-    icon: "⚡",
-    color: "#155cfc",
-    downloads: [
-      { name: "Installation Guide", type: "PDF", size: "2.4 MB" },
-      { name: "User Manual", type: "PDF", size: "5.1 MB" },
-      { name: "Spec Sheet", type: "PDF", size: "1.2 MB" },
-      { name: "App Setup Guide", type: "PDF", size: "3.8 MB" },
-    ],
-    specs: [
-      { label: "Input Voltage", value: "90–265V AC, 50/60Hz" },
-      { label: "Load per Switch", value: "Up to 1200W" },
-      { label: "Communication", value: "Tuya Wi-Fi / Zigbee / RF Remote" },
-      { label: "Operating Temp", value: "0°C – 55°C" },
-      { label: "IP Rating", value: "IP20" },
-      { label: "Material", value: "Toughened Glass / Acrylic" },
-    ],
-    faqs: [
-      { q: "Does Edge Series require a neutral wire?", a: "Most configurations require a neutral wire. Please refer to the wiring diagram in the Installation Guide for your specific accessory configuration." },
-      { q: "Which apps are supported?", a: "The Tuya variant works with the Tuya Smart app and is compatible with Alexa, Google Home, and Apple HomeKit via integrations." },
-      { q: "Can I mix accessories on one panel?", a: "Yes. Each panel can hold accessories from 2M, 4M, or 6M modular sizes based on the selected panel frame." },
-      { q: "How do I reset a switch?", a: "Press and hold any button for 5 seconds until the LED blinks rapidly, then release. The device will reset to factory settings." },
-    ],
-  },
-  {
-    id: "touch",
-    label: "Touch Panel",
-    icon: "👆",
-    color: "#7c3aed",
-    downloads: [
-      { name: "Touch Panel Manual", type: "PDF", size: "4.2 MB" },
-      { name: "Wiring Diagram", type: "PDF", size: "1.8 MB" },
-    ],
-    specs: [
-      { label: "Touch Technology", value: "Capacitive Multi-touch" },
-      { label: "Display", value: '4" TFT LCD' },
-      { label: "Input Voltage", value: "100–240V AC" },
-      { label: "Connectivity", value: "Wi-Fi 2.4GHz" },
-    ],
-    faqs: [
-      { q: "Can I customize the touch panel display?", a: "Yes, through the app you can configure labels, icons, and color themes for the touch panel display." },
-      { q: "Does the touch panel work offline?", a: "Local scene controls function without internet. Cloud features require connectivity." },
-    ],
-  },
-  {
-    id: "color",
-    label: "Color Series",
-    icon: "🎨",
-    color: "#059669",
-    downloads: [
-      { name: "Color Series Manual", type: "PDF", size: "3.5 MB" },
-      { name: "RGBW Controller Guide", type: "PDF", size: "2.1 MB" },
-    ],
-    specs: [
-      { label: "Output", value: "RGBW / Tunable White" },
-      { label: "Driver Type", value: "Constant Voltage 12V/24V" },
-      { label: "Max Load", value: "96W (12V) / 192W (24V)" },
-      { label: "Dimming Method", value: "PWM" },
-    ],
-    faqs: [
-      { q: "What LED strips are compatible?", a: "12V or 24V RGB, RGBW, and tunable white LED strips are supported. Ensure amperage stays within the controller's rating." },
-    ],
-  },
-  {
-    id: "royal-edge",
-    label: "Royal Edge",
-    icon: "👑",
-    color: "#c8a951",
-    downloads: [
-      { name: "Royal Edge Catalog", type: "PDF", size: "8.2 MB" },
-      { name: "Installation Guide", type: "PDF", size: "3.1 MB" },
-    ],
-    specs: [
-      { label: "Finish", value: "Brushed Gold / Rose Gold / Chrome" },
-      { label: "Material", value: "Aerospace-grade Acrylic" },
-      { label: "Backlight", value: "Soft glow LED" },
-      { label: "Load per Switch", value: "Up to 1200W" },
-    ],
-    faqs: [
-      { q: "Is Royal Edge compatible with standard Edge accessories?", a: "Yes. Royal Edge uses the same accessory ecosystem as the Edge Series, allowing full configurability." },
-      { q: "How do I clean the Royal Edge panel?", a: "Use a soft, dry microfiber cloth. Avoid abrasive cleaners or chemical solvents." },
-    ],
-  },
-  {
-    id: "accessories",
-    label: "Accessories",
-    icon: "🔧",
-    color: "#f2994a",
-    downloads: [
-      { name: "Accessories Catalog", type: "PDF", size: "5.7 MB" },
-      { name: "Fan Regulator Guide", type: "PDF", size: "1.4 MB" },
-    ],
-    specs: [
-      { label: "Fan Regulators", value: "4-step / 6-step / Rotary" },
-      { label: "USB Sockets", value: "5V 2.4A / QC 3.0" },
-      { label: "TV/Data Ports", value: "HDMI, RJ45, 3.5mm" },
-      { label: "Compatibility", value: "All Xerovolt panel frames" },
-    ],
-    faqs: [
-      { q: "Can I mix accessories from different brands?", a: "Xerovolt accessories are designed to fit standard modular gang boxes. However, visual consistency is best with Xerovolt-matched accessories." },
-      { q: "Do you offer custom accessories?", a: "Yes, contact our B2B team for custom configurations for large installations." },
-    ],
-  },
-];
+interface SupportProduct {
+  id: string;
+  name: string;
+  category: string;
+  serialPrefix: string | null;
+  imageUrl: string | null;
+}
+
+interface ProductDocument {
+  id: string;
+  category: "manual" | "installGuide" | "specSheet" | "software";
+  title: string;
+  fileType: string;
+  fileSize: number;
+  downloadUrl: string | null;
+}
+
+const CATEGORY_ORDER: ProductDocument["category"][] = ["manual", "installGuide", "specSheet", "software"];
+const CATEGORY_LABELS: Record<ProductDocument["category"], string> = {
+  manual: "Manuals",
+  installGuide: "Install Guides",
+  specSheet: "Spec Sheets",
+  software: "Software",
+};
+
+// Matches serial numbers like "XV-4TP-000123": a prefix (letters/digits/dashes)
+// followed by a dash and a trailing numeric unit number.
+const SERIAL_PATTERN = /^([A-Za-z0-9-]+)-(\d+)$/;
+
+function findMatches(query: string, products: SupportProduct[]): SupportProduct[] {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+
+  const serialMatch = trimmed.match(SERIAL_PATTERN);
+  if (serialMatch) {
+    const prefix = serialMatch[1].toLowerCase();
+    const bySerial = products.filter((p) => p.serialPrefix?.toLowerCase() === prefix);
+    if (bySerial.length > 0) return bySerial;
+  }
+
+  const lower = trimmed.toLowerCase();
+  return products.filter((p) => p.name.toLowerCase().includes(lower));
+}
 
 export default function SupportPage() {
-  const [activeTab, setActiveTab] = useState(PRODUCTS[0].id);
-  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+  const [products, setProducts] = useState<SupportProduct[]>([]);
+  const [query, setQuery] = useState("");
+  const [selected, setSelected] = useState<SupportProduct | null>(null);
+  const [documents, setDocuments] = useState<ProductDocument[]>([]);
+  const [loadingDocs, setLoadingDocs] = useState(false);
+
   const [form, setForm] = useState({ name: "", email: "", product: "", subject: "", message: "" });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const product = PRODUCTS.find(p => p.id === activeTab)!;
+  useEffect(() => {
+    fetch("/api/support/products")
+      .then((res) => res.json())
+      .then((data) => setProducts(data.products ?? []));
+  }, []);
+
+  const selectProduct = useCallback(async (p: SupportProduct) => {
+    setSelected(p);
+    setForm((f) => ({ ...f, product: p.id }));
+    setLoadingDocs(true);
+    const res = await fetch(`/api/support/documents?productId=${p.id}`);
+    const data = await res.json();
+    setDocuments(data.documents ?? []);
+    setLoadingDocs(false);
+  }, []);
+
+  const clearSelection = () => {
+    setSelected(null);
+    setDocuments([]);
+  };
+
+  const matches = useMemo(() => findMatches(query, products), [query, products]);
+
+  useEffect(() => {
+    if (matches.length === 1 && matches[0].id !== selected?.id) {
+      selectProduct(matches[0]);
+    }
+  }, [matches, selected, selectProduct]);
+
+  const groupedDocs = CATEGORY_ORDER
+    .map((category) => ({ category, docs: documents.filter((d) => d.category === category) }))
+    .filter((g) => g.docs.length > 0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -150,106 +122,104 @@ export default function SupportPage() {
     <>
       <Header />
       <main className="min-h-screen bg-white">
-        {/* Hero */}
         <section className="bg-[#155cfc] px-6 py-12 md:py-16 text-center">
           <p className="text-blue-200 text-xs font-bold uppercase tracking-widest mb-3">Support Center</p>
           <h1 className="text-3xl md:text-4xl font-black text-white mb-3">How can we help?</h1>
-          <p className="text-blue-100 max-w-lg mx-auto text-sm">Browse resources by product, download documentation, and submit a support request.</p>
-        </section>
-
-        {/* Product tabs — sticky, scrollable on mobile */}
-        <section className="border-b-2 border-gray-100 bg-white sticky top-0 z-10 shadow-sm">
-          <div className="max-w-5xl mx-auto px-2 sm:px-6">
-            <div className="flex overflow-x-auto gap-0 scrollbar-hide">
-              {PRODUCTS.map(p => (
-                <button
-                  key={p.id}
-                  onClick={() => { setActiveTab(p.id); setExpandedFaq(null); }}
-                  className={`flex items-center gap-1.5 px-3 sm:px-5 py-3.5 text-xs sm:text-sm font-bold whitespace-nowrap border-b-2 transition-colors flex-shrink-0
-                    ${activeTab === p.id
-                      ? "border-[#155cfc] text-[#155cfc] bg-blue-50/50"
-                      : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50"}`}
-                >
-                  <span className="text-base">{p.icon}</span>
-                  <span className="hidden sm:inline">{p.label}</span>
-                  <span className="sm:hidden text-[10px] font-bold">{p.label.split(" ")[0]}</span>
-                </button>
-              ))}
-            </div>
+          <p className="text-blue-100 max-w-lg mx-auto text-sm mb-6">Search by product name or the serial number on your device to find manuals, guides, and software.</p>
+          <div className="max-w-md mx-auto">
+            <input
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                if (selected) clearSelection();
+              }}
+              placeholder='e.g. "4 Touch-Pro" or "XV-4TP-000123"'
+              className="w-full px-5 py-3.5 rounded-xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-300"
+            />
           </div>
         </section>
 
-        {/* Product content */}
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-10 sm:space-y-12">
-          {/* Downloads */}
-          <section>
-            <h2 className="text-base sm:text-lg font-black text-gray-900 mb-4 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-md flex items-center justify-center text-white text-xs font-black flex-shrink-0" style={{ backgroundColor: product.color }}>↓</span>
-              Downloads
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-              {product.downloads.map(dl => (
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
+          {!selected && query.trim() && matches.length === 0 && (
+            <div className="text-center py-10">
+              <p className="text-gray-500 text-sm">{`No products found for "${query}". Try a different name, or submit a request below.`}</p>
+            </div>
+          )}
+
+          {!selected && matches.length > 1 && (
+            <div className="space-y-2">
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">{matches.length} products found</p>
+              {matches.map((p) => (
                 <button
-                  key={dl.name}
-                  className="flex items-center gap-3 p-4 border border-gray-200 rounded-xl hover:border-[#155cfc] hover:shadow-sm transition-all text-left group bg-white"
+                  key={p.id}
+                  onClick={() => selectProduct(p)}
+                  className="w-full flex items-center gap-4 p-4 border border-gray-200 rounded-xl hover:border-[#155cfc] hover:shadow-sm transition-all text-left bg-white"
                 >
-                  <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors" style={{ backgroundColor: `${product.color}18` }}>
-                    <span className="text-sm">📄</span>
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-bold text-gray-900 leading-tight truncate">{dl.name}</p>
-                    <p className="text-[10px] text-gray-400 mt-0.5">{dl.type} · {dl.size}</p>
-                  </div>
+                  {p.imageUrl && (
+                    <div className="relative w-12 h-12 flex-shrink-0">
+                      <Image src={p.imageUrl} alt={p.name} fill className="object-contain" />
+                    </div>
+                  )}
+                  <span className="font-bold text-gray-900 text-sm">{p.name}</span>
                 </button>
               ))}
             </div>
-          </section>
+          )}
 
-          {/* Specifications */}
-          <section>
-            <h2 className="text-base sm:text-lg font-black text-gray-900 mb-4 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-md flex items-center justify-center text-white text-xs font-black flex-shrink-0" style={{ backgroundColor: product.color }}>≡</span>
-              Specifications
-            </h2>
-            <div className="border border-gray-200 rounded-xl overflow-hidden">
-              {product.specs.map((s, i) => (
-                <div key={s.label} className={`flex justify-between items-center px-4 sm:px-5 py-3.5 gap-4 ${i % 2 === 0 ? "bg-gray-50" : "bg-white"} ${i !== 0 ? "border-t border-gray-100" : ""}`}>
-                  <span className="text-sm text-gray-500 font-medium flex-shrink-0">{s.label}</span>
-                  <span className="text-sm font-bold text-gray-900 text-right">{s.value}</span>
-                </div>
-              ))}
-            </div>
-          </section>
+          {selected && (
+            <div>
+              <button onClick={() => { clearSelection(); setQuery(""); }} className="text-xs font-bold text-[#155cfc] hover:underline mb-6">
+                ← Search again
+              </button>
 
-          {/* FAQ */}
-          <section>
-            <h2 className="text-base sm:text-lg font-black text-gray-900 mb-4 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-md flex items-center justify-center text-white text-xs font-black flex-shrink-0" style={{ backgroundColor: product.color }}>?</span>
-              Frequently Asked Questions
-            </h2>
-            <div className="space-y-2">
-              {product.faqs.map((faq, i) => (
-                <div key={i} className="border border-gray-200 rounded-xl overflow-hidden">
-                  <button
-                    onClick={() => setExpandedFaq(expandedFaq === i ? null : i)}
-                    className="w-full flex items-center justify-between px-4 sm:px-5 py-4 text-left hover:bg-gray-50 transition-colors"
-                  >
-                    <span className="font-bold text-gray-900 text-sm pr-4 leading-snug">{faq.q}</span>
-                    <span
-                      className="font-black text-lg transition-transform flex-shrink-0"
-                      style={{ color: product.color, transform: expandedFaq === i ? "rotate(45deg)" : "none" }}
-                    >+</span>
-                  </button>
-                  {expandedFaq === i && (
-                    <div className="px-4 sm:px-5 pb-4 text-sm text-gray-600 leading-relaxed border-t border-gray-100 pt-3">{faq.a}</div>
-                  )}
+              <div className="flex items-center gap-4 mb-8">
+                {selected.imageUrl && (
+                  <div className="relative w-16 h-16 flex-shrink-0 border border-gray-200 rounded-xl overflow-hidden">
+                    <Image src={selected.imageUrl} alt={selected.name} fill className="object-contain" />
+                  </div>
+                )}
+                <div>
+                  <h2 className="text-xl font-black text-gray-900">{selected.name}</h2>
+                  <p className="text-sm text-gray-500">{selected.category}</p>
                 </div>
-              ))}
+              </div>
+
+              {loadingDocs ? (
+                <p className="text-sm text-gray-500">Loading documents…</p>
+              ) : groupedDocs.length === 0 ? (
+                <p className="text-sm text-gray-500">{"No documents available for this product yet. Submit a request below and we'll help directly."}</p>
+              ) : (
+                <div className="space-y-8">
+                  {groupedDocs.map(({ category, docs }) => (
+                    <section key={category}>
+                      <h3 className="text-sm font-black text-gray-900 mb-3">{CATEGORY_LABELS[category]}</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {docs.map((d) => (
+                          <a
+                            key={d.id}
+                            href={d.downloadUrl ?? "#"}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-3 p-4 border border-gray-200 rounded-xl hover:border-[#155cfc] hover:shadow-sm transition-all bg-white"
+                          >
+                            <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+                              <span className="text-sm">📄</span>
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-bold text-gray-900 leading-tight truncate">{d.title}</p>
+                              <p className="text-[10px] text-gray-400 mt-0.5">{d.fileType.toUpperCase()} · {(d.fileSize / 1024).toFixed(0)} KB</p>
+                            </div>
+                          </a>
+                        ))}
+                      </div>
+                    </section>
+                  ))}
+                </div>
+              )}
             </div>
-          </section>
+          )}
         </div>
 
-        {/* Contact / Support Ticket */}
         <section className="bg-gray-50 border-t border-gray-100 py-12 sm:py-16 px-4 sm:px-6">
           <div className="max-w-2xl mx-auto">
             <div className="text-center mb-8">
@@ -266,7 +236,6 @@ export default function SupportPage() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Name + Email — stack on mobile */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Name *</label>
@@ -282,14 +251,13 @@ export default function SupportPage() {
                   </div>
                 </div>
 
-                {/* Product + Subject — stack on mobile */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Product</label>
                     <select value={form.product} onChange={e => setForm(f => ({ ...f, product: e.target.value }))}
                       className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#155cfc] bg-white">
                       <option value="">Select product</option>
-                      {PRODUCTS.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
+                      {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                       <option value="general">General / Other</option>
                     </select>
                   </div>
