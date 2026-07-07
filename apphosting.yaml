@@ -24,3 +24,15 @@ env:
     secret: SUPABASE_SERVICE_ROLE_KEY
     availability:
       - RUNTIME
+  - variable: MQTT_BROKER
+    value: "mqtts://34fab1f54c1540ebb91390eada3500b1.s1.eu.hivemq.cloud:8883"
+    availability:
+      - RUNTIME
+  - variable: MQTT_USERNAME
+    value: "wroom_panel"
+    availability:
+      - RUNTIME
+  - variable: MQTT_PASSWORD
+    secret: MQTT_PASSWORD
+    availability:
+      - RUNTIME
