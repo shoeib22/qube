@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import { Search, FileText, ArrowLeft, CheckCircle2 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -121,46 +122,57 @@ export default function SupportPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-white">
-        <section className="bg-[#155cfc] px-6 py-12 md:py-16 text-center">
-          <p className="text-blue-200 text-xs font-bold uppercase tracking-widest mb-3">Support Center</p>
-          <h1 className="text-3xl md:text-4xl font-black text-white mb-3">How can we help?</h1>
-          <p className="text-blue-100 max-w-lg mx-auto text-sm mb-6">Search by product name or the serial number on your device to find manuals, guides, and software.</p>
-          <div className="max-w-md mx-auto">
-            <input
-              value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-                if (selected) clearSelection();
-              }}
-              placeholder='e.g. "4 Touch-Pro" or "XV-4TP-000123"'
-              className="w-full px-5 py-3.5 rounded-xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-300"
-            />
+      <main className="min-h-screen bg-bg text-text">
+        <section className="relative px-6 pt-40 pb-16 md:pt-48 md:pb-20 text-center overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-brand/10 blur-[120px] rounded-full" />
+          </div>
+          <div className="relative">
+            <span className="eyebrow inline-flex items-center gap-2 justify-center">
+              <span className="h-1.5 w-1.5 rounded-full bg-brand" />
+              Support Center
+            </span>
+            <h1 className="mt-4 text-3xl md:text-5xl font-light tracking-tight text-text">How can we help?</h1>
+            <p className="mt-5 text-muted max-w-lg mx-auto text-sm md:text-base font-light leading-relaxed">
+              Search by product name or the serial number on your device to find manuals, guides, and software.
+            </p>
+            <div className="max-w-md mx-auto mt-8 relative">
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-faint" />
+              <input
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  if (selected) clearSelection();
+                }}
+                placeholder='e.g. "4 Touch-Pro" or "XV-4TP-000123"'
+                className="w-full pl-12 pr-5 py-3.5 rounded-pill text-sm font-medium bg-surface border border-border text-text placeholder:text-faint backdrop-blur-xl focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/30 transition-all"
+              />
+            </div>
           </div>
         </section>
 
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
           {!selected && query.trim() && matches.length === 0 && (
             <div className="text-center py-10">
-              <p className="text-gray-500 text-sm">{`No products found for "${query}". Try a different name, or submit a request below.`}</p>
+              <p className="text-muted text-sm">{`No products found for "${query}". Try a different name, or submit a request below.`}</p>
             </div>
           )}
 
           {!selected && matches.length > 1 && (
             <div className="space-y-2">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">{matches.length} products found</p>
+              <p className="eyebrow mb-3">{matches.length} products found</p>
               {matches.map((p) => (
                 <button
                   key={p.id}
                   onClick={() => selectProduct(p)}
-                  className="w-full flex items-center gap-4 p-4 border border-gray-200 rounded-xl hover:border-[#155cfc] hover:shadow-sm transition-all text-left bg-white"
+                  className="surface surface-hover w-full flex items-center gap-4 p-4 text-left"
                 >
                   {p.imageUrl && (
                     <div className="relative w-12 h-12 flex-shrink-0">
                       <Image src={p.imageUrl} alt={p.name} fill className="object-contain" />
                     </div>
                   )}
-                  <span className="font-bold text-gray-900 text-sm">{p.name}</span>
+                  <span className="font-semibold text-text text-sm">{p.name}</span>
                 </button>
               ))}
             </div>
@@ -168,31 +180,34 @@ export default function SupportPage() {
 
           {selected && (
             <div>
-              <button onClick={() => { clearSelection(); setQuery(""); }} className="text-xs font-bold text-[#155cfc] hover:underline mb-6">
-                ← Search again
+              <button
+                onClick={() => { clearSelection(); setQuery(""); }}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-brand hover:text-brand-strong transition-colors mb-6"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" /> Search again
               </button>
 
               <div className="flex items-center gap-4 mb-8">
                 {selected.imageUrl && (
-                  <div className="relative w-16 h-16 flex-shrink-0 border border-gray-200 rounded-xl overflow-hidden">
+                  <div className="relative w-16 h-16 flex-shrink-0 border border-border rounded-card overflow-hidden bg-surface">
                     <Image src={selected.imageUrl} alt={selected.name} fill className="object-contain" />
                   </div>
                 )}
                 <div>
-                  <h2 className="text-xl font-black text-gray-900">{selected.name}</h2>
-                  <p className="text-sm text-gray-500">{selected.category}</p>
+                  <h2 className="text-xl font-semibold text-text">{selected.name}</h2>
+                  <p className="text-sm text-muted">{selected.category}</p>
                 </div>
               </div>
 
               {loadingDocs ? (
-                <p className="text-sm text-gray-500">Loading documents…</p>
+                <p className="text-sm text-muted">Loading documents…</p>
               ) : groupedDocs.length === 0 ? (
-                <p className="text-sm text-gray-500">{"No documents available for this product yet. Submit a request below and we'll help directly."}</p>
+                <p className="text-sm text-muted">{"No documents available for this product yet. Submit a request below and we'll help directly."}</p>
               ) : (
                 <div className="space-y-8">
                   {groupedDocs.map(({ category, docs }) => (
                     <section key={category}>
-                      <h3 className="text-sm font-black text-gray-900 mb-3">{CATEGORY_LABELS[category]}</h3>
+                      <h3 className="text-sm font-semibold text-text mb-3">{CATEGORY_LABELS[category]}</h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {docs.map((d) => (
                           <a
@@ -200,14 +215,14 @@ export default function SupportPage() {
                             href={d.downloadUrl ?? "#"}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-3 p-4 border border-gray-200 rounded-xl hover:border-[#155cfc] hover:shadow-sm transition-all bg-white"
+                            className="surface surface-hover flex items-center gap-3 p-4"
                           >
-                            <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
-                              <span className="text-sm">📄</span>
+                            <div className="w-9 h-9 rounded-lg bg-brand-soft flex items-center justify-center flex-shrink-0">
+                              <FileText className="w-4 h-4 text-brand" />
                             </div>
                             <div className="min-w-0">
-                              <p className="text-sm font-bold text-gray-900 leading-tight truncate">{d.title}</p>
-                              <p className="text-[10px] text-gray-400 mt-0.5">{d.fileType.toUpperCase()} · {(d.fileSize / 1024).toFixed(0)} KB</p>
+                              <p className="text-sm font-semibold text-text leading-tight truncate">{d.title}</p>
+                              <p className="text-[10px] text-faint mt-0.5">{d.fileType.toUpperCase()} · {(d.fileSize / 1024).toFixed(0)} KB</p>
                             </div>
                           </a>
                         ))}
@@ -220,66 +235,72 @@ export default function SupportPage() {
           )}
         </div>
 
-        <section className="bg-gray-50 border-t border-gray-100 py-12 sm:py-16 px-4 sm:px-6">
+        <section className="border-t border-border py-12 sm:py-16 px-4 sm:px-6">
           <div className="max-w-2xl mx-auto">
             <div className="text-center mb-8">
-              <h2 className="text-xl sm:text-2xl font-black text-gray-900">Still need help?</h2>
-              <p className="text-gray-500 mt-2 text-sm">Submit a support request and our team will get back to you within 24 hours.</p>
+              <span className="eyebrow inline-flex items-center gap-2 justify-center">
+                <span className="h-1.5 w-1.5 rounded-full bg-brand" />
+                Get in touch
+              </span>
+              <h2 className="mt-4 text-xl sm:text-2xl font-light text-text">Still need help?</h2>
+              <p className="text-muted mt-2 text-sm font-light">Submit a support request and our team will get back to you within 24 hours.</p>
             </div>
 
             {submitted ? (
               <div className="text-center py-10">
-                <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">✓</div>
-                <h3 className="font-black text-gray-900 text-lg">Ticket Submitted</h3>
-                <p className="text-gray-500 text-sm mt-2">{"We'll reach out to you soon."}</p>
-                <button onClick={() => setSubmitted(false)} className="mt-4 text-xs text-[#155cfc] font-bold hover:underline">Submit another</button>
+                <div className="w-14 h-14 bg-brand-soft rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle2 className="w-7 h-7 text-brand" />
+                </div>
+                <h3 className="font-semibold text-text text-lg">Ticket Submitted</h3>
+                <p className="text-muted text-sm mt-2">{"We'll reach out to you soon."}</p>
+                <button onClick={() => setSubmitted(false)} className="mt-4 text-xs text-brand font-bold hover:text-brand-strong transition-colors">Submit another</button>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Name *</label>
+                    <label className="text-xs font-bold text-muted uppercase tracking-wider block mb-1.5">Name *</label>
                     <input required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                       placeholder="Your name"
-                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#155cfc] bg-white" />
+                      className="w-full bg-surface border border-border rounded-xl px-4 py-3 text-sm text-text placeholder:text-faint focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/30 transition-all" />
                   </div>
                   <div>
-                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Email *</label>
+                    <label className="text-xs font-bold text-muted uppercase tracking-wider block mb-1.5">Email *</label>
                     <input required type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                       placeholder="your@email.com"
-                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#155cfc] bg-white" />
+                      className="w-full bg-surface border border-border rounded-xl px-4 py-3 text-sm text-text placeholder:text-faint focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/30 transition-all" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Product</label>
+                    <label className="text-xs font-bold text-muted uppercase tracking-wider block mb-1.5">Product</label>
                     <select value={form.product} onChange={e => setForm(f => ({ ...f, product: e.target.value }))}
-                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#155cfc] bg-white">
-                      <option value="">Select product</option>
-                      {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                      <option value="general">General / Other</option>
+                      className="w-full bg-surface border border-border rounded-xl px-4 py-3 text-sm text-text focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/30 transition-all">
+                      <option value="" className="bg-bg">Select product</option>
+                      {products.map(p => <option key={p.id} value={p.id} className="bg-bg">{p.name}</option>)}
+                      <option value="general" className="bg-bg">General / Other</option>
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Subject *</label>
+                    <label className="text-xs font-bold text-muted uppercase tracking-wider block mb-1.5">Subject *</label>
                     <input required value={form.subject} onChange={e => setForm(f => ({ ...f, subject: e.target.value }))}
                       placeholder="Brief subject"
-                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#155cfc] bg-white" />
+                      className="w-full bg-surface border border-border rounded-xl px-4 py-3 text-sm text-text placeholder:text-faint focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/30 transition-all" />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Message *</label>
+                  <label className="text-xs font-bold text-muted uppercase tracking-wider block mb-1.5">Message *</label>
                   <textarea required rows={5} value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
                     placeholder="Describe your issue in detail..."
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#155cfc] bg-white resize-none" />
+                    className="w-full bg-surface border border-border rounded-xl px-4 py-3 text-sm text-text placeholder:text-faint focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/30 transition-all resize-none" />
                 </div>
 
-                {submitError && <p className="text-sm text-red-500">{submitError}</p>}
+                {submitError && <p className="text-sm text-red-400">{submitError}</p>}
 
                 <button type="submit" disabled={submitting}
-                  className="w-full py-3.5 bg-[#155cfc] text-white font-bold rounded-xl hover:bg-[#1249d4] transition-colors shadow-md shadow-blue-200 disabled:opacity-60">
+                  className="w-full py-3.5 bg-brand text-black font-bold rounded-full hover:bg-brand-strong hover:shadow-glow transition-all disabled:opacity-60">
                   {submitting ? "Submitting…" : "Submit Support Request"}
                 </button>
               </form>
