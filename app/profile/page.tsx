@@ -1,191 +1,811 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
+import React, { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
+import {
+  Package,
+  User,
+  MapPin,
+  Shield,
+  LogOut,
+  ChevronRight,
+  CreditCard,
+  Clock,
+  Plus,
+  Trash2,
+  Edit,
+  Check
+} from "lucide-react";
 
-export default function AccountDashboard() {
-  const [mounted, setMounted] = useState(false);
-  const [profileImage, setProfileImage] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+import RequireAuth from "../../components/auth/RequireAuth";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
+import { useAuth } from "../../context/AuthContext";
+import { supabase } from "../../lib/supabase";
+
+interface Address {
+  id: string;
+  label: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  phone: string;
+  isDefault: boolean;
+}
+
+interface Order {
+  id: string;
+  transactionId: string;
+  items: string[];
+  amount: number;
+  paymentStatus: string;
+  fulfillmentStatus: string;
+  createdAt: string;
+}
+
+export default function ProfilePage() {
+  const [activeTab, setActiveTab] = useState("orders");
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [loadingAddresses, setLoadingAddresses] = useState(false);
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [editingAddress, setEditingAddress] = useState<Address | null>(null);
+  const { user, logout } = useAuth();
+
+  const fetchAddresses = useCallback(async () => {
+    setLoadingAddresses(true);
+    try {
+      const token = await user?.getIdToken();
+      const response = await fetch('/api/addresses', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (data.success) {
+        setAddresses(data.addresses);
+      }
+    } catch (error) {
+      console.error('Error fetching addresses:', error);
+    } finally {
+      setLoadingAddresses(false);
+    }
+  }, [user]);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    if (activeTab === "addresses" && user) {
+      fetchAddresses();
+    }
+  }, [activeTab, user, fetchAddresses]);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setProfileImage(reader.result as string);
-      reader.readAsDataURL(file);
+  const handleDeleteAddress = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this address?')) return;
+    try {
+      const token = await user?.getIdToken();
+      const response = await fetch(`/api/addresses/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.ok) {
+        setAddresses(addresses.filter(addr => addr.id !== id));
+      } else {
+        alert('Failed to delete address');
+      }
+    } catch (error) {
+      console.error('Error deleting address:', error);
+      alert('Error deleting address');
     }
   };
 
-  if (!mounted) return null;
+  const handleSetDefault = async (id: string) => {
+    try {
+      const token = await user?.getIdToken();
+      const response = await fetch(`/api/addresses/${id}/set-default`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.ok) {
+        setAddresses(addresses.map(addr => ({ ...addr, isDefault: addr.id === id })));
+      } else {
+        alert('Failed to set default address');
+      }
+    } catch (error) {
+      console.error('Error setting default:', error);
+      alert('Error setting default address');
+    }
+  };
+
+  const handleLogout = async () => {
+    await logout();
+  };
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans p-6 md:p-12 lg:p-20">
-      
-      {/* Header with Integrated Profile Picture */}
-      <header className="max-w-6xl mx-auto mb-16 flex flex-col md:flex-row items-center justify-between gap-8 border-b border-white/5 pb-12">
-        <div className="flex flex-col md:flex-row items-center gap-8">
-          {/* Profile Picture Upload */}
-          <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-            <div className="w-24 h-24 rounded-full border border-dashed border-white/20 flex items-center justify-center overflow-hidden transition-all group-hover:border-[#f2994a]/50 bg-[#0c0c0c]">
-              {profileImage ? (
-                // eslint-disable-next-line @next/next/no-img-element -- data-URL upload preview, not optimizable by next/image
-                <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#444" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <RequireAuth>
+      <div className="min-h-screen bg-black text-white font-sans selection:bg-blue-500/30 flex flex-col">
+        <Header />
+
+        <main className="flex-grow pt-24 pb-12 px-4 md:px-10 max-w-7xl mx-auto w-full">
+          <div className="flex flex-col lg:flex-row gap-8 xl:gap-12">
+
+            {/* --- SIDEBAR NAV --- */}
+            <aside className="lg:w-72 flex-shrink-0">
+              <div className="bg-[#121212] border border-gray-800 rounded-3xl p-6 sticky top-28">
+                <div className="flex items-center gap-4 mb-8 pb-8 border-b border-gray-800">
+                  <div className="w-14 h-14 bg-gradient-to-tr from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-xl font-bold text-white shadow-lg shadow-blue-900/20">
+                    {user?.email?.[0].toUpperCase() || 'U'}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg">{user?.displayName || 'User'}</h3>
+                    <p className="text-xs text-gray-400">{user?.email}</p>
+                  </div>
+                </div>
+
+                <nav className="space-y-2">
+                  <NavButton
+                    active={activeTab === "orders"}
+                    onClick={() => setActiveTab("orders")}
+                    icon={<Package size={20} />}
+                    label="My Orders"
+                  />
+                  <NavButton
+                    active={activeTab === "profile"}
+                    onClick={() => setActiveTab("profile")}
+                    icon={<User size={20} />}
+                    label="Profile Details"
+                  />
+                  <NavButton
+                    active={activeTab === "addresses"}
+                    onClick={() => setActiveTab("addresses")}
+                    icon={<MapPin size={20} />}
+                    label="Saved Addresses"
+                  />
+                  <NavButton
+                    active={activeTab === "security"}
+                    onClick={() => setActiveTab("security")}
+                    icon={<Shield size={20} />}
+                    label="Login & Security"
+                  />
+
+                  <div className="pt-4 mt-4 border-t border-gray-800">
+                    <button onClick={handleLogout} className="w-full flex items-center px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-colors">
+                      <LogOut size={20} />
+                      <span className="ml-3 font-medium">Sign Out</span>
+                    </button>
+                  </div>
+                </nav>
+              </div>
+            </aside>
+
+            {/* --- MAIN CONTENT AREA --- */}
+            <div className="flex-1 min-w-0">
+              {activeTab === "orders" && <OrdersPanel />}
+              {activeTab === "profile" && <ProfileDetailsPanel />}
+
+              {activeTab === "addresses" && (
+                <div className="space-y-6 animate-fade-in">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-2xl font-bold">Saved Addresses</h2>
+                    <button
+                      onClick={() => {
+                        setEditingAddress(null);
+                        setShowAddressModal(true);
+                      }}
+                      className="text-sm bg-white text-black px-4 py-2 rounded-full font-bold hover:bg-gray-200 flex items-center gap-2"
+                    >
+                      <Plus size={16} /> Add New
+                    </button>
+                  </div>
+
+                  {loadingAddresses ? (
+                    <div className="text-center py-12">
+                      <div className="w-12 h-12 border-4 border-[#f2994a] border-t-transparent rounded-full animate-spin mx-auto"></div>
+                    </div>
+                  ) : addresses.length === 0 ? (
+                    <div className="bg-[#121212] border border-gray-800 rounded-3xl p-12 text-center">
+                      <MapPin className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                      <p className="text-gray-400 mb-4">No addresses saved yet</p>
+                      <button
+                        onClick={() => setShowAddressModal(true)}
+                        className="bg-white text-black px-6 py-2 rounded-full font-bold hover:bg-gray-200"
+                      >
+                        Add Your First Address
+                      </button>
+                    </div>
+                  ) : (
+                    addresses.map(address => (
+                      <AddressCard
+                        key={address.id}
+                        address={address}
+                        onDelete={() => handleDeleteAddress(address.id)}
+                        onEdit={() => {
+                          setEditingAddress(address);
+                          setShowAddressModal(true);
+                        }}
+                        onSetDefault={() => handleSetDefault(address.id)}
+                      />
+                    ))
+                  )}
+                </div>
               )}
+
+              {activeTab === "security" && <SecurityPanel />}
             </div>
-            <div className="absolute inset-0 bg-black/70 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-[10px] font-bold">
-              EDIT
-            </div>
-            <input type="file" ref={fileInputRef} className="hidden" onChange={handleImageUpload} accept="image/*" />
           </div>
-          
-          <div className="text-center md:text-left">
-            <h1 className="text-4xl font-bold tracking-tight">Your Account</h1>
-            <p className="text-orange-300 mt-1 text-lg">Kashif User  personalaccount</p>
-          </div>
-        </div>
+        </main>
+        <Footer />
+      </div>
 
-        <Link href="/" className="flex items-center gap-2 text-sm font-bold text-orange-300 hover:text-[#f2994a] transition-all">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-          Return to Store
-        </Link>
-      </header>
+      {showAddressModal && (
+        <AddressModal
+          address={editingAddress}
+          onClose={() => {
+            setShowAddressModal(false);
+            setEditingAddress(null);
+          }}
+          onSave={() => {
+            setShowAddressModal(false);
+            setEditingAddress(null);
+            fetchAddresses();
+          }}
+        />
+      )}
+    </RequireAuth>
+  );
+}
 
-      {/* Account Grid */}
-      <main className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        
-        {/* Tile: Orders */}
-        <Link href="/orders" className="flex items-start gap-6 p-8 bg-[#0c0c0c] border border-white/5 rounded-2xl hover:bg-white/[0.03] transition-all group">
-          <div className="p-4 bg-white/5 rounded-xl group-hover:text-[#f2994a] transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
-          </div>
-          <div>
-            <h2 className="text-xl font-bold">Your Orders</h2>
-            <p className="text-sm text-gray-500 mt-2 leading-relaxed">Track, return, or buy items again</p>
-          </div>
-        </Link>
+// --- SUB-COMPONENTS ---
 
-        {/* Tile: Login & Security */}
-        <Link href="/settings" className="flex items-start gap-6 p-8 bg-[#0c0c0c] border border-white/5 rounded-2xl hover:bg-white/[0.03] transition-all group">
-          <div className="p-4 bg-white/5 rounded-xl group-hover:text-[#f2994a] transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          </div>
-          <div>
-            <h2 className="text-xl font-bold">Login & Security</h2>
-            <p className="text-sm text-gray-500 mt-2 leading-relaxed">Manage password, email, and mobile</p>
-          </div>
-        </Link>
-
-        {/* Tile: Addresses */}
-        <Link href="/addresses" className="flex items-start gap-6 p-8 bg-[#0c0c0c] border border-white/5 rounded-2xl hover:bg-white/[0.03] transition-all group">
-          <div className="p-4 bg-white/5 rounded-xl group-hover:text-[#f2994a] transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-          </div>
-          <div>
-            <h2 className="text-xl font-bold">Your Addresses</h2>
-            <p className="text-sm text-gray-500 mt-2 leading-relaxed">Edit delivery addresses and defaults</p>
-          </div>
-        </Link>
-
-        {/* Tile: Payments */}
-<Link href="/payments" className="flex items-start gap-6 p-8 bg-[#0c0c0c] border border-white/5 rounded-2xl hover:bg-white/[0.03] transition-all group cursor-pointer">
-  <div className="p-4 bg-white/5 rounded-xl group-hover:text-[#f2994a] transition-colors">
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <rect width="20" height="14" x="2" y="5" rx="2" />
-      <line x1="2" x2="22" y1="10" y2="10" />
-    </svg>
-  </div>
-  <div>
-    <h2 className="text-xl font-bold text-white">Payments</h2>
-    <p className="text-sm text-gray-500 mt-2 leading-relaxed">Manage credit cards and transactions</p>
-  </div>
-</Link>
-
-        {/* Tile: Wishlist */}
-<Link href="/wishlist" className="flex items-start gap-6 p-8 bg-[#0c0c0c] border border-white/5 rounded-2xl hover:bg-white/[0.03] transition-all group cursor-pointer">
-  <div className="p-4 bg-white/5 rounded-xl group-hover:text-[#f2994a] transition-colors">
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      width="32" 
-      height="32" 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="1.5" 
-      strokeLinecap="round" 
-      strokeLinejoin="round"
+function NavButton({ active, onClick, icon, label }: { active: boolean, onClick: () => void, icon: React.ReactNode, label: string }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full flex items-center px-4 py-3 rounded-xl transition-all ${active
+        ? "bg-white text-black font-bold shadow-lg"
+        : "text-gray-400 hover:text-white hover:bg-white/5"
+        }`}
     >
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </svg>
-  </div>
-  <div>
-    <h2 className="text-xl font-bold">Wishlist</h2>
-    <p className="text-sm text-gray-500 mt-2 leading-relaxed">Items you want to purchase later</p>
-  </div>
-</Link>
+      <span className={active ? "text-black" : "text-gray-500"}>{icon}</span>
+      <span className="ml-3">{label}</span>
+      {active && <ChevronRight size={16} className="ml-auto" />}
+    </button>
+  )
+}
 
-{/* Tile: Contact Support */}
-        <Link 
-          href="/contact-support" 
-          className="flex items-start gap-5 p-6 bg-[#0c0c0c] border border-white/5 rounded-xl hover:bg-white/[0.03] transition-all group"
-        >
-          <div className="mt-1 p-3 bg-white/5 rounded-lg group-hover:text-[#f2994a] transition-colors">
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              width="28" 
-              height="28" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="1.5" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            >
-              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-            </svg>
+function OrdersPanel() {
+  const { user } = useAuth();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const token = await user.getIdToken();
+        const res = await fetch('/api/orders', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          setOrders(data.orders);
+        } else {
+          setError(data.error || 'Failed to load orders');
+        }
+      } catch (err) {
+        console.error('Failed to fetch orders', err);
+        setError('Failed to load orders');
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [user]);
+
+  return (
+    <div className="space-y-6 animate-fade-in">
+      <h1 className="text-2xl font-bold mb-6">Order History</h1>
+
+      {loading ? (
+        <p className="text-gray-500 text-sm">Loading orders…</p>
+      ) : error ? (
+        <p className="text-red-400 text-sm">{error}</p>
+      ) : orders.length === 0 ? (
+        <div className="bg-[#121212] border border-gray-800 rounded-3xl p-12 text-center">
+          <Package className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+          <p className="text-gray-400">No orders yet</p>
+        </div>
+      ) : (
+        orders.map((order) => (
+          <OrderCard
+            key={order.id}
+            id={order.transactionId || order.id}
+            date={new Date(order.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+            total={`₹ ${order.amount.toLocaleString('en-IN')}`}
+            status={order.fulfillmentStatus}
+            items={order.items}
+          />
+        ))
+      )}
+    </div>
+  );
+}
+
+function OrderCard({ id, date, total, status, items }: { id: string, date: string, total: string, status: string, items: string[] }) {
+  return (
+    <div className="bg-[#121212] border border-gray-800 rounded-3xl p-6 group hover:border-gray-600 transition-colors">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 pb-6 border-b border-gray-800 gap-4">
+        <div>
+          <div className="flex items-center gap-3 mb-1">
+            <h3 className="font-bold text-lg">{id}</h3>
+            <span className={`px-2 py-0.5 text-xs font-bold rounded uppercase tracking-wide ${
+              status === 'Delivered' ? 'bg-green-500/10 text-green-500' : 'bg-[#f2994a]/10 text-[#f2994a]'
+            }`}>
+              {status}
+            </span>
           </div>
+          <div className="flex items-center text-sm text-gray-500 gap-4">
+            <span className="flex items-center gap-1"><Clock size={14} /> {date}</span>
+            <span className="flex items-center gap-1"><CreditCard size={14} /> {total}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-4">
+        <div className="w-16 h-16 bg-black rounded-xl border border-gray-800 flex items-center justify-center overflow-hidden flex-shrink-0">
+          <Image
+            src="/logo/xerovolt.png"
+            alt="Xerovolt Tech Logo"
+            width={160}
+            height={160}
+            className="object-contain w-[120px] md:w-[160px]"
+          />
+        </div>
+        <div>
+          <p className="font-medium text-white">{items[0] || 'Item'}</p>
+          {items.length > 1 && (
+            <p className="text-sm text-gray-500">and {items.length - 1} other item(s)</p>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function AddressCard({
+  address,
+  onDelete,
+  onEdit,
+  onSetDefault
+}: {
+  address: Address,
+  onDelete: () => void,
+  onEdit: () => void,
+  onSetDefault: () => void
+}) {
+  return (
+    <div className={`bg-[#121212] border ${address.isDefault ? 'border-blue-500/50' : 'border-gray-800'} rounded-3xl p-6 relative`}>
+      {address.isDefault && (
+        <div className="absolute top-6 right-6 bg-blue-500/10 text-blue-500 text-xs font-bold px-2 py-1 rounded flex items-center gap-1">
+          <Check size={12} /> DEFAULT
+        </div>
+      )}
+      <div className="flex items-start gap-4">
+        <div className="p-3 bg-black rounded-full border border-gray-800">
+          <MapPin className="w-6 h-6 text-gray-400" />
+        </div>
+        <div className="flex-1">
+          <h4 className="font-bold text-lg mb-1">{address.label}</h4>
+          <p className="text-gray-400 text-sm leading-relaxed mb-4">
+            {address.addressLine1}
+            {address.addressLine2 && <>, {address.addressLine2}</>}
+            <br />
+            {address.city}, {address.state} - {address.postalCode}
+            <br />
+            {address.country}
+            <br />
+            Phone: {address.phone}
+          </p>
+          <div className="flex gap-4 text-sm font-medium">
+            <button onClick={onEdit} className="text-blue-500 hover:text-blue-400 flex items-center gap-1">
+              <Edit size={14} /> Edit
+            </button>
+            {!address.isDefault && (
+              <button onClick={onSetDefault} className="text-green-500 hover:text-green-400 flex items-center gap-1">
+                <Check size={14} /> Set as Default
+              </button>
+            )}
+            <button onClick={onDelete} className="text-red-500 hover:text-red-400 flex items-center gap-1">
+              <Trash2 size={14} /> Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AddressModal({
+  address,
+  onClose,
+  onSave
+}: {
+  address: Address | null,
+  onClose: () => void,
+  onSave: () => void
+}) {
+  const { user } = useAuth();
+  const [formData, setFormData] = useState({
+    label: address?.label || '',
+    addressLine1: address?.addressLine1 || '',
+    addressLine2: address?.addressLine2 || '',
+    city: address?.city || '',
+    state: address?.state || '',
+    postalCode: address?.postalCode || '',
+    country: address?.country || 'India',
+    phone: address?.phone || '',
+    isDefault: address?.isDefault || false
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const token = await user?.getIdToken();
+      const url = address ? `/api/addresses/${address.id}` : '/api/addresses';
+      const method = address ? 'PUT' : 'POST';
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      });
+      if (response.ok) {
+        onSave();
+      } else {
+        const data = await response.json();
+        alert(data.error || 'Failed to save address');
+      }
+    } catch (error) {
+      console.error('Error saving address:', error);
+      alert('Error saving address');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+      <div className="bg-[#121212] border border-gray-800 rounded-3xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <h2 className="text-2xl font-bold mb-6">
+          {address ? 'Edit Address' : 'Add New Address'}
+        </h2>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <h2 className="text-lg font-bold">Contact Support</h2>
-            <p className="text-sm text-gray-500 mt-1">Chat with us or find help topics</p>
+            <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Label</label>
+            <input
+              type="text"
+              value={formData.label}
+              onChange={e => setFormData({ ...formData, label: e.target.value })}
+              placeholder="e.g., Home, Office"
+              className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 mt-2"
+              required
+            />
           </div>
-        </Link>
-      </main>
 
-      {/* Account Footer Links */}
-      <footer className="max-w-6xl mx-auto mt-24 pt-12 border-t border-white/5 grid grid-cols-1 md:grid-cols-3 gap-12 text-sm">
-        <div className="space-y-4">
-          <h3 className="font-bold text-gray-300 uppercase tracking-wider text-xs">Content and devices</h3>
-          <ul className="space-y-3 text-gray-500">
-            <li className="hover:text-[#f2994a] cursor-pointer transition-colors">Apps & more</li>
-            <li className="hover:text-[#f2994a] cursor-pointer transition-colors">Digital content</li>
-            <li className="hover:text-[#f2994a] cursor-pointer transition-colors">Device Management</li>
-          </ul>
-        </div>
+          <div>
+            <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Address Line 1</label>
+            <input
+              type="text"
+              value={formData.addressLine1}
+              onChange={e => setFormData({ ...formData, addressLine1: e.target.value })}
+              className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 mt-2"
+              required
+            />
+          </div>
 
-        <div className="space-y-4">
-          <h3 className="font-bold text-gray-300 uppercase tracking-wider text-xs">Email alerts & ads</h3>
-          <ul className="space-y-3 text-gray-500">
-            <li className="hover:text-[#f2994a] cursor-pointer transition-colors">Advertising preferences</li>
-            <li className="hover:text-[#f2994a] cursor-pointer transition-colors">Communication Centre</li>
-            <li className="hover:text-[#f2994a] cursor-pointer transition-colors">SMS Notifications</li>
-          </ul>
-        </div>
+          <div>
+            <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Address Line 2 (Optional)</label>
+            <input
+              type="text"
+              value={formData.addressLine2}
+              onChange={e => setFormData({ ...formData, addressLine2: e.target.value })}
+              className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 mt-2"
+            />
+          </div>
 
-        <div className="space-y-4">
-          <h3 className="font-bold text-gray-300 uppercase tracking-wider text-xs">More ways to pay</h3>
-          <ul className="space-y-3 text-gray-500">
-            <li className="hover:text-[#f2994a] cursor-pointer transition-colors">Default Purchase Settings</li>
-            <li className="hover:text-[#f2994a] cursor-pointer transition-colors">Manage Gift Cards</li>
-            <li className="hover:text-[#f2994a] cursor-pointer transition-colors">Coupons & Credits</li>
-          </ul>
-        </div>
-      </footer>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">City</label>
+              <input
+                type="text"
+                value={formData.city}
+                onChange={e => setFormData({ ...formData, city: e.target.value })}
+                className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 mt-2"
+                required
+              />
+            </div>
+            <div>
+              <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">State</label>
+              <input
+                type="text"
+                value={formData.state}
+                onChange={e => setFormData({ ...formData, state: e.target.value })}
+                className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 mt-2"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Postal Code</label>
+              <input
+                type="text"
+                value={formData.postalCode}
+                onChange={e => setFormData({ ...formData, postalCode: e.target.value })}
+                className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 mt-2"
+                required
+              />
+            </div>
+            <div>
+              <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Country</label>
+              <input
+                type="text"
+                value={formData.country}
+                onChange={e => setFormData({ ...formData, country: e.target.value })}
+                className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 mt-2"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Phone</label>
+            <input
+              type="tel"
+              value={formData.phone}
+              onChange={e => setFormData({ ...formData, phone: e.target.value })}
+              className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 mt-2"
+              required
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="isDefault"
+              checked={formData.isDefault}
+              onChange={e => setFormData({ ...formData, isDefault: e.target.checked })}
+              className="w-4 h-4"
+            />
+            <label htmlFor="isDefault" className="text-sm text-gray-400">Set as default address</label>
+          </div>
+
+          <div className="flex gap-4 pt-4">
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 bg-white text-black py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors disabled:opacity-50"
+            >
+              {loading ? 'Saving...' : 'Save Address'}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-6 py-3 border border-gray-700 rounded-xl font-bold hover:bg-white/5 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function ProfileDetailsPanel() {
+  const { user } = useAuth();
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [loadingProfile, setLoadingProfile] = useState(true);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [profileMessage, setProfileMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from('customer_profiles')
+      .select('first_name, last_name')
+      .eq('id', user.uid)
+      .single()
+      .then(({ data }) => {
+        setFirstName(data?.first_name ?? '');
+        setLastName(data?.last_name ?? '');
+        setLoadingProfile(false);
+      });
+  }, [user]);
+
+  const saveProfile = async () => {
+    if (!user) return;
+    setSavingProfile(true);
+    setProfileMessage(null);
+    const { error } = await supabase
+      .from('customer_profiles')
+      .update({ first_name: firstName, last_name: lastName })
+      .eq('id', user.uid);
+    setProfileMessage(
+      error ? { type: 'error', text: error.message } : { type: 'success', text: 'Profile updated.' }
+    );
+    setSavingProfile(false);
+  };
+
+  return (
+    <div className="bg-[#121212] border border-gray-800 rounded-3xl p-8 animate-fade-in">
+      <h2 className="text-xl font-bold mb-6">Personal Information</h2>
+      {loadingProfile ? (
+        <p className="text-gray-500 text-sm">Loading…</p>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">First Name</label>
+              <input
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Last Name</label>
+              <input
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+              />
+            </div>
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Email Address</label>
+              <input type="email" value={user?.email || ''} disabled className="w-full bg-black/50 border border-gray-800 rounded-xl px-4 py-3 text-gray-400 cursor-not-allowed" />
+            </div>
+          </div>
+          {profileMessage && (
+            <p className={`mt-4 text-sm ${profileMessage.type === 'success' ? 'text-green-500' : 'text-red-500'}`}>
+              {profileMessage.text}
+            </p>
+          )}
+          <button
+            onClick={saveProfile}
+            disabled={savingProfile}
+            className="mt-8 px-6 py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors disabled:opacity-50"
+          >
+            {savingProfile ? 'Saving...' : 'Save Changes'}
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
+function SecurityPanel() {
+  const { user } = useAuth();
+  const [newEmail, setNewEmail] = useState('');
+  const [savingEmail, setSavingEmail] = useState(false);
+  const [emailMessage, setEmailMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [savingPassword, setSavingPassword] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
+  const saveEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingEmail(true);
+    setEmailMessage(null);
+    const { error } = await supabase.auth.updateUser({ email: newEmail });
+    setEmailMessage(
+      error
+        ? { type: 'error', text: error.message }
+        : { type: 'success', text: 'Check your new inbox to confirm the email change.' }
+    );
+    setSavingEmail(false);
+  };
+
+  const savePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordMessage(null);
+
+    if (newPassword.length < 6) {
+      setPasswordMessage({ type: 'error', text: 'Password must be at least 6 characters.' });
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordMessage({ type: 'error', text: "Passwords don't match." });
+      return;
+    }
+
+    setSavingPassword(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) {
+      setPasswordMessage({ type: 'error', text: error.message });
+    } else {
+      setPasswordMessage({ type: 'success', text: 'Password updated.' });
+      setNewPassword('');
+      setConfirmPassword('');
+    }
+    setSavingPassword(false);
+  };
+
+  return (
+    <div className="space-y-6 animate-fade-in">
+      <div className="bg-[#121212] border border-gray-800 rounded-3xl p-8">
+        <h2 className="text-xl font-bold mb-2">Email Address</h2>
+        <p className="text-gray-500 text-sm mb-6">Current: {user?.email}</p>
+        <form onSubmit={saveEmail} className="flex flex-col sm:flex-row gap-4">
+          <input
+            type="email"
+            required
+            value={newEmail}
+            onChange={(e) => setNewEmail(e.target.value)}
+            placeholder="new@email.com"
+            className="flex-1 bg-black border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+          />
+          <button
+            type="submit"
+            disabled={savingEmail}
+            className="px-6 py-3 border border-gray-700 rounded-xl font-bold hover:bg-white/5 transition-colors disabled:opacity-50"
+          >
+            {savingEmail ? 'Sending...' : 'Update Email'}
+          </button>
+        </form>
+        {emailMessage && (
+          <p className={`mt-4 text-sm ${emailMessage.type === 'success' ? 'text-green-500' : 'text-red-500'}`}>
+            {emailMessage.text}
+          </p>
+        )}
+      </div>
+
+      <div className="bg-[#121212] border border-gray-800 rounded-3xl p-8">
+        <h2 className="text-xl font-bold mb-6">Change Password</h2>
+        <form onSubmit={savePassword} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input
+            type="password"
+            required
+            minLength={6}
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            placeholder="New password"
+            className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+          />
+          <input
+            type="password"
+            required
+            minLength={6}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Confirm new password"
+            className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+          />
+          <button
+            type="submit"
+            disabled={savingPassword}
+            className="md:col-span-2 mt-2 w-fit px-6 py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors disabled:opacity-50"
+          >
+            {savingPassword ? 'Updating...' : 'Update Password'}
+          </button>
+        </form>
+        {passwordMessage && (
+          <p className={`mt-4 text-sm ${passwordMessage.type === 'success' ? 'text-green-500' : 'text-red-500'}`}>
+            {passwordMessage.text}
+          </p>
+        )}
+      </div>
     </div>
   );
 }
