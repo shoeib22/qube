@@ -92,3 +92,4 @@ firebase-admin-key.json
 .pio/
 .vscode/.platformio/
 libdeps/service-account.json
+cube-8c773-firebase-adminsdk-fbsvc-9a1bcb158c.json
