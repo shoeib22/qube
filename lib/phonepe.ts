@@ -37,13 +37,23 @@ const PHONEPE_HOST_URL = {
 };
 
 /**
- * Get PhonePe configuration from environment variables
+ * Get PhonePe configuration from environment variables.
+ *
+ * Throws if the credentials required to talk to PhonePe are missing, rather
+ * than silently sending an empty merchantId/saltKey — a misconfigured deploy
+ * should fail loudly instead of generating checksums PhonePe will reject.
  */
 export const getPhonePeConfig = () => {
     const env = process.env.PHONEPE_ENVIRONMENT || 'sandbox';
+    const merchantId = process.env.PHONEPE_MERCHANT_ID;
+    const saltKey = process.env.PHONEPE_SALT_KEY;
+
+    if (!merchantId) throw new Error('Missing required env var: PHONEPE_MERCHANT_ID');
+    if (!saltKey) throw new Error('Missing required env var: PHONEPE_SALT_KEY');
+
     return {
-        merchantId: process.env.PHONEPE_MERCHANT_ID || '',
-        saltKey: process.env.PHONEPE_SALT_KEY || '',
+        merchantId,
+        saltKey,
         saltIndex: process.env.PHONEPE_SALT_INDEX || '1',
         env: env as 'sandbox' | 'production',
         hostUrl: env === 'production' ? PHONEPE_HOST_URL.production : PHONEPE_HOST_URL.sandbox,

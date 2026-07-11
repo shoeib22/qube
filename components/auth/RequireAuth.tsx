@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
+import { getUserRole } from "../../lib/getUserRole";
 
 import { useRouter } from "next/navigation";
 
@@ -34,13 +35,9 @@ export default function RequireAuth({
 
       if (roleToCheck) {
         try {
-          const { data: profile, error } = await supabase
-            .from("customer_profiles")
-            .select("role")
-            .eq("id", user.id)
-            .single();
+          const role = await getUserRole(supabase, user.id);
 
-          if (error || !profile || profile.role !== roleToCheck) {
+          if (role !== roleToCheck) {
             console.warn(`User ${user.id} does not have required role: ${roleToCheck}`);
             router.push("/"); // Redirect to home on unauthorized
             return;

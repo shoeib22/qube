@@ -64,7 +64,7 @@ export default function UserAccountPage() {
     } finally {
       setLoadingAddresses(false);
     }
-  }, []);
+  }, [user]);
 
   // Fetch addresses when addresses tab is active
   useEffect(() => {
