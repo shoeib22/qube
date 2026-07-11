@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { getUserRole } from '@/lib/getUserRole';
 
 export interface AuthUser {
     uid: string;
@@ -23,16 +24,12 @@ export async function verifyAuth(request: NextRequest): Promise<AuthUser | null>
         const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
         if (error || !user) return null;
 
-        const { data: profile } = await supabaseAdmin
-            .from('customer_profiles')
-            .select('role')
-            .eq('id', user.id)
-            .single();
+        const role = await getUserRole(supabaseAdmin, user.id);
 
         return {
             uid: user.id,
             email: user.email || '',
-            role: profile?.role || 'customer'
+            role: role || 'customer'
         };
     } catch (error) {
         console.error('Auth verification error:', error);

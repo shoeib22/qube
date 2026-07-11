@@ -51,7 +51,7 @@ export default function AdminDashboard() {
       }
     };
     fetchData();
-  }, []);
+  }, [user]);
 
   const formatCurrency = (paise: number) =>
     `₹${(paise / 100).toLocaleString('en-IN')}`;

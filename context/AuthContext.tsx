@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
+import { getCustomerProfile } from "../lib/getUserRole";
 import Cookies from "js-cookie"; // Import js-cookie
 
 // Firebase-compatible shape so existing consumers (user.uid, user.getIdToken(),
@@ -54,16 +55,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             // Store the access token in a cookie for Server Components
             Cookies.set('token', session.access_token, { expires: 1 / 24, path: '/' });
 
-            const { data: profile } = await supabase
-                .from("customer_profiles")
-                .select("role, first_name, last_name")
-                .eq("id", session.user.id)
-                .single();
+            const profile = await getCustomerProfile(supabase, session.user.id, "role, first_name, last_name");
 
             if (!active) return;
 
             const displayName = profile
-                ? [profile.first_name, profile.last_name].filter(Boolean).join(" ") || null
+                ? [profile.first_name as string | null, profile.last_name as string | null]
+                      .filter(Boolean)
+                      .join(" ") || null
                 : null;
 
             setUser({
@@ -72,7 +71,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 displayName,
                 getIdToken,
             });
-            setRole(profile?.role ?? "customer");
+            setRole((profile?.role as string | undefined) ?? "customer");
             setLoading(false);
         };
 

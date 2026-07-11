@@ -4,6 +4,7 @@ import { CartProvider } from "../context/CartContext";
 import { AuthProvider } from "../context/AuthContext";
 // 1. Import the Google Analytics component
 import { GoogleAnalytics } from '@next/third-parties/google';
+import AskWidget from "../components/ai/AskWidget";
 
 export const metadata: Metadata = {
   title: "Xerovolt Tech",
@@ -24,7 +25,9 @@ export default function RootLayout({
             {children}
           </CartProvider>
         </AuthProvider>
-        
+
+        <AskWidget />
+
         {/* 2. Add the component here using your Measurement ID */}
         <GoogleAnalytics gaId="G-CT3T4W3CF5" />
       </body>
