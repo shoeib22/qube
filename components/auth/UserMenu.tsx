@@ -36,7 +36,7 @@ export default function UserMenu() {
       {open && (
         <div className="absolute right-0 mt-3 w-48 bg-[#121212] border border-white/10 rounded-xl shadow-xl overflow-hidden z-50">
           <button
-            onClick={() => router.push(role === "admin" ? "/dashboard/admin" : "/dashboard/user")}
+            onClick={() => router.push(role === "admin" ? "/dashboard/admin" : "/profile")}
             className="w-full px-4 py-3 text-left text-sm hover:bg-white/10"
           >
             Dashboard

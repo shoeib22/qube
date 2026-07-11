@@ -17,28 +17,11 @@ function mapAddress(a: Record<string, unknown>) {
   };
 }
 
-export async function GET(request: NextRequest) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authResult = await requireAuth(request);
   if (authResult instanceof Response) return authResult;
 
-  const { data, error } = await supabaseAdmin
-    .from('addresses')
-    .select('*')
-    .eq('user_id', authResult.uid)
-    .order('is_default', { ascending: false })
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-  }
-
-  return NextResponse.json({ success: true, addresses: (data ?? []).map(mapAddress) });
-}
-
-export async function POST(request: NextRequest) {
-  const authResult = await requireAuth(request);
-  if (authResult instanceof Response) return authResult;
-
+  const { id } = await params;
   const body = await request.json();
   const { label, addressLine1, addressLine2, city, state, postalCode, country, phone, isDefault } = body;
 
@@ -52,8 +35,7 @@ export async function POST(request: NextRequest) {
 
   const { data, error } = await supabaseAdmin
     .from('addresses')
-    .insert({
-      user_id: authResult.uid,
+    .update({
       label,
       address_line1: addressLine1,
       address_line2: addressLine2 || null,
@@ -63,13 +45,38 @@ export async function POST(request: NextRequest) {
       country: country || 'India',
       phone,
       is_default: !!isDefault,
+      updated_at: new Date().toISOString(),
     })
+    .eq('id', id)
+    .eq('user_id', authResult.uid)
     .select()
     .single();
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+  if (!data) {
+    return NextResponse.json({ error: 'Address not found' }, { status: 404 });
+  }
 
-  return NextResponse.json({ success: true, address: mapAddress(data) }, { status: 201 });
+  return NextResponse.json({ success: true, address: mapAddress(data) });
+}
+
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const authResult = await requireAuth(request);
+  if (authResult instanceof Response) return authResult;
+
+  const { id } = await params;
+
+  const { error } = await supabaseAdmin
+    .from('addresses')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', authResult.uid);
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true });
 }

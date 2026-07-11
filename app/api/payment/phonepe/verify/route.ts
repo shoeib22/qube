@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
         try {
             const { data: order, error: fetchError } = await supabaseAdmin
                 .from('orders')
-                .select('id, status')
+                .select('id, status, amount')
                 .eq('transaction_id', transactionId)
                 .single();
 
@@ -67,7 +67,8 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({
                 success: finalStatus === 'SUCCESS',
                 status: finalStatus,
-                orderId: order.id
+                orderId: order.id,
+                orderDetails: { amount: Number(order.amount) || 0 }
             });
         } catch (dbError) {
             console.error("❌ Database update failed:", dbError);
