@@ -40,7 +40,7 @@ export default function StepProgress({ currentStep }: StepProgressProps) {
             <div key={step.id} className="flex items-center">
               <div className="flex flex-col items-center">
                 {/* Selection label above dot */}
-                <span className="text-[8px] font-bold text-gray-400 mb-0.5 h-3 leading-none truncate max-w-[52px] text-center">
+                <span className="text-[9px] sm:text-[10px] font-bold text-gray-400 mb-0.5 h-3 leading-none truncate max-w-[52px] text-center">
                   {selLabel ?? ""}
                 </span>
 

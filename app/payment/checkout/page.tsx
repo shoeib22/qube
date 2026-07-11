@@ -54,7 +54,7 @@ export default function PaymentsPage() {
           {activeTab === 'cards' && (
             <>
               {savedCards.map((card) => (
-                <div key={card.id} className="h-[280px] p-8 bg-[#080808] border border-white/10 rounded-2xl flex flex-col justify-between hover:border-[#f2994a]/30 transition-all shadow-xl relative overflow-hidden group">
+                <div key={card.id} className="min-h-[280px] sm:h-[280px] p-8 bg-[#080808] border border-white/10 rounded-2xl flex flex-col justify-between hover:border-[#f2994a]/30 transition-all shadow-xl relative overflow-hidden group">
                   {card.isDefault && (
                     <div className="absolute top-0 right-0">
                       <span className="bg-[#f2994a] text-black text-[9px] font-black px-3 py-1 rounded-bl-lg uppercase tracking-tighter">Default</span>
@@ -75,7 +75,7 @@ export default function PaymentsPage() {
                   </div>
                 </div>
               ))}
-              <button className="h-[280px] border-2 border-dashed border-white/5 rounded-2xl flex flex-col items-center justify-center text-gray-600 hover:border-[#f2994a]/40 hover:text-white hover:bg-white/[0.02] transition-all group">
+              <button className="min-h-[280px] sm:h-[280px] border-2 border-dashed border-white/5 rounded-2xl flex flex-col items-center justify-center text-gray-600 hover:border-[#f2994a]/40 hover:text-white hover:bg-white/[0.02] transition-all group">
                 <div className="w-12 h-12 rounded-full border border-gray-800 flex items-center justify-center mb-4 group-hover:border-[#f2994a] transition-colors"><span className="text-2xl font-light">+</span></div>
                 <span className="text-sm font-black uppercase tracking-widest">Add New Card</span>
               </button>
@@ -85,14 +85,14 @@ export default function PaymentsPage() {
           {/* TAB: UPI */}
           {activeTab === 'upi' && (
             <>
-              <div className="h-[280px] p-8 bg-[#080808] border border-white/10 rounded-2xl flex flex-col justify-between hover:border-[#f2994a]/30 transition-all shadow-xl">
+              <div className="min-h-[280px] sm:h-[280px] p-8 bg-[#080808] border border-white/10 rounded-2xl flex flex-col justify-between hover:border-[#f2994a]/30 transition-all shadow-xl">
                 <div>
                   <h3 className="text-sm font-black uppercase tracking-widest text-gray-600 mb-4">Saved UPI ID</h3>
                   <p className="text-xl font-medium text-white">kashif@okaxis</p>
                 </div>
                 <div className="flex gap-4 border-t border-white/5 pt-4"><button className="text-[10px] font-black uppercase tracking-widest text-gray-600 hover:text-red-500 transition-colors">Remove ID</button></div>
               </div>
-              <button className="h-[280px] border-2 border-dashed border-white/5 rounded-2xl flex flex-col items-center justify-center text-gray-600 hover:border-[#f2994a]/40 hover:text-white transition-all">
+              <button className="min-h-[280px] sm:h-[280px] border-2 border-dashed border-white/5 rounded-2xl flex flex-col items-center justify-center text-gray-600 hover:border-[#f2994a]/40 hover:text-white transition-all">
                 <span className="text-2xl font-light mb-2">+</span><span className="text-sm font-black uppercase tracking-widest">Add New UPI ID</span>
               </button>
             </>
@@ -101,7 +101,7 @@ export default function PaymentsPage() {
           {/* TAB: EMI */}
           {activeTab === 'emi' && (
             <>
-              <div className="h-[280px] p-8 bg-[#080808] border border-white/10 rounded-2xl flex flex-col justify-between hover:border-[#f2994a]/30 transition-all shadow-xl">
+              <div className="min-h-[280px] sm:h-[280px] p-8 bg-[#080808] border border-white/10 rounded-2xl flex flex-col justify-between hover:border-[#f2994a]/30 transition-all shadow-xl">
                 <div>
                   <div className="flex justify-between items-start mb-4">
                     <h3 className="text-sm font-black uppercase tracking-widest text-gray-600">Active EMI</h3>
@@ -112,7 +112,7 @@ export default function PaymentsPage() {
                 </div>
                 <button className="w-full py-3 bg-white/5 border border-white/10 rounded-lg text-[10px] font-black uppercase tracking-widest hover:border-[#f2994a] transition-all">View Eligibility</button>
               </div>
-              <div className="h-[280px] p-8 bg-[#080808] border border-white/10 rounded-2xl flex flex-col justify-center items-center text-center">
+              <div className="min-h-[280px] sm:h-[280px] p-8 bg-[#080808] border border-white/10 rounded-2xl flex flex-col justify-center items-center text-center">
                 <p className="text-sm font-bold text-gray-500 uppercase tracking-widest">No Active Loans</p>
                 <p className="text-[10px] text-gray-600 mt-2">Purchase a Xerovolt device to start an EMI plan.</p>
               </div>
@@ -122,7 +122,7 @@ export default function PaymentsPage() {
           {/* TAB: OTHER (COD & NET BANKING) */}
           {activeTab === 'other' && (
             <>
-              <div className="h-[280px] p-8 bg-[#0c0c0c] border border-white/5 rounded-2xl flex flex-col justify-between hover:border-[#f2994a]/20 transition-all">
+              <div className="min-h-[280px] sm:h-[280px] p-8 bg-[#0c0c0c] border border-white/5 rounded-2xl flex flex-col justify-between hover:border-[#f2994a]/20 transition-all">
                 <div>
                   <h3 className="text-sm font-black uppercase tracking-widest text-gray-500 mb-2">Cash on Delivery</h3>
                   <p className="text-xs text-gray-400 leading-relaxed font-medium">Enable COD for supported regions. Extra verification via OTP required.</p>
@@ -134,7 +134,7 @@ export default function PaymentsPage() {
                   {isCodEnabled ? '✓ COD Enabled' : 'Enable COD'}
                 </button>
               </div>
-              <div className="h-[280px] p-8 bg-[#0c0c0c] border border-white/5 rounded-2xl flex flex-col justify-between hover:border-[#f2994a]/20 transition-all">
+              <div className="min-h-[280px] sm:h-[280px] p-8 bg-[#0c0c0c] border border-white/5 rounded-2xl flex flex-col justify-between hover:border-[#f2994a]/20 transition-all">
                 <div><h3 className="text-sm font-black uppercase tracking-widest text-gray-500 mb-2">Net Banking</h3><p className="text-xs text-gray-400 leading-relaxed font-medium">Link your bank account for direct secure transfers.</p></div>
                 <button onClick={() => alert("Bank selection interface opening...")} className="w-full py-4 bg-transparent border border-[#f2994a]/50 text-[#f2994a] rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#f2994a] hover:text-black transition-all duration-300">Manage Banks</button>
               </div>

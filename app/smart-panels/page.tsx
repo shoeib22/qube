@@ -43,7 +43,7 @@ const HolographicSmartPanel = ({ mouseX, mouseY }: { mouseX: MotionValue<number>
     >
       <motion.div 
         style={{ rotateX, rotateY, transformStyle: "preserve-3d" }} 
-        className="relative w-[380px] h-[500px] bg-[#020202]/60 border border-white/10 rounded-[2.5rem] backdrop-blur-2xl p-6 flex flex-col shadow-2xl group"
+        className="relative w-[90vw] max-w-[380px] h-[500px] bg-[#020202]/60 border border-white/10 rounded-[2.5rem] backdrop-blur-2xl p-6 flex flex-col shadow-2xl group"
       >
         <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent rounded-[2.5rem] pointer-events-none" />
         
@@ -291,7 +291,7 @@ export default function SmartPanelsPage() {
       />
 
       {/* --- HERO SECTION --- */}
-      <section className="relative z-10 pt-48 pb-32 px-6 max-w-7xl mx-auto flex flex-col items-center text-center perspective-[2000px] min-h-[800px]">
+      <section className="relative z-10 pt-48 pb-32 px-6 max-w-7xl mx-auto flex flex-col items-center text-center perspective-[2000px] min-h-[500px] sm:min-h-[800px]">
         
         {/* The 3D Holographic Twist */}
         <HolographicSmartPanel mouseX={smoothX} mouseY={smoothY} />

@@ -388,7 +388,7 @@ export default function AudioVideoPage() {
       />
 
       {/* --- HERO --- */}
-      <section className="relative z-10 pt-48 pb-32 px-6 max-w-7xl mx-auto flex flex-col items-center text-center perspective-[2000px] min-h-[800px]">
+      <section className="relative z-10 pt-48 pb-32 px-6 max-w-7xl mx-auto flex flex-col items-center text-center perspective-[2000px] min-h-[500px] sm:min-h-[800px]">
         
         {/* Inject Extreme 3D Visualizers */}
         <SpatialAudioSphere mouseX={smoothX} mouseY={smoothY} />
