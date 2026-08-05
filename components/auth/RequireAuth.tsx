@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { auth, db } from "../../lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { createClient } from "../../lib/supabase/client";
 
 import { useRouter } from "next/navigation";
 
@@ -19,26 +18,34 @@ export default function RequireAuth({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsub = auth.onAuthStateChanged(async (user) => {
+    const supabase = createClient();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const user = session?.user;
       if (!user) {
         router.push("/login");
         return;
       }
 
-      // If a specific role is required, we must check Firestore
+      // If a specific role is required, we must check the profile table
       const roleToCheck = requireAdmin ? 'admin' : requiredRole;
 
       if (roleToCheck) {
         try {
-          const snap = await getDoc(doc(db, "users", user.uid));
-          if (!snap.exists() || snap.data().role !== roleToCheck) {
-            console.warn(`User ${user.uid} does not have required role: ${roleToCheck}`);
+          const { data, error } = await supabase
+            .from("xerovolt_profiles")
+            .select("role")
+            .eq("id", user.id)
+            .single();
+
+          if (error || !data || data.role !== roleToCheck) {
+            console.warn(`User ${user.id} does not have required role: ${roleToCheck}`);
             router.push("/"); // Redirect to home on unauthorized
             return;
           }
         } catch (error) {
           console.error("Error checking user role:", error);
-          // On error (e.g. firestore missing), we might want to block or allow?
+          // On error (e.g. profile missing), we might want to block or allow?
           // Safe default: block or redirect
           router.push("/login");
           return;
@@ -57,7 +64,7 @@ export default function RequireAuth({
     }, 4000);
 
     return () => {
-      unsub();
+      subscription.unsubscribe();
       clearTimeout(timeout);
     };
   }, [router, requiredRole, requireAdmin]);

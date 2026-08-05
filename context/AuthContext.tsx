@@ -1,9 +1,9 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { User, onAuthStateChanged, signOut } from "firebase/auth";
-import { auth } from "../lib/firebase"; // Ensure this path is correct
-import { getUserRole } from "../lib/getUserRole"; // Ensure this path is correct
+import type { User } from "@supabase/supabase-js";
+import { createClient } from "../lib/supabase/client";
+import { getUserRole } from "../lib/getUserRole";
 
 interface AuthContextType {
     user: User | null;
@@ -25,41 +25,59 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-            setUser(currentUser);
-            setLoading(true);
+        const supabase = createClient();
 
-            if (currentUser) {
-                try {
-                    // 1. Try to get role from Custom Claims (IdTokenResult) first for performance
-                    const tokenResult = await currentUser.getIdTokenResult();
-                    let userRole = tokenResult.claims.role as string;
+        const resolveRole = async (currentUser: User) => {
+            try {
+                // 1. Try app_metadata first (Supabase's equivalent of Firebase custom
+                //    claims, included in the session — no extra round trip) for performance.
+                let userRole = currentUser.app_metadata?.role as string | undefined;
 
-                    // 2. If no custom claim, fallback to Firestore
-                    if (!userRole) {
-                        console.warn("No role in custom claims, fetching from Firestore...");
-                        const firestoreRole = await getUserRole(currentUser.uid);
-                        userRole = firestoreRole || "customer"; // Default to customer if nothing found
-                    }
-
-                    setRole(userRole);
-                } catch (error) {
-                    console.error("Failed to fetch user role:", error);
-                    setRole(null);
+                // 2. If not set, fall back to the profile table.
+                if (!userRole) {
+                    console.warn("No role in app_metadata, fetching from profile table...");
+                    const profileRole = await getUserRole(currentUser.id);
+                    userRole = profileRole || "customer";
                 }
-            } else {
+
+                setRole(userRole);
+            } catch (error) {
+                console.error("Failed to fetch user role:", error);
                 setRole(null);
             }
+        };
 
-            setLoading(false);
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setUser(session?.user ?? null);
+            if (session?.user) {
+                resolveRole(session.user).finally(() => setLoading(false));
+            } else {
+                setRole(null);
+                setLoading(false);
+            }
         });
 
-        return () => unsubscribe();
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null);
+            setLoading(true);
+
+            if (session?.user) {
+                resolveRole(session.user).finally(() => setLoading(false));
+            } else {
+                setRole(null);
+                setLoading(false);
+            }
+        });
+
+        return () => subscription.unsubscribe();
     }, []);
 
     const logout = async () => {
         try {
-            await signOut(auth);
+            const supabase = createClient();
+            await supabase.auth.signOut();
         } catch (error) {
             console.error("Logout failed", error);
         }

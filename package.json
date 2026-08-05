@@ -5,16 +5,19 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postinstall": "prisma generate",
     "start": "next start",
     "lint": "eslint",
-    "migrate:products": "node scripts/migrate-products.js",
-    "make-admin": "node scripts/make-admin.js"
+    "make-admin": "node scripts/make-admin.js",
+    "migrate:export-firebase": "node scripts/migrate-firebase/export.js",
+    "migrate:import-supabase": "node scripts/migrate-firebase/import.js"
   },
   "dependencies": {
+    "@prisma/client": "^5.19.1",
     "@react-three/drei": "^9.122.0",
     "@react-three/fiber": "^8.18.0",
-    "firebase": "^10.14.1",
-    "firebase-admin": "^12.7.0",
+    "@supabase/ssr": "^0.5.1",
+    "@supabase/supabase-js": "^2.45.4",
     "idb": "^8.0.3",
     "lucide-react": "^0.560.0",
     "motion": "^12.23.26",
@@ -35,8 +38,10 @@
     "@types/three": "^0.160.0",
     "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.4.23",
+    "dotenv": "^16.4.5",
     "eslint": "^9",
     "eslint-config-next": "15.1.6",
+    "prisma": "^5.19.1",
     "tailwindcss": "^4.1.18",
     "typescript": "^5"
   },

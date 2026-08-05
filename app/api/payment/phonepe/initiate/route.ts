@@ -1,16 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 import { getPhonePeConfig, encodePayload, generateChecksum } from "@/lib/phonepe";
-import admin from "@/lib/firebaseAdmin";
-// 1. Import modular Firestore services
-import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import { prisma } from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
         const { amount, customerInfo, items, userId } = body;
 
-        console.log("🚀 Payment Init Request:", { amount, customerInfo });
+        console.log("Payment Init Request:", { amount, customerInfo });
 
         if (amount === undefined || amount === null || !customerInfo) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -24,7 +22,7 @@ export async function POST(req: NextRequest) {
 
         // 2. Prepare Payload (PhonePe expects PAISES)
         const amountInPaisa = Math.round(amount * 100);
-        const origin = req.headers.get("origin") || "https://xerovolt.tech";
+        const origin = req.headers.get("origin") || "https://xerovolt.in";
         const redirectUrl = `${origin}/payment/success?id=${merchantTransactionId}`;
 
         const payload = {
@@ -43,28 +41,23 @@ export async function POST(req: NextRequest) {
         const apiEndpoint = "/pg/v1/pay";
         const checksum = generateChecksum(base64Payload, apiEndpoint, saltKey, saltIndex);
 
-        // 3. Create Order in 'qube-tech' DB BEFORE initiating payment
+        // 3. Create Order in Postgres BEFORE initiating payment
         try {
-            // Use modular getFirestore and target your specific DB
-            const db = getFirestore(admin, 'qube-tech');
-            const orderRef = db.collection('orders').doc(); 
-            
-            await orderRef.set({
-                orderId: merchantTransactionId,
-                transactionId: merchantTransactionId,
-                userId: merchantUserId,
-                amount: amount,
-                items: items,
-                customerInfo: customerInfo,
-                status: 'PENDING',
-                paymentMethod: 'phonepe',
-                // Use modular FieldValue syntax
-                createdAt: FieldValue.serverTimestamp(),
-                updatedAt: FieldValue.serverTimestamp()
+            await prisma.xerovoltOrder.create({
+                data: {
+                    orderId: merchantTransactionId,
+                    transactionId: merchantTransactionId,
+                    userId: merchantUserId,
+                    amount,
+                    items,
+                    customerInfo,
+                    status: 'PENDING',
+                    paymentMethod: 'phonepe',
+                },
             });
-            console.log(`📝 Created pending order in qube-tech: ${orderRef.id}`);
+            console.log(`Created pending order: ${merchantTransactionId}`);
         } catch (error) {
-            console.error("❌ Firestore order creation failed:", error);
+            console.error("Order creation failed:", error);
             return NextResponse.json({ error: "Failed to create order" }, { status: 500 });
         }
 
@@ -87,12 +80,12 @@ export async function POST(req: NextRequest) {
                 transactionId: merchantTransactionId,
             });
         } else {
-            console.error("❌ PhonePe Init Error:", data);
+            console.error("PhonePe Init Error:", data);
             return NextResponse.json({ error: data.message || "Payment initiation failed" }, { status: 500 });
         }
 
     } catch (error: any) {
-        console.error("❌ Payment Initiation Error:", error);
+        console.error("Payment Initiation Error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

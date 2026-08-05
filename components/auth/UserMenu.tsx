@@ -1,22 +1,28 @@
 "use client";
 
-import { signOut } from "firebase/auth";
-import { auth } from "../../lib/firebase";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import type { User } from "@supabase/supabase-js";
+import { createClient } from "../../lib/supabase/client";
 import { useRouter } from "next/navigation";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User as UserIcon } from "lucide-react";
 
 export default function UserMenu() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const user = auth.currentUser;
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => setUser(data.user));
+  }, []);
 
   if (!user) return null;
 
   async function handleLogout() {
     try {
-      console.log("Logging out user:", user.uid);
-      await signOut(auth);
+      console.log("Logging out user:", user!.id);
+      const supabase = createClient();
+      await supabase.auth.signOut();
       router.push("/login");
     } catch (err) {
       console.error("Logout failed", err);
@@ -30,7 +36,7 @@ export default function UserMenu() {
         onClick={() => setOpen(!open)}
         className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full hover:bg-white/20 transition"
       >
-        <User className="w-4 h-4" />
+        <UserIcon className="w-4 h-4" />
         <span className="text-sm">{user.email}</span>
       </button>
 

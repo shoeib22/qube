@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { auth } from "../lib/firebase";
-import { onAuthStateChanged, User } from "firebase/auth";
+import { createClient } from "../lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
 import { ShoppingCart } from "lucide-react";
 
 import LoginButton from "../components/ui/LoginButton";
@@ -19,12 +19,16 @@ export default function Header() {
 
   const { cartCount } = useCart();
 
-  // Handle Firebase Auth State
+  // Handle Supabase Auth State
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
     });
-    return () => unsubscribe();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   // Prevent scroll when mobile menu is open

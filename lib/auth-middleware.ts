@@ -1,8 +1,6 @@
 import { NextRequest } from 'next/server';
-import admin from '@/lib/firebaseAdmin';
-// 1. Import modular service getters
-import { getAuth } from 'firebase-admin/auth';
-import { getFirestore } from 'firebase-admin/firestore';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { prisma } from '@/lib/prisma';
 
 export interface AuthUser {
     uid: string;
@@ -11,7 +9,7 @@ export interface AuthUser {
 }
 
 /**
- * Verifies the authentication token from the request
+ * Verifies the bearer token from the request against Supabase Auth.
  */
 export async function verifyAuth(request: NextRequest): Promise<AuthUser | null> {
     try {
@@ -22,25 +20,25 @@ export async function verifyAuth(request: NextRequest): Promise<AuthUser | null>
 
         const token = authHeader.split('Bearer ')[1];
 
-        // 2. Use modular getAuth(admin) instead of admin.auth()
-        const auth = getAuth(admin);
-        const decodedToken = await auth.verifyIdToken(token);
+        const supabase = createAdminClient();
+        const { data: { user }, error } = await supabase.auth.getUser(token);
+        if (error || !user) {
+            return null;
+        }
 
-        let role = decodedToken.role as string;
+        // 1. Role from app_metadata (Supabase's equivalent of Firebase custom claims —
+        //    included in the JWT, no DB round trip) first, for performance.
+        let role = user.app_metadata?.role as string | undefined;
 
-        // 3. Use modular getFirestore(admin) targeting 'qube-tech'
+        // 2. Fall back to the profile table if app_metadata hasn't been set.
         if (!role) {
-            const db = getFirestore(admin, 'qube-tech');
-            const userDoc = await db.collection('users')
-                .doc(decodedToken.uid)
-                .get();
-
-            role = userDoc.exists ? userDoc.data()?.role : 'customer';
+            const profile = await prisma.xerovoltProfile.findUnique({ where: { id: user.id } });
+            role = profile?.role ?? 'customer';
         }
 
         return {
-            uid: decodedToken.uid,
-            email: decodedToken.email || '',
+            uid: user.id,
+            email: user.email || '',
             role: role || 'customer'
         };
     } catch (error) {

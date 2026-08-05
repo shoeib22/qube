@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Search, X } from 'lucide-react';
 import RequireAuth from '../../../components/auth/RequireAuth';
-import { auth } from '../../../lib/firebase';
+import { getAccessToken } from '../../../lib/supabase/client';
 
 interface Product {
   id: string;
@@ -55,7 +55,7 @@ export default function AdminDashboard() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const token = await auth.currentUser?.getIdToken();
+      const token = await getAccessToken();
       const response = await fetch('/api/admin/products', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -77,7 +77,7 @@ export default function AdminDashboard() {
     if (!confirm('Are you sure you want to delete this product?')) return;
 
     try {
-      const token = await auth.currentUser?.getIdToken();
+      const token = await getAccessToken();
       const response = await fetch(`/api/admin/products/${id}`, {
         method: 'DELETE',
         headers: {
@@ -304,7 +304,7 @@ function ProductModal({
     setLoading(true);
 
     try {
-      const token = await auth.currentUser?.getIdToken();
+      const token = await getAccessToken();
       const url = product ? `/api/admin/products/${product.id}` : '/api/admin/products';
       const method = product ? 'PUT' : 'POST';
 

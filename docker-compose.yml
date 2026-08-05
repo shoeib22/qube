@@ -1,0 +1,35 @@
+services:
+  xerovolt-web:
+    build:
+      context: .
+      args:
+        # Baked into the client bundle at build time — must be the public Caddy-fronted
+        # URL, not the internal Docker service name (see Dockerfile comment).
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+    container_name: xerovolt-web
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3000" # loopback-only — Caddy is the public entry point
+    environment:
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      # Internal Docker DNS names on the supabase_default network — not the public IP,
+      # so this traffic never leaves the host. Supavisor (the pooler) requires a
+      # tenant-qualified username — this self-hosted instance has exactly one tenant,
+      # named "osteq" (POOLER_TENANT_ID in /opt/supabase/docker/.env), shared by every
+      # app on it; "postgres.osteq" is correct here even for non-Osteq connections.
+      DATABASE_URL: postgresql://postgres.osteq:${POSTGRES_PASSWORD}@supabase-pooler:6543/postgres?pgbouncer=true
+      DIRECT_URL: postgresql://postgres:${POSTGRES_PASSWORD}@supabase-db:5432/postgres
+      PHONEPE_ENVIRONMENT: ${PHONEPE_ENVIRONMENT}
+      PHONEPE_MERCHANT_ID: ${PHONEPE_MERCHANT_ID}
+      PHONEPE_SALT_KEY: ${PHONEPE_SALT_KEY}
+      PHONEPE_SALT_INDEX: ${PHONEPE_SALT_INDEX}
+      PHONEPE_CALLBACK_URL: ${PHONEPE_CALLBACK_URL}
+    networks:
+      - supabase_default
+
+networks:
+  supabase_default:
+    external: true

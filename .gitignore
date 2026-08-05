@@ -85,6 +85,10 @@ diagnose_firebase.js
 .firebaserc
 firebase-admin-key.json
 
+# One-off Firebase->Supabase migration export — real user PII (emails, password
+# hashes, order details), never commit it.
+scripts/migrate-firebase/export/
+
 # =========================
 # Hardware / IoT (Xerovolt Grid)
 # =========================

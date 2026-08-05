@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPhonePeConfig, generateStatusChecksum } from "@/lib/phonepe";
-import admin from "@/lib/firebaseAdmin";
-// 1. Import modular Firestore services
-import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import { prisma } from "@/lib/prisma";
 
 /**
  * POST /api/payments/status
- * VERIFY: Checks transaction status with PhonePe and updates 'qube-tech' DB.
+ * VERIFY: Checks transaction status with PhonePe and updates the order in Postgres.
  */
 export async function POST(req: NextRequest) {
     try {
@@ -33,7 +31,7 @@ export async function POST(req: NextRequest) {
         });
 
         const data = await response.json();
-        console.log("🔍 PhonePe Status Response:", JSON.stringify(data, null, 2));
+        console.log("PhonePe Status Response:", JSON.stringify(data, null, 2));
 
         let finalStatus = 'PENDING';
         if (data.success && data.code === "PAYMENT_SUCCESS") {
@@ -42,37 +40,32 @@ export async function POST(req: NextRequest) {
             finalStatus = 'FAILED';
         }
 
-        // 3. Update Order in 'qube-tech' DB
+        // 3. Update Order in Postgres
         try {
-            // Use modular syntax and target qube-tech
-            const db = getFirestore(admin, 'qube-tech');
-            const ordersRef = db.collection('orders');
-            const snapshot = await ordersRef.where('transactionId', '==', transactionId).get();
+            const order = await prisma.xerovoltOrder.findUnique({ where: { transactionId } });
 
-            if (!snapshot.empty) {
-                const orderDoc = snapshot.docs[0];
-                const currentData = orderDoc.data();
-
-                // 🛡️ Safeguard: Don't overwrite SUCCESS status with a PENDING check
-                if (currentData.status !== 'SUCCESS') {
-                    await orderDoc.ref.update({
-                        status: finalStatus,
-                        paymentDetails: data.data || {},
-                        // Use modular FieldValue syntax
-                        updatedAt: FieldValue.serverTimestamp()
-                    });
-                }
-
-                return NextResponse.json({
-                    success: finalStatus === 'SUCCESS',
-                    status: finalStatus,
-                    orderId: orderDoc.id
-                });
-            } else {
+            if (!order) {
                 return NextResponse.json({ error: "Order not found" }, { status: 404 });
             }
+
+            // Safeguard: Don't overwrite SUCCESS status with a PENDING check
+            if (order.status !== 'SUCCESS') {
+                await prisma.xerovoltOrder.update({
+                    where: { transactionId },
+                    data: {
+                        status: finalStatus,
+                        paymentDetails: data.data || {},
+                    },
+                });
+            }
+
+            return NextResponse.json({
+                success: finalStatus === 'SUCCESS',
+                status: finalStatus,
+                orderId: order.id
+            });
         } catch (dbError) {
-            console.error("❌ Database update failed:", dbError);
+            console.error("Database update failed:", dbError);
             return NextResponse.json({
                 success: finalStatus === 'SUCCESS',
                 status: finalStatus,
@@ -81,7 +74,7 @@ export async function POST(req: NextRequest) {
         }
 
     } catch (error: any) {
-        console.error("❌ Payment Verify Error:", error);
+        console.error("Payment Verify Error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

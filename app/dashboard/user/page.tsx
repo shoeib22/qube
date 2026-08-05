@@ -24,7 +24,7 @@ import RequireAuth from "../../../components/auth/RequireAuth";
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
 import { useAuth } from "../../../context/AuthContext";
-import { auth } from "../../../lib/firebase";
+import { getAccessToken } from "../../../lib/supabase/client";
 
 interface Address {
   id: string;
@@ -57,7 +57,7 @@ export default function UserAccountPage() {
   const fetchAddresses = async () => {
     setLoadingAddresses(true);
     try {
-      const token = await auth.currentUser?.getIdToken();
+      const token = await getAccessToken();
       const response = await fetch('/api/addresses', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -78,7 +78,7 @@ export default function UserAccountPage() {
     if (!confirm('Are you sure you want to delete this address?')) return;
 
     try {
-      const token = await auth.currentUser?.getIdToken();
+      const token = await getAccessToken();
       const response = await fetch(`/api/addresses/${id}`, {
         method: 'DELETE',
         headers: {
@@ -99,7 +99,7 @@ export default function UserAccountPage() {
 
   const handleSetDefault = async (id: string) => {
     try {
-      const token = await auth.currentUser?.getIdToken();
+      const token = await getAccessToken();
       const response = await fetch(`/api/addresses/${id}/set-default`, {
         method: 'PUT',
         headers: {
@@ -144,7 +144,7 @@ export default function UserAccountPage() {
                     {user?.email?.[0].toUpperCase() || 'U'}
                   </div>
                   <div>
-                    <h3 className="font-bold text-lg">{user?.displayName || 'User'}</h3>
+                    <h3 className="font-bold text-lg">{user?.user_metadata?.full_name || 'User'}</h3>
                     <p className="text-xs text-gray-400">{user?.email}</p>
                   </div>
                 </div>
@@ -456,7 +456,7 @@ function AddressModal({
     setLoading(true);
 
     try {
-      const token = await auth.currentUser?.getIdToken();
+      const token = await getAccessToken();
       const url = address ? `/api/addresses/${address.id}` : '/api/addresses';
       const method = address ? 'PUT' : 'POST';
 

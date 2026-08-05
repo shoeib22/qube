@@ -1,57 +1,56 @@
 import { NextRequest, NextResponse } from 'next/server';
-import admin from '@/lib/firebaseAdmin';
-// 1. Import modular service getters
-import { getAuth } from 'firebase-admin/auth';
-import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { prisma } from '@/lib/prisma';
 
 /**
  * POST /api/auth/register
- * PUBLIC: Creates a new user record and Firestore profile.
+ * PUBLIC: Creates a new user record and profile.
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { email, password, firstName, lastName } = body;
 
-    // 2. Initialize modular services
-    const auth = getAuth(admin);
-    const db = getFirestore(admin, 'qube-tech'); // Specifically target your DB instance
+    const supabase = createAdminClient();
 
-    // 3. Create user in Firebase Authentication
-    const userRecord = await auth.createUser({
+    // 1. Create user in Supabase Auth, with role in app_metadata (Supabase's
+    //    equivalent of Firebase custom claims) and full name in user_metadata
+    //    (equivalent of Firebase's displayName).
+    const { data, error } = await supabase.auth.admin.createUser({
       email,
       password,
-      displayName: `${firstName} ${lastName}`,
+      email_confirm: true,
+      user_metadata: { firstName, lastName, full_name: `${firstName} ${lastName}` },
+      app_metadata: { role: 'customer' },
     });
 
-    // 4. Assign default 'customer' role via Custom Claims
-    await auth.setCustomUserClaims(userRecord.uid, { role: 'customer' });
+    if (error || !data.user) {
+      const status = error?.status === 422 ? 400 : 500;
+      return NextResponse.json({ error: error?.message || 'Registration failed' }, { status });
+    }
 
-    // 5. Create user document in 'qube-tech' Firestore
-    await db.collection('users').doc(userRecord.uid).set({
-      firstName,
-      lastName,
-      email,
-      role: 'customer',
-      // Use modular FieldValue syntax
-      createdAt: FieldValue.serverTimestamp(),
-      updatedAt: FieldValue.serverTimestamp()
+    // 2. Create the profile row
+    await prisma.xerovoltProfile.create({
+      data: {
+        id: data.user.id,
+        firstName,
+        lastName,
+        email,
+        role: 'customer',
+      },
     });
 
-    console.log(`✅ Successfully created Xerovolt account: ${userRecord.uid}`);
+    console.log(`Successfully created Xerovolt account: ${data.user.id}`);
 
     return NextResponse.json({
       success: true,
-      uid: userRecord.uid
+      uid: data.user.id
     }, { status: 201 });
 
   } catch (error: any) {
     console.error("Registration Error:", error.message);
-    
-    // Handle specific Firebase errors (e.g., email already in use)
-    const status = error.code === 'auth/email-already-exists' ? 400 : 500;
     return NextResponse.json({
       error: error.message || 'Internal Server Error'
-    }, { status });
+    }, { status: 500 });
   }
 }

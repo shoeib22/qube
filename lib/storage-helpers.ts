@@ -1,36 +1,22 @@
-import { ref, getDownloadURL } from 'firebase/storage';
-import { storage } from './firebase';
+import { getPublicUrl } from '@/lib/supabase/storage';
 
 /**
- * Get the download URL for an image from Firebase Storage
+ * Get the public URL for an image in the `products` Supabase Storage bucket.
  * @param imagePath - The path to the image in Storage (e.g., "products/image.png")
- * @returns The full download URL
+ * @returns The full public URL
  */
-export async function getImageUrl(imagePath: string): Promise<string> {
-  try {
-    // Remove leading slash if present
-    const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
-    
-    // If path doesn't start with "products/", add it
-    const fullPath = cleanPath.startsWith('products/') ? cleanPath : `products/${cleanPath}`;
-    
-    const imageRef = ref(storage, fullPath);
-    const url = await getDownloadURL(imageRef);
-    return url;
-  } catch (error) {
-    console.error('Error getting image URL:', error);
-    // Return a placeholder image or empty string
-    return '/placeholder.png';
-  }
+export function getImageUrl(imagePath: string): string {
+  const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
+  const relativePath = cleanPath.startsWith('products/') ? cleanPath.slice('products/'.length) : cleanPath;
+  return getPublicUrl(relativePath);
 }
 
 /**
- * Convert old local image path to Firebase Storage path
+ * Convert old local image path to a Storage-relative path
  * @param oldPath - Old path like "/images/product.png"
- * @returns Storage path like "products/product.png"
+ * @returns Storage path like "product.png" (relative to the `products` bucket)
  */
 export function convertToStoragePath(oldPath: string): string {
   // Remove /images/ prefix and any leading slashes
-  const filename = oldPath.replace(/^\/?(images\/)?/, '');
-  return `products/${filename}`;
+  return oldPath.replace(/^\/?(images\/)?(products\/)?/, '');
 }

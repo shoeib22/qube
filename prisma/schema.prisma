@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+/// Mirrors a Supabase auth.users row (same id) for a Xerovolt customer/admin, the same
+/// pattern osteq-platform uses for OsteqCustomerProfile/Staff. `legacyFirebaseUid` is kept
+/// only for the one-time Firebase migration (tracing an imported row back to its original
+/// Firestore `users/{uid}` doc) — not used by application code afterwards.
+model XerovoltProfile {
+  id                String   @id
+  email             String   @unique
+  firstName         String?
+  lastName          String?
+  role              String   @default("customer")
+  legacyFirebaseUid String?  @unique
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("xerovolt_profiles")
+}
+
+model XerovoltProduct {
+  id        String   @id @default(uuid())
+  name      String
+  category  String?
+  price     Float
+  image     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("xerovolt_products")
+}
+
+/// `userId` is intentionally a plain string, not a Prisma relation to XerovoltProfile —
+/// the existing checkout flow (see app/api/payment/phonepe/initiate) allows guest
+/// checkout with a synthetic `USER_<uuid>` when no logged-in user is present, so this
+/// column can't be a real foreign key without breaking guest orders.
+model XerovoltOrder {
+  id              String   @id @default(uuid())
+  orderId         String   @unique
+  transactionId   String   @unique
+  userId          String
+  amount          Float
+  items           Json
+  customerInfo    Json
+  status          String   @default("PENDING")
+  paymentMethod   String
+  paymentDetails  Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@map("xerovolt_orders")
+}
+
+model XerovoltErvLead {
+  id        String   @id @default(uuid())
+  name      String?
+  email     String?
+  contact   String?
+  product   String   @default("ERV")
+  createdAt DateTime @default(now())
+
+  @@map("xerovolt_erv_leads")
+}

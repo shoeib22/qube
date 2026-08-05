@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import ProtectedRoute from "../../../../components/ProtectedRoute";
 import { useAuth } from "../../../../context/AuthContext";
-import { auth } from "../../../../lib/firebase";
+import { getAccessToken } from "../../../../lib/supabase/client";
 
 interface UserData {
     id: string;
@@ -27,7 +27,7 @@ export default function AdminUsersPage() {
         if (!currentUser) return;
         setLoading(true);
         try {
-            const token = await currentUser.getIdToken();
+            const token = await getAccessToken();
             const res = await fetch("/api/admin/users", {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -48,7 +48,7 @@ export default function AdminUsersPage() {
         if (!currentUser) return;
         setUpdating(userId);
         try {
-            const token = await currentUser.getIdToken();
+            const token = await getAccessToken();
             const res = await fetch("/api/admin/users", {
                 method: "PUT",
                 headers: {

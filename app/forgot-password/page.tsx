@@ -3,8 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { sendPasswordResetEmail } from 'firebase/auth';
-import { auth } from '../../lib/firebase';
+import { createClient } from '../../lib/supabase/client';
 
 export default function ForgotPasswordPage() {
     const [email, setEmail] = useState('');
@@ -17,7 +16,9 @@ export default function ForgotPasswordPage() {
         setStatus({ type: null, message: '' });
 
         try {
-            await sendPasswordResetEmail(auth, email);
+            const supabase = createClient();
+            const { error: resetError } = await supabase.auth.resetPasswordForEmail(email);
+            if (resetError) throw resetError;
             setStatus({
                 type: 'success',
                 message: 'Password reset email sent! Check your inbox.'
@@ -25,15 +26,9 @@ export default function ForgotPasswordPage() {
             setEmail(''); // Clear input on success
         } catch (err: any) {
             console.error("Reset password error", err);
-            let errorMessage = "Failed to send reset email. Please try again.";
-            if (err.code === 'auth/user-not-found') {
-                errorMessage = "No account found with this email address.";
-            } else if (err.code === 'auth/invalid-email') {
-                errorMessage = "Please enter a valid email address.";
-            }
             setStatus({
                 type: 'error',
-                message: errorMessage
+                message: "Failed to send reset email. Please try again."
             });
         } finally {
             setIsLoading(false);
