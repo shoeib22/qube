@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Standalone output for the Docker image (see Dockerfile) — bundles only the
+  // production node_modules subset a `next start` server actually needs.
+  output: 'standalone',
   // Pin the workspace root: a stray lockfile in the parent dir otherwise makes
   // Turbopack infer C:\Users\Shoeii as root, which broke CSS recompilation.
   turbopack: {
