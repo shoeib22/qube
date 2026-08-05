@@ -30,6 +30,12 @@ const nextConfig = {
         pathname: '/storage/v1/object/**',
       },
       {
+        // Self-hosted Supabase on the VPS, fronted by Caddy.
+        protocol: 'https',
+        hostname: 'supabase.xerovolt.in',
+        pathname: '/storage/v1/object/**',
+      },
+      {
         // Local Supabase Docker stack (supabase start) — dev only.
         protocol: 'http',
         hostname: '127.0.0.1',
