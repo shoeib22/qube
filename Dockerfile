@@ -20,13 +20,12 @@ ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
 ENV NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
 
-# lib/supabaseAdmin.ts constructs its client at module load, not lazily — `next build`'s
-# page-data-collection step imports every route module (including ones that only touch
-# this at request time), so this has to be a real value during build too, even though
-# it's a server-only secret never sent to the client. docker-compose.yml supplies the
-# actual runtime value separately; this is only consumed at build time.
-ARG SUPABASE_SERVICE_ROLE_KEY
-ENV SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+# lib/supabaseAdmin.ts constructs its client at module load, not lazily, so `next
+# build`'s page-data-collection step (which imports every route module) needs *some*
+# string here or the constructor throws — it never actually makes a request at build
+# time, so a placeholder is enough. The real secret is runtime-only, supplied by
+# docker-compose.yml's `environment:` — never baked into an image layer.
+ENV SUPABASE_SERVICE_ROLE_KEY=placeholder-build-time-only
 
 RUN npm run build
 
