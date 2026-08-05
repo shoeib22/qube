@@ -9,6 +9,15 @@ const nextConfig = {
     root: import.meta.dirname,
   },
   images: {
+    // The self-hosted Supabase instance is on the same Docker network as this app,
+    // given a network alias (supabase.xerovolt.in -> Caddy's container) so server-side
+    // API calls avoid hairpin NAT back through the host's own public IP. That alias
+    // means the hostname resolves to a private IP from inside this container — which
+    // next/image's built-in optimizer refuses to fetch from (SSRF protection), even
+    // though the image itself loads fine. These product photos don't need Next's
+    // resize/reencode pipeline anyway, so skip it rather than fight the two features
+    // wanting contradictory DNS resolution for the same hostname.
+    unoptimized: true,
     localPatterns: [
       { pathname: '/logo/**' },
       { pathname: '/api/products/**' },
