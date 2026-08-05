@@ -7,6 +7,8 @@ services:
         # Cloud project URL (see Dockerfile comment).
         NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
         NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+        # lib/supabaseAdmin.ts needs this at build time too — see Dockerfile comment.
+        SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
     container_name: xerovolt-web
     restart: unless-stopped
     ports:
