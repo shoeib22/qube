@@ -10,6 +10,7 @@
     "optimize:images": "node scripts/optimize-product-images.js"
   },
   "dependencies": {
+    "@google/genai": "^2.20.0",
     "@next/third-parties": "^16.2.4",
     "@react-three/drei": "^11.0.0-alpha.5",
     "@react-three/fiber": "^10.0.0-alpha.2",
