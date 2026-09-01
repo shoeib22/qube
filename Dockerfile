@@ -33,6 +33,12 @@ RUN npm run build
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
+# fontconfig + a basic font: sharp (libvips/librsvg) needs these to rasterize
+# text in the SVG grid-overlay Plan Mapper draws before calling Gemini
+# (lib/planMapper.ts) — node:20-slim ships neither, and text silently drops
+# without them.
+RUN apt-get update && apt-get install -y --no-install-recommends fontconfig fonts-dejavu-core \
+    && rm -rf /var/lib/apt/lists/*
 RUN groupadd --system --gid 1001 nodejs && useradd --system --uid 1001 --gid nodejs nextjs
 
 COPY --from=builder /app/public ./public
