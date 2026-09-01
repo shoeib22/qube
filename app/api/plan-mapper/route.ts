@@ -7,7 +7,13 @@ export const maxDuration = 60;
 const MAX_BYTES = 15 * 1024 * 1024; // 15MB
 
 export async function POST(request: NextRequest) {
-  const formData = await request.formData();
+  let formData: FormData;
+  try {
+    formData = await request.formData();
+  } catch {
+    return Response.json({ error: "expected multipart/form-data with a 'plan' file" }, { status: 400 });
+  }
+
   const file = formData.get("plan");
 
   if (!(file instanceof File)) {
@@ -20,9 +26,8 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "file too large (max 15MB)" }, { status: 400 });
   }
 
-  const buffer = Buffer.from(await file.arrayBuffer());
-
   try {
+    const buffer = Buffer.from(await file.arrayBuffer());
     const result = await analyzePlan(buffer);
     return Response.json(result);
   } catch (err) {
