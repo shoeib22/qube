@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { computeTotals, emptyItem, Quotation, QuoteItem } from '@/lib/quotations';
-import ProductPicker, { CatalogProduct } from '@/components/quotations/ProductPicker';
+import QuickAddItem from '@/components/quotations/QuickAddItem';
 
 const inputClass =
   'w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#f2994a]';
@@ -75,18 +75,33 @@ export default function QuotationForm({ initial }: { initial?: Quotation }) {
     setPendingPoint({ x_pct, y_pct });
   }
 
-  function placeProduct(product: CatalogProduct) {
+  async function uploadItemImage(file: File) {
+    if (!user || !initial) throw new Error('Save the quotation first');
+    const token = await user.getIdToken();
+    const body = new FormData();
+    body.append('image', file);
+    const res = await fetch(`/api/admin/quotations/${initial.id}/item-image`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body,
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to upload photo');
+    return data.url as string;
+  }
+
+  function placeItem(item: { description: string; unit_price: number; image_url: string | null }) {
     if (!pendingPoint) return;
     setItems((prev) => [
       ...prev,
       {
-        description: product.name,
+        description: item.description,
         qty: 1,
-        unit_price: product.price,
+        unit_price: item.unit_price,
         discount_pct: 0,
         tax_pct: 0,
-        product_id: product.id,
-        image_url: product.imageUrl,
+        product_id: null,
+        image_url: item.image_url,
         x_pct: pendingPoint.x_pct,
         y_pct: pendingPoint.y_pct,
       },
@@ -243,7 +258,7 @@ export default function QuotationForm({ initial }: { initial?: Quotation }) {
       </div>
 
       {pendingPoint && (
-        <ProductPicker onSelect={placeProduct} onClose={() => setPendingPoint(null)} />
+        <QuickAddItem onAdd={placeItem} onClose={() => setPendingPoint(null)} uploadImage={uploadItemImage} />
       )}
 
       <div className="bg-[#0c0c0c] border border-white/5 rounded-2xl p-8 mb-6">
