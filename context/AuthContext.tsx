@@ -29,10 +29,18 @@ const AuthContext = createContext<AuthContextType>({
     logout: async () => { },
 });
 
-const getIdToken = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    return session?.access_token ?? "";
-};
+// Every admin page calls user.getIdToken() before each API request. It used
+// to call supabase.auth.getSession() fresh every time, which can trigger its
+// own token-refresh network call — with enough calls firing close together
+// (e.g. working through the quotation form: load list, open form, submit,
+// load detail, change status), several would race to refresh the same
+// stored refresh token. GoTrue treats a reused refresh token as a security
+// violation and revokes the *entire* session, signing the user out mid-use.
+// Cache the access token from the one subscription AuthProvider already
+// maintains instead, so refreshing only ever happens via supabase-js's own
+// single internal timer, never as a side effect of an unrelated API call.
+let cachedAccessToken: string | null = null;
+const getIdToken = async () => cachedAccessToken ?? "";
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<AppUser | null>(null);
@@ -45,6 +53,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         const applySession = async (session: Session | null) => {
             if (!session?.user) {
+                cachedAccessToken = null;
                 if (!active) return;
                 setUser(null);
                 setRole(null);
@@ -52,6 +61,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 setLoading(false);
                 return;
             }
+
+            cachedAccessToken = session.access_token;
 
             // Store the access token in a cookie for Server Components
             Cookies.set('token', session.access_token, { expires: 1 / 24, path: '/' });
