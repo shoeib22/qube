@@ -41,6 +41,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     useEffect(() => {
         let active = true;
+        let initialized = false;
 
         const applySession = async (session: Session | null) => {
             if (!session?.user) {
@@ -64,21 +65,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                       .filter(Boolean)
                       .join(" ") || null
                 : null;
+            const nextRole = (profile?.role as string | undefined) ?? "customer";
 
-            setUser({
-                uid: session.user.id,
-                email: session.user.email ?? "",
-                displayName,
-                getIdToken,
-            });
-            setRole((profile?.role as string | undefined) ?? "customer");
+            // Token refreshes (routinely hourly, or rapid-fire if the client's
+            // clock has drifted from the server's) re-run this same callback
+            // with an unchanged user. Keep `user`/`role` referentially stable
+            // across those so components that depend on them in a
+            // useCallback/useEffect dep array (nearly every admin page) don't
+            // re-render and re-fetch every time — only a genuine identity
+            // change should do that.
+            setUser((prev) =>
+                prev && prev.uid === session.user.id && prev.email === (session.user.email ?? "") && prev.displayName === displayName
+                    ? prev
+                    : { uid: session.user.id, email: session.user.email ?? "", displayName, getIdToken }
+            );
+            setRole((prev) => (prev === nextRole ? prev : nextRole));
             setLoading(false);
         };
 
         // onAuthStateChange fires immediately with the current session on
-        // subscribe, then again on every login/logout/token refresh.
+        // subscribe, then again on every login/logout/token refresh. Only the
+        // very first resolution should blank the page with the loading
+        // state — later events (refreshes) update state in place.
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setLoading(true);
+            if (!initialized) setLoading(true);
+            initialized = true;
             applySession(session);
         });
 
