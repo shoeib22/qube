@@ -61,6 +61,7 @@ export default function Header() {
           <Link href="/" className="hover:text-brand transition-colors">Home</Link>
           <Link href="/services" className="hover:text-brand transition-colors">Solutions</Link>
           <Link href="/shop" className="hover:text-brand transition-colors">Shop</Link>
+          <Link href="/plan-mapper" className="hover:text-brand transition-colors">Plan Mapper</Link>
           <Link href="/support" className="hover:text-brand transition-colors">Support</Link>
           <Link href="/contact" className="hover:text-brand transition-colors">Contact</Link>
         </nav>
@@ -121,6 +122,7 @@ export default function Header() {
             <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
             <Link href="/services" onClick={() => setIsMobileMenuOpen(false)}>Solutions</Link>
             <Link href="/shop" onClick={() => setIsMobileMenuOpen(false)}>Shop</Link>
+            <Link href="/plan-mapper" onClick={() => setIsMobileMenuOpen(false)}>Plan Mapper</Link>
             <Link href="/support" onClick={() => setIsMobileMenuOpen(false)}>Support</Link>
             <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)}>Contact</Link>
           </nav>
