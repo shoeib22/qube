@@ -4,6 +4,13 @@ export type QuoteItem = {
   unit_price: number;
   discount_pct: number;
   tax_pct: number;
+  // Set when this item was placed on the floor plan rather than typed
+  // freeform — product_id/image_url come from the real product catalog,
+  // x_pct/y_pct are the click position on the plan image (0-100).
+  product_id?: string | null;
+  image_url?: string | null;
+  x_pct?: number | null;
+  y_pct?: number | null;
 };
 
 export type QuoteStatus = "draft" | "sent" | "accepted" | "rejected";
@@ -22,6 +29,7 @@ export type Quotation = {
   items: QuoteItem[];
   notes: string | null;
   terms: string | null;
+  plan_image_url: string | null;
   subtotal: number;
   discount_total: number;
   tax_total: number;
@@ -64,7 +72,17 @@ function round2(n: number) {
   return Math.round(n * 100) / 100;
 }
 
+// plan_image_url is set via the dedicated /plan upload route, not the
+// general create/update payload.
 export type QuotationInput = Omit<
   Quotation,
-  "id" | "quote_number" | "created_at" | "updated_at" | "subtotal" | "discount_total" | "tax_total" | "grand_total"
+  | "id"
+  | "quote_number"
+  | "created_at"
+  | "updated_at"
+  | "subtotal"
+  | "discount_total"
+  | "tax_total"
+  | "grand_total"
+  | "plan_image_url"
 >;

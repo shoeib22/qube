@@ -11,10 +11,21 @@ import { createClient, navigatorLock } from "@supabase/supabase-js";
 // out), not just the one that raced. With the lock, only one tab performs
 // the actual refresh at a time — others wait, then read the session it just
 // wrote instead of racing their own copy of the old token.
+//
+// This module is also evaluated during Next.js's server-side prerendering
+// of "use client" pages (Node has no `navigator`), and supplying *any*
+// custom `lock` routes GoTrue's internal init-time bootstrap through it too
+// — so passing navigatorLock unconditionally crashes the build. Only use it
+// when an actual browser Web Locks API is present; the server/build path
+// falls back to no custom lock (GoTrue's lockless single-instance guard).
+const lock = typeof window !== "undefined" && typeof navigator !== "undefined" && "locks" in navigator
+  ? navigatorLock
+  : undefined;
+
 export const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  { auth: { lock: navigatorLock } }
+  { auth: { lock } }
 );
 
 export const waitForAuth = async () => {

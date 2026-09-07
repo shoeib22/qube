@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { requireAdmin } from '@/lib/auth-middleware';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { computeTotals, QuoteItem } from '@/lib/quotations';
+import { withPlanUrl } from '@/lib/quotationsServer';
 
 export async function GET(request: NextRequest) {
   const authResult = await requireAdmin(request);
@@ -13,7 +14,7 @@ export async function GET(request: NextRequest) {
     .order('created_at', { ascending: false });
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
-  return Response.json({ quotations: data });
+  return Response.json({ quotations: (data ?? []).map(withPlanUrl) });
 }
 
 async function nextQuoteNumber(): Promise<string> {
@@ -60,5 +61,5 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
-  return Response.json({ quotation: data }, { status: 201 });
+  return Response.json({ quotation: withPlanUrl(data) }, { status: 201 });
 }

@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { computeTotals, emptyItem, Quotation, QuoteItem } from '@/lib/quotations';
+import ProductPicker, { CatalogProduct } from '@/components/quotations/ProductPicker';
 
 const inputClass =
   'w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#f2994a]';
@@ -27,7 +28,14 @@ export default function QuotationForm({ initial }: { initial?: Quotation }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
+  const [planImageUrl, setPlanImageUrl] = useState(initial?.plan_image_url ?? null);
+  const [planUploading, setPlanUploading] = useState(false);
+  const [pendingPoint, setPendingPoint] = useState<{ x_pct: number; y_pct: number } | null>(null);
+  const [activeMarker, setActiveMarker] = useState<number | null>(null);
+  const planFileInputRef = useRef<HTMLInputElement>(null);
+
   const totals = computeTotals(items);
+  const markerItems = items.map((item, i) => ({ item, i })).filter(({ item }) => item.x_pct != null && item.y_pct != null);
 
   function updateItem(i: number, patch: Partial<QuoteItem>) {
     setItems((prev) => prev.map((it, idx) => (idx === i ? { ...it, ...patch } : it)));
@@ -35,6 +43,55 @@ export default function QuotationForm({ initial }: { initial?: Quotation }) {
 
   function removeItem(i: number) {
     setItems((prev) => prev.filter((_, idx) => idx !== i));
+  }
+
+  async function uploadPlan(file: File) {
+    if (!user || !initial) return;
+    setPlanUploading(true);
+    setError('');
+    try {
+      const token = await user.getIdToken();
+      const body = new FormData();
+      body.append('plan', file);
+      const res = await fetch(`/api/admin/quotations/${initial.id}/plan`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to upload floor plan');
+      setPlanImageUrl(data.quotation.plan_image_url);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setPlanUploading(false);
+    }
+  }
+
+  function handlePlanClick(e: React.MouseEvent<HTMLDivElement>) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x_pct = ((e.clientX - rect.left) / rect.width) * 100;
+    const y_pct = ((e.clientY - rect.top) / rect.height) * 100;
+    setPendingPoint({ x_pct, y_pct });
+  }
+
+  function placeProduct(product: CatalogProduct) {
+    if (!pendingPoint) return;
+    setItems((prev) => [
+      ...prev,
+      {
+        description: product.name,
+        qty: 1,
+        unit_price: product.price,
+        discount_pct: 0,
+        tax_pct: 0,
+        product_id: product.id,
+        image_url: product.imageUrl,
+        x_pct: pendingPoint.x_pct,
+        y_pct: pendingPoint.y_pct,
+      },
+    ]);
+    setPendingPoint(null);
   }
 
   async function save() {
@@ -115,6 +172,81 @@ export default function QuotationForm({ initial }: { initial?: Quotation }) {
       </div>
 
       <div className="bg-[#0c0c0c] border border-white/5 rounded-2xl p-8 mb-6">
+        <h2 className="text-sm font-black text-white mb-1">Floor plan</h2>
+        {!initial ? (
+          <p className="text-sm text-gray-500">Save the quotation first, then come back here to upload a plan and place products on it.</p>
+        ) : (
+          <>
+            <p className="text-sm text-gray-500 mb-4">Upload a floor plan, then click anywhere on it to place a priced product.</p>
+            <input
+              ref={planFileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) uploadPlan(f);
+                e.target.value = '';
+              }}
+            />
+            {!planImageUrl ? (
+              <button
+                onClick={() => planFileInputRef.current?.click()}
+                disabled={planUploading}
+                className="w-full py-10 border border-dashed border-white/20 rounded-xl text-sm text-gray-400 hover:border-[#f2994a] transition-colors"
+              >
+                {planUploading ? 'Uploading…' : 'Click to upload a floor plan image'}
+              </button>
+            ) : (
+              <div>
+                <div
+                  className="relative inline-block w-full max-w-2xl cursor-crosshair"
+                  onClick={handlePlanClick}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element -- uploaded plan image, arbitrary size/aspect */}
+                  <img src={planImageUrl} alt="Floor plan" className="w-full h-auto rounded-xl border border-white/10 block select-none" draggable={false} />
+                  {markerItems.map(({ item, i }) => {
+                    const active = activeMarker === i;
+                    return (
+                      <div
+                        key={i}
+                        className="absolute -translate-x-1/2 -translate-y-1/2 z-10"
+                        style={{ left: `${item.x_pct}%`, top: `${item.y_pct}%` }}
+                        onMouseEnter={() => setActiveMarker(i)}
+                        onMouseLeave={() => setActiveMarker((cur) => (cur === i ? null : cur))}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className="w-6 h-6 rounded-full border-2 border-white bg-[#f2994a] text-black text-[11px] font-black flex items-center justify-center shadow-lg">
+                          {i + 1}
+                        </div>
+                        {active && (
+                          <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 whitespace-nowrap bg-black border border-white/20 text-white text-xs rounded-lg px-2 py-1 shadow-xl z-20 flex items-center gap-2">
+                            {item.description}
+                            <button onClick={() => removeItem(i)} className="text-red-400 font-bold">✕</button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                <button
+                  onClick={() => planFileInputRef.current?.click()}
+                  disabled={planUploading}
+                  className="mt-3 px-4 py-2 bg-white/5 hover:bg-white/10 text-white text-xs font-bold rounded-xl"
+                >
+                  {planUploading ? 'Uploading…' : 'Replace plan image'}
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      {pendingPoint && (
+        <ProductPicker onSelect={placeProduct} onClose={() => setPendingPoint(null)} />
+      )}
+
+      <div className="bg-[#0c0c0c] border border-white/5 rounded-2xl p-8 mb-6">
         <h2 className="text-sm font-black text-white mb-4">Line items</h2>
         <div className="space-y-3">
           <div className="grid grid-cols-[3fr_1fr_1fr_1fr_1fr_1fr_auto] gap-2 text-[10px] font-black uppercase tracking-widest text-gray-600">
@@ -124,7 +256,12 @@ export default function QuotationForm({ initial }: { initial?: Quotation }) {
             const line = computeTotals([item]).grand_total;
             return (
               <div key={i} className="grid grid-cols-[3fr_1fr_1fr_1fr_1fr_1fr_auto] gap-2 items-center">
-                <input className={inputClass} value={item.description} onChange={(e) => updateItem(i, { description: e.target.value })} />
+                <div className="flex items-center gap-2">
+                  {item.x_pct != null && (
+                    <span className="w-5 h-5 shrink-0 rounded-full bg-[#f2994a] text-black text-[10px] font-black flex items-center justify-center">{i + 1}</span>
+                  )}
+                  <input className={inputClass} value={item.description} onChange={(e) => updateItem(i, { description: e.target.value })} />
+                </div>
                 <input type="number" min={0} className={inputClass} value={item.qty} onChange={(e) => updateItem(i, { qty: Number(e.target.value) })} />
                 <input type="number" min={0} step="0.01" className={inputClass} value={item.unit_price} onChange={(e) => updateItem(i, { unit_price: Number(e.target.value) })} />
                 <input type="number" min={0} max={100} className={inputClass} value={item.discount_pct} onChange={(e) => updateItem(i, { discount_pct: Number(e.target.value) })} />

@@ -39,12 +39,25 @@ export default function QuotationsPage() {
     fetchQuotations();
   }, [fetchQuotations]);
 
+  async function deleteQuotation(e: React.MouseEvent, q: Quotation) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user) return;
+    if (!confirm(`Delete quotation ${q.quote_number}? This can't be undone.`)) return;
+    const token = await user.getIdToken();
+    const res = await fetch(`/api/admin/quotations/${q.id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.ok) setQuotations((prev) => prev.filter((x) => x.id !== q.id));
+  }
+
   return (
     <div>
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12 border-b border-white/5 pb-10">
         <div>
           <h1 className="text-4xl font-bold tracking-tight text-white">Quotations</h1>
-          <p className="text-gray-500 mt-2 font-medium">Client sales quotations — create, track, print.</p>
+          <p className="text-gray-500 mt-2 font-medium">Client sales quotations — create, track, share.</p>
         </div>
         <Link
           href="/dashboard/admin/quotations/new"
@@ -70,9 +83,17 @@ export default function QuotationsPage() {
                 <h4 className="font-bold text-lg text-white">{q.client_name}{q.client_company ? ` · ${q.client_company}` : ''}</h4>
                 <p className="text-xs text-gray-500 font-medium">{q.quote_number} · {q.issue_date} · ₹{q.grand_total.toLocaleString('en-IN')}</p>
               </div>
-              <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${STATUS_STYLE[q.status]}`}>
-                {q.status}
-              </span>
+              <div className="flex items-center gap-4">
+                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${STATUS_STYLE[q.status]}`}>
+                  {q.status}
+                </span>
+                <button
+                  onClick={(e) => deleteQuotation(e, q)}
+                  className="text-xs font-bold text-red-400 hover:text-red-300"
+                >
+                  Delete
+                </button>
+              </div>
             </Link>
           ))}
           {quotations.length === 0 && (
