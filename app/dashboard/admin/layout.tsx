@@ -11,6 +11,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const menuItems = [
     { name: 'Analytics', href: '/dashboard/admin', icon: '📊' },
     { name: 'Order Management', href: '/dashboard/admin/orders', icon: '📦' },
+    { name: 'Quotations', href: '/dashboard/admin/quotations', icon: '🧾' },
     { name: 'Product Catalog', href: '/dashboard/admin/products', icon: '🏷️' },
     { name: 'User Directory', href: '/dashboard/admin/users', icon: '👥' },
     { name: 'Devices', href: '/dashboard/admin/devices', icon: '🔌' },
@@ -23,7 +24,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <ProtectedRoute allowedRoles={['admin']}>
       <div className="flex min-h-screen bg-black text-white">
         {/* Sidebar Navigation */}
-        <aside className="w-64 border-r border-white/5 bg-[#080808] p-6 hidden lg:flex flex-col">
+        <aside className="w-64 border-r border-white/5 bg-[#080808] p-6 hidden lg:flex flex-col print:hidden">
           <div className="mb-10 flex items-center gap-3">
             <div className="w-8 h-8 bg-[#f2994a] rounded-lg flex items-center justify-center font-black text-black">Q</div>
             <span className="text-xl font-bold tracking-tighter">ADMIN PANEL</span>
@@ -52,7 +53,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </aside>
 
         {/* Content Area */}
-        <main className="flex-1 overflow-y-auto bg-black p-8 lg:p-12">
+        <main className="flex-1 overflow-y-auto bg-black p-8 lg:p-12 print:bg-white print:p-0 print:overflow-visible">
           {children}
         </main>
       </div>
