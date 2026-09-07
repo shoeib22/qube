@@ -1,14 +1,23 @@
+export type FloorPlan = {
+  id: string;
+  label: string;
+  image_path: string;
+  image_url: string;
+};
+
 export type QuoteItem = {
   description: string;
   qty: number;
   unit_price: number;
   discount_pct: number;
   tax_pct: number;
-  // Set when this item was placed on the floor plan rather than typed
-  // freeform — product_id/image_url come from the real product catalog,
-  // x_pct/y_pct are the click position on the plan image (0-100).
+  // Set when this item was placed on a floor plan rather than typed
+  // freeform — floor_id ties it to one FloorPlan, x_pct/y_pct are the click
+  // position on that floor's image (0-100). image_url is an optional photo
+  // typed in at placement time (see QuickAddItem), not a catalog reference.
   product_id?: string | null;
   image_url?: string | null;
+  floor_id?: string | null;
   x_pct?: number | null;
   y_pct?: number | null;
 };
@@ -29,7 +38,7 @@ export type Quotation = {
   items: QuoteItem[];
   notes: string | null;
   terms: string | null;
-  plan_image_url: string | null;
+  floor_plans: FloorPlan[];
   subtotal: number;
   discount_total: number;
   tax_total: number;
@@ -72,8 +81,8 @@ function round2(n: number) {
   return Math.round(n * 100) / 100;
 }
 
-// plan_image_url is set via the dedicated /plan upload route, not the
-// general create/update payload.
+// floor_plans are added/removed via the dedicated /plan route + the general
+// PATCH payload respectively, not the initial create payload.
 export type QuotationInput = Omit<
   Quotation,
   | "id"
@@ -84,5 +93,5 @@ export type QuotationInput = Omit<
   | "discount_total"
   | "tax_total"
   | "grand_total"
-  | "plan_image_url"
+  | "floor_plans"
 >;

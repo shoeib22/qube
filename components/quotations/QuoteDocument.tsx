@@ -6,10 +6,18 @@ import { itemLineTotal, Quotation } from '@/lib/quotations';
 import { COMPANY } from '@/lib/company';
 
 export default function QuoteDocument({ quotation: q }: { quotation: Quotation }) {
-  const [activeMarker, setActiveMarker] = useState<number | null>(null);
-  const markerItems = q.items
-    .map((item, i) => ({ item, i }))
-    .filter(({ item }) => item.x_pct != null && item.y_pct != null);
+  const [activeMarker, setActiveMarker] = useState<string | null>(null);
+
+  // Marker numbers restart at 1 per floor (matches how someone reads a
+  // labeled plan), so the table needs the same per-floor numbering — build
+  // a lookup from item index to its "N" badge once, up front.
+  const badgeByItemIndex = new Map<number, number>();
+  for (const floor of q.floor_plans) {
+    let n = 0;
+    q.items.forEach((item, i) => {
+      if (item.floor_id === floor.id) badgeByItemIndex.set(i, ++n);
+    });
+  }
 
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-2xl p-10">
@@ -41,34 +49,44 @@ export default function QuoteDocument({ quotation: q }: { quotation: Quotation }
         {q.client_phone && <p className="text-gray-400">{q.client_phone}</p>}
       </div>
 
-      {q.plan_image_url && (
-        <div className="py-6 border-b border-white/10">
-          <p className="text-xs font-black uppercase tracking-widest text-gray-500 mb-3">Floor plan</p>
-          <div className="relative inline-block w-full max-w-2xl">
-            {/* eslint-disable-next-line @next/next/no-img-element -- uploaded plan image, arbitrary size/aspect */}
-            <img src={q.plan_image_url} alt="Floor plan" className="w-full h-auto rounded-xl border border-white/10 block" />
-            {markerItems.map(({ item, i }) => {
-              const active = activeMarker === i;
-              return (
-                <div
-                  key={i}
-                  className="absolute -translate-x-1/2 -translate-y-1/2 z-10"
-                  style={{ left: `${item.x_pct}%`, top: `${item.y_pct}%` }}
-                  onMouseEnter={() => setActiveMarker(i)}
-                  onMouseLeave={() => setActiveMarker((cur) => (cur === i ? null : cur))}
-                >
-                  <div className="w-6 h-6 rounded-full border-2 border-white bg-[#f2994a] text-black text-[11px] font-black flex items-center justify-center shadow-lg cursor-pointer">
-                    {i + 1}
-                  </div>
-                  {active && (
-                    <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 whitespace-nowrap bg-black border border-white/20 text-white text-xs rounded-lg px-2 py-1 shadow-xl z-20">
-                      {item.description}
-                    </div>
-                  )}
+      {q.floor_plans.length > 0 && (
+        <div className="py-6 border-b border-white/10 space-y-8">
+          {q.floor_plans.map((floor) => {
+            const markerItems = q.items
+              .map((item, i) => ({ item, i }))
+              .filter(({ item }) => item.floor_id === floor.id && item.x_pct != null && item.y_pct != null);
+            return (
+              <div key={floor.id}>
+                <p className="text-xs font-black uppercase tracking-widest text-gray-500 mb-3">{floor.label}</p>
+                <div className="relative inline-block w-full max-w-2xl">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- uploaded plan image, arbitrary size/aspect */}
+                  <img src={floor.image_url} alt={floor.label} className="w-full h-auto rounded-xl border border-white/10 block" />
+                  {markerItems.map(({ item, i }) => {
+                    const markerKey = `${floor.id}-${i}`;
+                    const active = activeMarker === markerKey;
+                    return (
+                      <div
+                        key={markerKey}
+                        className="absolute -translate-x-1/2 -translate-y-1/2 z-10"
+                        style={{ left: `${item.x_pct}%`, top: `${item.y_pct}%` }}
+                        onMouseEnter={() => setActiveMarker(markerKey)}
+                        onMouseLeave={() => setActiveMarker((cur) => (cur === markerKey ? null : cur))}
+                      >
+                        <div className="w-6 h-6 rounded-full border-2 border-white bg-[#f2994a] text-black text-[11px] font-black flex items-center justify-center shadow-lg cursor-pointer">
+                          {badgeByItemIndex.get(i)}
+                        </div>
+                        {active && (
+                          <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 whitespace-nowrap bg-black border border-white/20 text-white text-xs rounded-lg px-2 py-1 shadow-xl z-20">
+                            {item.description}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })}
         </div>
       )}
 
@@ -84,8 +102,8 @@ export default function QuoteDocument({ quotation: q }: { quotation: Quotation }
           {q.items.map((item, i) => (
             <tr key={i} className="border-b border-white/5">
               <td className="py-3 w-10">
-                {item.x_pct != null ? (
-                  <span className="w-5 h-5 rounded-full bg-[#f2994a] text-black text-[10px] font-black flex items-center justify-center">{i + 1}</span>
+                {badgeByItemIndex.has(i) ? (
+                  <span className="w-5 h-5 rounded-full bg-[#f2994a] text-black text-[10px] font-black flex items-center justify-center">{badgeByItemIndex.get(i)}</span>
                 ) : item.image_url ? (
                   <Image src={item.image_url} alt="" width={28} height={28} className="w-7 h-7 rounded object-cover" />
                 ) : null}

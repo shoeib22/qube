@@ -1,5 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
-import { withPlanUrl } from '@/lib/quotationsServer';
+import { withFloorPlanUrls } from '@/lib/quotationsServer';
 
 // Intentionally public — no requireAdmin. This is the customer-facing link
 // (/quote/[id]) admins share directly; the id itself (a uuid) is the only
@@ -11,5 +11,5 @@ export async function GET(
   const { id } = await params;
   const { data, error } = await supabaseAdmin.from('quotations').select('*').eq('id', id).single();
   if (error) return Response.json({ error: 'Quotation not found' }, { status: 404 });
-  return Response.json({ quotation: withPlanUrl(data) });
+  return Response.json({ quotation: withFloorPlanUrls(data) });
 }
