@@ -39,6 +39,7 @@ export type Quotation = {
   notes: string | null;
   terms: string | null;
   floor_plans: FloorPlan[];
+  show_discount: boolean;
   subtotal: number;
   discount_total: number;
   tax_total: number;

@@ -55,6 +55,7 @@ export async function POST(request: NextRequest) {
       items,
       notes: body.notes || null,
       terms: body.terms || null,
+      show_discount: body.show_discount ?? true,
       ...totals,
     })
     .select()

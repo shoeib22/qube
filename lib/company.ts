@@ -1,7 +1,6 @@
 // Letterhead shown on generated quotations. Sourced from components/Footer.tsx.
 export const COMPANY = {
   name: "Xerovolt Innovations",
-  tagline: "A Qube Technologies Brand",
   address: "Hyderabad, Telangana, India",
   email: "info@xerovolt.in",
   phone: "+91 99666 25599",

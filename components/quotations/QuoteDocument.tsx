@@ -7,6 +7,7 @@ import { COMPANY } from '@/lib/company';
 
 export default function QuoteDocument({ quotation: q }: { quotation: Quotation }) {
   const [activeMarker, setActiveMarker] = useState<string | null>(null);
+  const showDiscount = q.show_discount;
 
   // Marker numbers restart at 1 per floor (matches how someone reads a
   // labeled plan), so the table needs the same per-floor numbering — build
@@ -26,7 +27,6 @@ export default function QuoteDocument({ quotation: q }: { quotation: Quotation }
           <Image src={COMPANY.logo} alt="Xerovolt logo" width={600} height={120} className="w-32 h-auto object-contain mt-1" />
           <div>
             <h1 className="text-xl font-black text-white">{COMPANY.name}</h1>
-            <p className="text-sm text-gray-400">{COMPANY.tagline}</p>
             <p className="text-sm text-gray-400">{COMPANY.address}</p>
             <p className="text-sm text-gray-400">{COMPANY.email} · {COMPANY.phone}</p>
             {COMPANY.gstin && <p className="text-sm text-gray-400">GSTIN: {COMPANY.gstin}</p>}
@@ -95,7 +95,8 @@ export default function QuoteDocument({ quotation: q }: { quotation: Quotation }
           <tr className="text-left text-[10px] font-black uppercase tracking-widest text-gray-500 border-b border-white/10">
             <th className="pb-3"></th>
             <th className="pb-3">Description</th><th className="pb-3">Qty</th><th className="pb-3">Unit price</th>
-            <th className="pb-3">Disc %</th><th className="pb-3">Tax %</th><th className="pb-3 text-right">Amount</th>
+            {showDiscount && <th className="pb-3">Disc %</th>}
+            <th className="pb-3">Tax %</th><th className="pb-3 text-right">Amount</th>
           </tr>
         </thead>
         <tbody>
@@ -111,7 +112,7 @@ export default function QuoteDocument({ quotation: q }: { quotation: Quotation }
               <td className="py-3 text-white">{item.description}</td>
               <td className="py-3 text-gray-400">{item.qty}</td>
               <td className="py-3 text-gray-400">₹{item.unit_price.toLocaleString('en-IN')}</td>
-              <td className="py-3 text-gray-400">{item.discount_pct}</td>
+              {showDiscount && <td className="py-3 text-gray-400">{item.discount_pct}</td>}
               <td className="py-3 text-gray-400">{item.tax_pct}</td>
               <td className="py-3 text-right text-white">₹{itemLineTotal(item).net.toLocaleString('en-IN')}</td>
             </tr>
@@ -120,8 +121,13 @@ export default function QuoteDocument({ quotation: q }: { quotation: Quotation }
       </table>
 
       <div className="mt-6 ml-auto w-64 space-y-1.5 text-sm">
-        <div className="flex justify-between text-gray-400"><span>Subtotal</span><span>₹{q.subtotal.toLocaleString('en-IN')}</span></div>
-        <div className="flex justify-between text-gray-400"><span>Discount</span><span>-₹{q.discount_total.toLocaleString('en-IN')}</span></div>
+        <div className="flex justify-between text-gray-400">
+          <span>Subtotal</span>
+          <span>₹{(showDiscount ? q.subtotal : q.subtotal - q.discount_total).toLocaleString('en-IN')}</span>
+        </div>
+        {showDiscount && (
+          <div className="flex justify-between text-gray-400"><span>Discount</span><span>-₹{q.discount_total.toLocaleString('en-IN')}</span></div>
+        )}
         <div className="flex justify-between text-gray-400"><span>Tax</span><span>₹{q.tax_total.toLocaleString('en-IN')}</span></div>
         <div className="flex justify-between text-white font-black text-base border-t border-white/10 pt-1.5 mt-1.5">
           <span>Total</span><span>₹{q.grand_total.toLocaleString('en-IN')}</span>

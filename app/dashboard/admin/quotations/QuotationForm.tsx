@@ -26,6 +26,7 @@ export default function QuotationForm({ initial }: { initial?: Quotation }) {
     initial?.terms || 'Prices in INR. Quotation valid for the period stated above. 50% advance to confirm.'
   );
   const [items, setItems] = useState<QuoteItem[]>(initial?.items?.length ? initial.items : [emptyItem()]);
+  const [showDiscount, setShowDiscount] = useState(initial?.show_discount ?? true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -141,6 +142,7 @@ export default function QuotationForm({ initial }: { initial?: Quotation }) {
         items,
         notes: notes || null,
         terms: terms || null,
+        show_discount: showDiscount,
         ...(initial ? { floor_plans: floorPlans } : {}),
       };
       const url = initial ? `/api/admin/quotations/${initial.id}` : '/api/admin/quotations';
@@ -304,12 +306,23 @@ export default function QuotationForm({ initial }: { initial?: Quotation }) {
             );
           })}
         </div>
-        <button
-          onClick={() => setItems((prev) => [...prev, emptyItem()])}
-          className="mt-4 px-4 py-2 bg-white/5 hover:bg-white/10 text-white text-xs font-bold rounded-xl"
-        >
-          + Add item
-        </button>
+        <div className="flex items-center justify-between mt-4">
+          <button
+            onClick={() => setItems((prev) => [...prev, emptyItem()])}
+            className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white text-xs font-bold rounded-xl"
+          >
+            + Add item
+          </button>
+          <label className="flex items-center gap-2 text-xs font-bold text-gray-400 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={showDiscount}
+              onChange={(e) => setShowDiscount(e.target.checked)}
+              className="accent-[#f2994a] w-4 h-4"
+            />
+            Show discount to customer
+          </label>
+        </div>
 
         <div className="mt-6 ml-auto w-64 space-y-1.5 text-sm">
           <div className="flex justify-between text-gray-400"><span>Subtotal</span><span>₹{totals.subtotal.toLocaleString('en-IN')}</span></div>
